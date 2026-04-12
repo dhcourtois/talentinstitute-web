@@ -13,9 +13,24 @@ Digitalizar el progreso individual de los alumnos (PACEs) y llevar un estricto c
 - **Usabilidad:** El sistema debe cumplir estrictamente con las **10 Heurísticas de Jakob Nielsen**.
 
 ## 🛠 Stack Tecnológico
-- **Backend/Framework:** C# / ASP.NET Core 8
-- **Base de Datos:** Azure SQL
-- **Despliegue/Cloud:** Azure Web Apps
+
+| Capa | Decisión |
+|---|---|
+| **Backend / Framework** | C# / ASP.NET Core 8 — Clean Architecture |
+| **Base de Datos** | Azure SQL Database (EF Core Code-First) |
+| **Frontend / SPA** | **Angular 18** + **TypeScript** |
+| **Estilos (Frontend)** | CSS por componente (Angular component styles) — sin framework de UI externo; diseño propio tipo Apple |
+| **Cliente HTTP (Frontend)** | `HttpClient` nativo de Angular con interceptor JWT |
+| **Despliegue / Cloud** | Azure Web Apps (Linux PaaS) |
+| **IaC** | Azure Bicep |
+| **CI/CD** | GitHub Actions |
+
+### Justificación del stack frontend
+Angular 18 se elige por:
+- **Alineación con el backend**: el modelo mental de Angular (inyección de dependencias, decoradores, servicios, módulos) es prácticamente idéntico al de ASP.NET Core, lo que reduce la fricción al trabajar en ambas capas.
+- **Batería incluida**: `HttpClient` con interceptores (JWT adjuntado en un solo lugar), `Router` con `CanActivate` guards para control de roles, y `ReactiveForms` para validación — todo sin dependencias externas adicionales.
+- **TypeScript estricto de fábrica**: los contratos entre la API REST y los componentes se validan en tiempo de compilación.
+- Sin framework de UI externo para mantener el diseño Apple minimalista definido en `frontend-ui.md` sin interferencias de estilos de terceros.
 
 ## ⚖️ Regla de Oro
 > **"La especificación es la única fuente de verdad."**

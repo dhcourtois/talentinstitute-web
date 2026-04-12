@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Talent Institute — Perfil Alumno</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #F5F5F7;
+      --surface: #FFFFFF;
+      --text-primary: #1D1D1F;
+      --text-secondary: #6E6E73;
+      --accent: #0071E3;
+      --border: #D2D2D7;
+      --success: #34C759;
+      --warning: #FF9500;
+      --danger: #FF3B30;
+      --radius-lg: 18px;
+      --radius-md: 12px;
+      --radius-sm: 8px;
+      --shadow-card: 0 2px 20px rgba(0,0,0,0.07);
+    }
+
+    body {
+      font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text-primary);
+      min-height: 100vh;
+    }
+
+    /* NAV */
+    nav {
+      background: rgba(255,255,255,0.88);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      height: 56px;
+      gap: 16px;
+    }
+
+    .back-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--accent);
+      padding: 6px 0;
+    }
+
+    .back-btn svg { width: 16px; height: 16px; fill: none; stroke: var(--accent); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+
+    .nav-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.2px;
+    }
+
+    .nav-spacer { flex: 1; }
+
+    .nav-role-badge {
+      font-size: 12px;
+      font-weight: 600;
+      background: rgba(94,92,230,0.1);
+      color: #5E5CE6;
+      padding: 5px 12px;
+      border-radius: 20px;
+    }
+
+    .nav-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #5E5CE6, #BF5AF2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: white;
+    }
+
+    /* CONTENT */
+    .page {
+      max-width: 1060px;
+      margin: 0 auto;
+      padding: 28px 24px 48px;
+    }
+
+    /* STUDENT HERO CARD */
+    .hero-card {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-card);
+      padding: 28px 32px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    .hero-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #5E5CE6, #BF5AF2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      font-weight: 800;
+      color: white;
+      flex-shrink: 0;
+    }
+
+    .hero-info { flex: 1; }
+    .hero-info h1 { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; }
+    .hero-info .hero-meta {
+      display: flex;
+      gap: 16px;
+      margin-top: 6px;
+      flex-wrap: wrap;
+    }
+
+    .hero-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .hero-meta-item svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+
+    .hero-stats {
+      display: flex;
+      gap: 24px;
+    }
+
+    .hero-stat { text-align: center; }
+    .hero-stat-value { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
+    .hero-stat-label { font-size: 11px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.4px; margin-top: 2px; }
+
+    .hero-stat-value.green { color: var(--success); }
+    .hero-stat-value.red { color: var(--danger); }
+    .hero-stat-value.blue { color: var(--accent); }
+
+    .divider-v {
+      width: 1px;
+      height: 48px;
+      background: var(--border);
+    }
+
+    /* PRIVILEGE CHIPS */
+    .privilege-section {
+      margin-top: 16px;
+    }
+
+    .privilege-section-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .privilege-chips {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .privilege-chip {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 5px 12px;
+      border-radius: 20px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .privilege-chip.active { background: rgba(52,199,89,0.12); color: #1A7F36; }
+    .privilege-chip.inactive { background: rgba(110,110,115,0.1); color: var(--text-secondary); text-decoration: line-through; opacity: 0.7; }
+
+    .privilege-chip svg { width: 11px; height: 11px; fill: currentColor; }
+
+    /* MAIN GRID */
+    .content-grid {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 20px;
+    }
+
+    .section-card {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-card);
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .section-header {
+      padding: 18px 24px 14px;
+      border-bottom: 1px solid var(--bg);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-header h3 { font-size: 15px; font-weight: 700; flex: 1; }
+
+    .btn-sm {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent);
+      background: rgba(0,113,227,0.08);
+      border: none;
+      cursor: pointer;
+      padding: 6px 14px;
+      border-radius: 20px;
+      transition: background 0.15s;
+    }
+
+    .btn-sm:hover { background: rgba(0,113,227,0.14); }
+
+    .btn-sm.danger {
+      color: var(--danger);
+      background: rgba(255,59,48,0.08);
+    }
+
+    .btn-sm.success {
+      color: #1A7F36;
+      background: rgba(52,199,89,0.1);
+    }
+
+    /* PACE CARD */
+    .pace-list { padding: 8px 16px 16px; }
+
+    .pace-card {
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 16px 18px;
+      margin-top: 10px;
+      transition: border-color 0.15s;
+    }
+
+    .pace-card:hover { border-color: var(--accent); }
+
+    .pace-card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .pace-subject-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-top: 5px;
+      flex-shrink: 0;
+    }
+
+    .pace-card-info { flex: 1; }
+
+    .pace-card-info h4 { font-size: 14px; font-weight: 700; }
+    .pace-card-info p { font-size: 12px; color: var(--text-secondary); margin-top: 2px; font-weight: 500; }
+
+    .pace-number {
+      font-size: 12px;
+      font-weight: 700;
+      background: rgba(0,113,227,0.08);
+      color: var(--accent);
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+
+    /* PROGRESS RING + BAR */
+    .pace-progress-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .pace-bar-wrap { flex: 1; }
+
+    .pace-bar-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .pace-bar-labels span { font-size: 12px; font-weight: 600; color: var(--text-secondary); }
+    .pace-bar-labels .pct { color: var(--text-primary); font-weight: 700; }
+
+    .pace-bar-bg {
+      height: 8px;
+      background: var(--bg);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .pace-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      background: var(--success);
+    }
+
+    .pace-bar-fill.mid { background: var(--warning); }
+    .pace-bar-fill.low { background: var(--danger); }
+
+    .pace-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid var(--bg);
+    }
+
+    .pace-action-btn {
+      flex: 1;
+      padding: 9px 10px;
+      border-radius: var(--radius-sm);
+      border: 1.5px solid var(--border);
+      background: #FAFAFA;
+      font-family: 'Manrope', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s;
+    }
+
+    .pace-action-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(0,113,227,0.04); }
+    .pace-action-btn.score { border-color: rgba(52,199,89,0.4); background: rgba(52,199,89,0.06); color: #1A7F36; }
+    .pace-action-btn.score:hover { background: rgba(52,199,89,0.12); }
+
+    /* GOAL CHECKLIST */
+    .goal-list { padding: 8px 24px 20px; }
+
+    .goal-date-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      padding: 10px 0 6px;
+    }
+
+    .goal-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--bg);
+      cursor: pointer;
+    }
+
+    .goal-item:last-child { border-bottom: none; }
+
+    .goal-checkbox {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.15s;
+    }
+
+    .goal-checkbox.done {
+      background: var(--success);
+      border-color: var(--success);
+    }
+
+    .goal-checkbox.done svg { display: block; }
+    .goal-checkbox svg { display: none; width: 12px; height: 12px; stroke: white; stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+
+    .goal-content { flex: 1; }
+    .goal-content .goal-title { font-size: 14px; font-weight: 600; }
+    .goal-content .goal-title.done { text-decoration: line-through; color: var(--text-secondary); font-weight: 400; }
+    .goal-content .goal-meta { font-size: 12px; color: var(--text-secondary); margin-top: 1px; }
+
+    .goal-pts {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    /* ADD GOAL */
+    .add-goal-form {
+      display: flex;
+      gap: 8px;
+      padding: 0 24px 16px;
+    }
+
+    .add-goal-form input {
+      flex: 1;
+      padding: 10px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: 'Manrope', sans-serif;
+      font-size: 14px;
+      color: var(--text-primary);
+      background: #FAFAFA;
+      outline: none;
+    }
+
+    .add-goal-form input:focus { border-color: var(--accent); background: #FFF; }
+
+    .add-goal-form button {
+      padding: 10px 18px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: 'Manrope', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* MERIT/DEMERIT LOG */
+    .merit-list { padding: 8px 0 8px; }
+
+    .merit-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 13px 24px;
+      border-bottom: 1px solid var(--bg);
+      transition: background 0.1s;
+    }
+
+    .merit-item:last-child { border-bottom: none; }
+
+    .merit-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .merit-icon.pos { background: rgba(52,199,89,0.12); color: var(--success); }
+    .merit-icon.neg { background: rgba(255,59,48,0.1); color: var(--danger); }
+
+    .merit-content { flex: 1; }
+    .merit-content .merit-reason { font-size: 13px; font-weight: 600; }
+    .merit-content .merit-date { font-size: 11px; color: var(--text-secondary); margin-top: 2px; font-weight: 500; }
+
+    .merit-by {
+      font-size: 11px;
+      color: var(--text-secondary);
+      font-weight: 600;
+      text-align: right;
+    }
+
+    /* QUICK ACTIONS */
+    .quick-actions {
+      padding: 16px 24px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .quick-action-btn {
+      width: 100%;
+      padding: 14px 18px;
+      border-radius: var(--radius-md);
+      border: 1.5px solid var(--border);
+      background: #FAFAFA;
+      font-family: 'Manrope', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: left;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--text-primary);
+      transition: all 0.15s;
+    }
+
+    .quick-action-btn:hover { border-color: var(--accent); background: rgba(0,113,227,0.04); color: var(--accent); }
+
+    .quick-action-btn.merit:hover { border-color: var(--success); background: rgba(52,199,89,0.04); color: #1A7F36; }
+    .quick-action-btn.demerit:hover { border-color: var(--danger); background: rgba(255,59,48,0.04); color: var(--danger); }
+
+    .quick-action-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .quick-action-icon svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    .quick-action-btn .qa-text { flex: 1; }
+    .quick-action-btn .qa-label { font-size: 14px; font-weight: 700; }
+    .quick-action-btn .qa-sub { font-size: 12px; font-weight: 400; color: var(--text-secondary); margin-top: 1px; }
+
+    .quick-action-btn.merit .quick-action-icon { background: rgba(52,199,89,0.1); color: #1A7F36; }
+    .quick-action-btn.demerit .quick-action-icon { background: rgba(255,59,48,0.08); color: var(--danger); }
+    .quick-action-btn .quick-action-icon { background: rgba(0,113,227,0.08); color: var(--accent); }
+
+    @media (max-width: 900px) {
+      .hero-stats { display: none; }
+      .content-grid { grid-template-columns: 1fr; }
+      .hero-card { flex-direction: column; text-align: center; }
+      .hero-info .hero-meta { justify-content: center; }
+    }
+
+    @media (max-width: 600px) {
+      nav { padding: 0 16px; }
+      .page { padding: 16px 16px 40px; }
+      .hero-card { padding: 20px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a href="dashboard.html" class="back-btn">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      Dashboard
+    </a>
+    <div class="nav-spacer"></div>
+    <span class="nav-title">Perfil del Alumno</span>
+    <div class="nav-spacer"></div>
+    <span class="nav-role-badge">Vista Monitora</span>
+    <div class="nav-avatar" style="margin-left:10px;">LR</div>
+  </nav>
+
+  <main class="page">
+
+    <!-- HERO CARD -->
+    <div class="hero-card">
+      <div class="hero-avatar">AM</div>
+
+      <div class="hero-info">
+        <h1>Alejandra Morales Vega</h1>
+        <div class="hero-meta">
+          <span class="hero-meta-item">
+            <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 1h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16v.92z"/></svg>
+            Grado 8
+          </span>
+          <span class="hero-meta-item">
+            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Ingresó: Agosto 2022
+          </span>
+          <span class="hero-meta-item">
+            <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+            5 materias activas
+          </span>
+        </div>
+
+        <!-- PRIVILEGES -->
+        <div class="privilege-section">
+          <div class="privilege-section-label">Privilegios activos</div>
+          <div class="privilege-chips">
+            <span class="privilege-chip active">
+              <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              Oficina
+            </span>
+            <span class="privilege-chip active">
+              <svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 010 8h-1"/><path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+              Comedor
+            </span>
+            <span class="privilege-chip active">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+              Patio
+            </span>
+            <span class="privilege-chip inactive">Biblioteca</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="divider-v"></div>
+
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="hero-stat-value green">+8</div>
+          <div class="hero-stat-label">Méritos</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-value red">-1</div>
+          <div class="hero-stat-label">Deméritos</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-value blue">82%</div>
+          <div class="hero-stat-label">Avance</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-value" style="color:#1D1D1F">14</div>
+          <div class="hero-stat-label">Días esta semana</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTENT GRID -->
+    <div class="content-grid">
+
+      <!-- LEFT COLUMN -->
+      <div>
+
+        <!-- PACEs ACTIVOS -->
+        <div class="section-card">
+          <div class="section-header">
+            <h3>PACEs Activos</h3>
+            <button class="btn-sm">+ Asignar PACE</button>
+          </div>
+          <div class="pace-list">
+
+            <!-- MAT -->
+            <div class="pace-card">
+              <div class="pace-card-top">
+                <div class="pace-subject-dot" style="background:#0071E3"></div>
+                <div class="pace-card-info">
+                  <h4>Matemáticas — Fracciones y Decimales</h4>
+                  <p>Unidad 7 · Páginas 32–84 · <strong>Listo para Auto-Test</strong></p>
+                </div>
+                <span class="pace-number">MAT-1097</span>
+              </div>
+              <div class="pace-progress-row">
+                <div class="pace-bar-wrap">
+                  <div class="pace-bar-labels">
+                    <span>41 / 50 puntos</span>
+                    <span class="pct">82%</span>
+                  </div>
+                  <div class="pace-bar-bg">
+                    <div class="pace-bar-fill" style="width:82%"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="pace-actions">
+                <button class="pace-action-btn">Ver ejercicios</button>
+                <button class="pace-action-btn score">Score Station</button>
+                <button class="pace-action-btn">Registrar puntos</button>
+              </div>
+            </div>
+
+            <!-- LEC -->
+            <div class="pace-card">
+              <div class="pace-card-top">
+                <div class="pace-subject-dot" style="background:#FF9500"></div>
+                <div class="pace-card-info">
+                  <h4>Lectura y Escritura — Comprensión Lectora</h4>
+                  <p>Unidad 5 · Páginas 12–58</p>
+                </div>
+                <span class="pace-number">LEC-1098</span>
+              </div>
+              <div class="pace-progress-row">
+                <div class="pace-bar-wrap">
+                  <div class="pace-bar-labels">
+                    <span>28 / 50 puntos</span>
+                    <span class="pct">56%</span>
+                  </div>
+                  <div class="pace-bar-bg">
+                    <div class="pace-bar-fill mid" style="width:56%"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="pace-actions">
+                <button class="pace-action-btn">Ver ejercicios</button>
+                <button class="pace-action-btn">Registrar puntos</button>
+              </div>
+            </div>
+
+            <!-- CIE -->
+            <div class="pace-card">
+              <div class="pace-card-top">
+                <div class="pace-subject-dot" style="background:#34C759"></div>
+                <div class="pace-card-info">
+                  <h4>Ciencias — El Sistema Solar</h4>
+                  <p>Unidad 3 · Páginas 4–40</p>
+                </div>
+                <span class="pace-number">CIE-1093</span>
+              </div>
+              <div class="pace-progress-row">
+                <div class="pace-bar-wrap">
+                  <div class="pace-bar-labels">
+                    <span>18 / 50 puntos</span>
+                    <span class="pct">36%</span>
+                  </div>
+                  <div class="pace-bar-bg">
+                    <div class="pace-bar-fill low" style="width:36%"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="pace-actions">
+                <button class="pace-action-btn">Ver ejercicios</button>
+                <button class="pace-action-btn">Registrar puntos</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- METAS DEL DÍA -->
+        <div class="section-card">
+          <div class="section-header">
+            <h3>Metas del Día — Viernes 11 abril</h3>
+            <button class="btn-sm success">Validar todas</button>
+          </div>
+          <div class="goal-list">
+
+            <div class="goal-date-label">Mañana</div>
+
+            <div class="goal-item">
+              <div class="goal-checkbox done">
+                <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <div class="goal-content">
+                <div class="goal-title done">Completar ejercicios 32–38 de MAT-1097</div>
+                <div class="goal-meta">Matemáticas · 8 puntos · <span style="color:var(--success);font-weight:700;">Aprobada</span></div>
+              </div>
+              <span class="goal-pts">+8 pts</span>
+            </div>
+
+            <div class="goal-item">
+              <div class="goal-checkbox done">
+                <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <div class="goal-content">
+                <div class="goal-title done">Leer páginas 12–20 de LEC-1098</div>
+                <div class="goal-meta">Lectura · 6 puntos · <span style="color:var(--accent);font-weight:700;">Scored — aprobación automática</span></div>
+              </div>
+              <span class="goal-pts">+6 pts</span>
+            </div>
+
+            <div class="goal-date-label">Tarde</div>
+
+            <div class="goal-item">
+              <div class="goal-checkbox"></div>
+              <div class="goal-content">
+                <div class="goal-title">Terminar cuestionario de CIE-1093 (págs 14–22)</div>
+                <div class="goal-meta">Ciencias · 7 puntos</div>
+              </div>
+              <span class="goal-pts" style="color:var(--text-secondary)">7 pts</span>
+            </div>
+
+            <div class="goal-item">
+              <div class="goal-checkbox"></div>
+              <div class="goal-content">
+                <div class="goal-title">Autoevaluación MAT-1097 en Score Station</div>
+                <div class="goal-meta">Matemáticas · Requiere supervisora</div>
+              </div>
+              <span class="goal-pts" style="color:var(--warning)">Score</span>
+            </div>
+
+          </div>
+          <div class="add-goal-form">
+            <input type="text" placeholder="Agregar meta adicional...">
+            <button>Agregar</button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT COLUMN -->
+      <div>
+
+        <!-- ACCIONES RÁPIDAS -->
+        <div class="section-card" style="margin-bottom:20px;">
+          <div class="section-header">
+            <h3>Acciones Rápidas</h3>
+          </div>
+          <div class="quick-actions">
+
+            <button class="quick-action-btn merit">
+              <div class="quick-action-icon">
+                <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              </div>
+              <div class="qa-text">
+                <div class="qa-label">Otorgar Mérito</div>
+                <div class="qa-sub">Reconocimiento de comportamiento positivo</div>
+              </div>
+            </button>
+
+            <button class="quick-action-btn demerit">
+              <div class="quick-action-icon">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+              </div>
+              <div class="qa-text">
+                <div class="qa-label">Registrar Demérito</div>
+                <div class="qa-sub">Incumplimiento de norma o comportamiento</div>
+              </div>
+            </button>
+
+            <button class="quick-action-btn">
+              <div class="quick-action-icon">
+                <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              </div>
+              <div class="qa-text">
+                <div class="qa-label">Registrar Puntos PACE</div>
+                <div class="qa-sub">Actualizar avance en Score Station</div>
+              </div>
+            </button>
+
+            <button class="quick-action-btn">
+              <div class="quick-action-icon">
+                <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+              </div>
+              <div class="qa-text">
+                <div class="qa-label">Ver historial completo</div>
+                <div class="qa-sub">Méritos, deméritos y progreso histórico</div>
+              </div>
+            </button>
+
+          </div>
+        </div>
+
+        <!-- HISTORIAL MERITOS -->
+        <div class="section-card">
+          <div class="section-header">
+            <h3>Méritos / Deméritos</h3>
+            <span style="font-size:12px;font-weight:700;color:#1A7F36;">Balance: +7</span>
+          </div>
+          <div class="merit-list">
+
+            <div class="merit-item">
+              <div class="merit-icon pos">+2</div>
+              <div class="merit-content">
+                <div class="merit-reason">Meta cumplida antes del recreo</div>
+                <div class="merit-date">Hoy, 10:15 AM</div>
+              </div>
+              <div class="merit-by">Lic. Ramírez</div>
+            </div>
+
+            <div class="merit-item">
+              <div class="merit-icon pos">+1</div>
+              <div class="merit-content">
+                <div class="merit-reason">Excelente actitud en Score Station</div>
+                <div class="merit-date">Jue 10 abr, 2:30 PM</div>
+              </div>
+              <div class="merit-by">Lic. López</div>
+            </div>
+
+            <div class="merit-item">
+              <div class="merit-icon neg">-1</div>
+              <div class="merit-content">
+                <div class="merit-reason">Hablar sin levantar la mano</div>
+                <div class="merit-date">Jue 10 abr, 11:00 AM</div>
+              </div>
+              <div class="merit-by">Lic. Ramírez</div>
+            </div>
+
+            <div class="merit-item">
+              <div class="merit-icon pos">+3</div>
+              <div class="merit-content">
+                <div class="merit-reason">Completó PACE MAT-1096 con 95%</div>
+                <div class="merit-date">Mié 9 abr, 3:00 PM</div>
+              </div>
+              <div class="merit-by">Lic. González</div>
+            </div>
+
+            <div class="merit-item">
+              <div class="merit-icon pos">+2</div>
+              <div class="merit-content">
+                <div class="merit-reason">Ayudó a compañero con dificultad</div>
+                <div class="merit-date">Mar 8 abr, 9:45 AM</div>
+              </div>
+              <div class="merit-by">Lic. López</div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+</body>
+</html>
