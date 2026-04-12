@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Talent Institute — PACEs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #F5F5F7; --surface: #FFFFFF; --text-primary: #1D1D1F;
+      --text-secondary: #6E6E73; --accent: #0071E3; --border: #D2D2D7;
+      --success: #34C759; --warning: #FF9500; --danger: #FF3B30;
+      --radius-lg: 18px; --radius-md: 12px; --radius-sm: 8px;
+      --shadow-card: 0 2px 20px rgba(0,0,0,0.07);
+    }
+    body { font-family: 'Manrope', -apple-system, sans-serif; background: var(--bg); color: var(--text-primary); min-height: 100vh; }
+
+    nav { background: rgba(255,255,255,0.88); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; padding: 0 32px; display: flex; align-items: center; height: 56px; gap: 16px; }
+    .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text-primary); }
+    .nav-logo-mark { width: 32px; height: 32px; background: linear-gradient(135deg,#0071E3,#34AADC); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+    .nav-logo-mark svg { width: 18px; height: 18px; fill: none; stroke: white; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .nav-logo span { font-size: 15px; font-weight: 700; }
+    .nav-spacer { flex: 1; }
+    .nav-tabs { display: flex; gap: 4px; }
+    .nav-tab { padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; color: var(--text-secondary); cursor: pointer; text-decoration: none; transition: all 0.15s; }
+    .nav-tab.active { background: var(--accent); color: white; }
+    .nav-avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg,#5E5CE6,#BF5AF2); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: white; }
+
+    .page { max-width: 1140px; margin: 0 auto; padding: 32px 24px; }
+    .page-header { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
+    .page-header h2 { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; flex: 1; }
+
+    .btn-primary { padding: 10px 20px; background: var(--accent); color: white; border: none; border-radius: var(--radius-md); font-family: 'Manrope', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap; transition: background 0.15s; }
+    .btn-primary:hover { background: #0077ED; }
+
+    /* TWO-COLUMN LAYOUT */
+    .layout { display: grid; grid-template-columns: 1fr 340px; gap: 20px; }
+
+    /* LEFT: CATALOG */
+    .catalog-card { background: var(--surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); overflow: hidden; }
+
+    .catalog-toolbar { padding: 16px 20px; border-bottom: 1px solid var(--bg); display: flex; gap: 10px; align-items: center; }
+    .search-wrap { position: relative; flex: 1; }
+    .search-wrap svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; fill: none; stroke: var(--text-secondary); stroke-width: 2; stroke-linecap: round; }
+    .search-input { width: 100%; padding: 9px 12px 9px 36px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-family: 'Manrope', sans-serif; font-size: 13px; color: var(--text-primary); background: #FAFAFA; outline: none; }
+    .search-input:focus { border-color: var(--accent); background: white; }
+    .subject-filter { display: flex; gap: 4px; }
+    .sf-btn { padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; border: 1.5px solid var(--border); background: #FAFAFA; cursor: pointer; transition: all 0.15s; color: var(--text-secondary); }
+    .sf-btn.active { border-color: transparent; }
+    .sf-mat.active { background: rgba(0,113,227,0.1); color: var(--accent); border-color: rgba(0,113,227,0.2); }
+    .sf-lec.active { background: rgba(255,149,0,0.1); color: #B25000; border-color: rgba(255,149,0,0.2); }
+    .sf-cie.active { background: rgba(52,199,89,0.1); color: #1A7F36; border-color: rgba(52,199,89,0.2); }
+    .sf-his.active { background: rgba(94,92,230,0.1); color: #5E5CE6; border-color: rgba(94,92,230,0.2); }
+    .sf-bib.active { background: rgba(255,59,48,0.08); color: #C0392B; border-color: rgba(255,59,48,0.15); }
+
+    /* SUBJECT GROUP */
+    .subject-group { border-bottom: 1px solid var(--bg); }
+    .subject-group:last-child { border-bottom: none; }
+    .subject-header {
+      padding: 14px 20px; display: flex; align-items: center; gap: 10px;
+      cursor: pointer; user-select: none; transition: background 0.1s;
+    }
+    .subject-header:hover { background: #FAFAFA; }
+    .subject-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .subject-title { font-size: 14px; font-weight: 700; flex: 1; }
+    .subject-count { font-size: 12px; color: var(--text-secondary); font-weight: 600; }
+    .subject-chevron { font-size: 11px; color: var(--text-secondary); transition: transform 0.2s; }
+    .subject-group.open .subject-chevron { transform: rotate(90deg); }
+
+    .pace-items { display: none; }
+    .subject-group.open .pace-items { display: block; }
+
+    .pace-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 11px 20px 11px 44px;
+      border-top: 1px solid var(--bg);
+      transition: background 0.1s; cursor: pointer;
+    }
+    .pace-row:hover { background: #FAFAFA; }
+    .pace-row.selected { background: rgba(0,113,227,0.05); }
+
+    .pace-row-num { font-size: 12px; font-weight: 800; color: var(--accent); min-width: 70px; }
+    .pace-row-name { font-size: 13px; font-weight: 600; flex: 1; }
+    .pace-row-pts { font-size: 11px; color: var(--text-secondary); font-weight: 600; margin-right: 8px; }
+    .pace-assigned { font-size: 11px; font-weight: 700; background: rgba(52,199,89,0.1); color: #1A7F36; padding: 3px 8px; border-radius: 20px; }
+    .pace-available { font-size: 11px; font-weight: 700; background: var(--bg); color: var(--text-secondary); padding: 3px 8px; border-radius: 20px; }
+
+    /* RIGHT: ASSIGN PANEL */
+    .assign-panel { display: flex; flex-direction: column; gap: 16px; }
+
+    .panel-card { background: var(--surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); overflow: hidden; }
+    .panel-header { padding: 18px 20px 14px; border-bottom: 1px solid var(--bg); }
+    .panel-header h3 { font-size: 15px; font-weight: 700; }
+    .panel-header p { font-size: 12px; color: var(--text-secondary); margin-top: 3px; }
+
+    .panel-body { padding: 16px 20px 20px; }
+    .form-group { margin-bottom: 14px; }
+    .form-label { font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 6px; display: block; }
+    .form-select { width: 100%; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-family: 'Manrope', sans-serif; font-size: 13px; color: var(--text-primary); background: #FAFAFA; outline: none; appearance: none; }
+    .form-select:focus { border-color: var(--accent); background: white; }
+
+    .selected-pace-preview {
+      background: rgba(0,113,227,0.06); border: 1.5px solid rgba(0,113,227,0.2);
+      border-radius: var(--radius-sm); padding: 12px 14px; margin-bottom: 14px;
+    }
+    .selected-pace-preview .spn { font-size: 12px; font-weight: 800; color: var(--accent); }
+    .selected-pace-preview .spt { font-size: 13px; font-weight: 700; margin-top: 2px; }
+    .selected-pace-preview .spm { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+
+    .assign-btn { width: 100%; padding: 13px; background: var(--accent); color: white; border: none; border-radius: var(--radius-md); font-family: 'Manrope', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; transition: background 0.15s; }
+    .assign-btn:hover { background: #0077ED; }
+
+    /* STATS MINI */
+    .stats-mini { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .stat-mini { background: var(--bg); border-radius: var(--radius-sm); padding: 12px; }
+    .stat-mini-val { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+    .stat-mini-lbl { font-size: 11px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.3px; margin-top: 2px; }
+    .stat-mini-val.blue { color: var(--accent); }
+    .stat-mini-val.green { color: var(--success); }
+
+    @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } .assign-panel { display: none; } }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="login.html" class="nav-logo">
+    <div class="nav-logo-mark"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+    <span>Talent Institute</span>
+  </a>
+  <div class="nav-spacer"></div>
+  <div class="nav-tabs">
+    <a href="dashboard.html" class="nav-tab">Dashboard</a>
+    <a href="students.html" class="nav-tab">Alumnos</a>
+    <a href="paces.html" class="nav-tab active">PACEs</a>
+    <a href="reports.html" class="nav-tab">Reportes</a>
+  </div>
+  <div class="nav-spacer"></div>
+  <div class="nav-avatar">MG</div>
+</nav>
+
+<main class="page">
+  <div class="page-header">
+    <h2>Catálogo de PACEs</h2>
+    <button class="btn-primary">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Agregar PACE
+    </button>
+  </div>
+
+  <div class="layout">
+
+    <!-- CATALOG -->
+    <div class="catalog-card">
+      <div class="catalog-toolbar">
+        <div class="search-wrap">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input class="search-input" placeholder="Buscar PACE…">
+        </div>
+        <div class="subject-filter">
+          <button class="sf-btn sf-mat active">MAT</button>
+          <button class="sf-btn sf-lec">LEC</button>
+          <button class="sf-btn sf-cie">CIE</button>
+          <button class="sf-btn sf-his">HIS</button>
+          <button class="sf-btn sf-bib">BIB</button>
+        </div>
+      </div>
+
+      <!-- MAT -->
+      <div class="subject-group open">
+        <div class="subject-header" onclick="this.parentElement.classList.toggle('open')">
+          <div class="subject-dot" style="background:var(--accent)"></div>
+          <span class="subject-title">Matemáticas</span>
+          <span class="subject-count">12 PACEs</span>
+          <span class="subject-chevron">›</span>
+        </div>
+        <div class="pace-items">
+          <div class="pace-row"><span class="pace-row-num">MAT-1094</span><span class="pace-row-name">Números Enteros y Operaciones</span><span class="pace-row-pts">50 pts</span><span class="pace-assigned">8 asignados</span></div>
+          <div class="pace-row"><span class="pace-row-num">MAT-1095</span><span class="pace-row-name">Fracciones Equivalentes</span><span class="pace-row-pts">50 pts</span><span class="pace-assigned">5 asignados</span></div>
+          <div class="pace-row selected"><span class="pace-row-num">MAT-1096</span><span class="pace-row-name">Operaciones con Fracciones</span><span class="pace-row-pts">50 pts</span><span class="pace-assigned">3 asignados</span></div>
+          <div class="pace-row"><span class="pace-row-num">MAT-1097</span><span class="pace-row-name">Fracciones y Decimales</span><span class="pace-row-pts">50 pts</span><span class="pace-assigned">4 asignados</span></div>
+          <div class="pace-row"><span class="pace-row-num">MAT-1098</span><span class="pace-row-name">Decimales y Porcentajes</span><span class="pace-row-pts">50 pts</span><span class="pace-available">Disponible</span></div>
+          <div class="pace-row"><span class="pace-row-num">MAT-1099</span><span class="pace-row-name">Álgebra Básica — Introducción</span><span class="pace-row-pts">50 pts</span><span class="pace-available">Disponible</span></div>
+        </div>
+      </div>
+
+      <!-- LEC -->
+      <div class="subject-group">
+        <div class="subject-header" onclick="this.parentElement.classList.toggle('open')">
+          <div class="subject-dot" style="background:var(--warning)"></div>
+          <span class="subject-title">Lectura y Escritura</span>
+          <span class="subject-count">10 PACEs</span>
+          <span class="subject-chevron">›</span>
+        </div>
+        <div class="pace-items">
+          <div class="pace-row"><span class="pace-row-num">LEC-1097</span><span class="pace-row-name">Comprensión Lectora I</span><span class="pace-row-pts">50 pts</span><span class="pace-assigned">6 asignados</span></div>
+          <div class="pace-row"><span class="pace-row-num">LEC-1098</span><span class="pace-row-name">Comprensión Lectora II</span><span class="pace-row-pts">50 pts</span><span class="pace-assigned">3 asignados</span></div>
+          <div class="pace-row"><span class="pace-row-num">LEC-1099</span><span class="pace-row-name">Redacción y Ortografía</span><span class="pace-row-pts">50 pts</span><span class="pace-available">Disponible</span></div>
+        </div>
+      </div>
+
+      <!-- CIE -->
+      <div class="subject-group">
+        <div class="subject-header" onclick="this.parentElement.classList.toggle('open')">
+          <div class="subject-dot" style="background:var(--success)"></div>
+          <span class="subject-title">Ciencias</span>
+          <span class="subject-count">9 PACEs</span>
+          <span class="subject-chevron">›</span>
+        </div>
+        <div class="pace-items">
+          <div class="pace-row"><span class="pace-row-num">CIE-1091</span><span class="pace-row-name">El Sistema Solar</span><span class="pace-row-pts">50 pts</span><span class="pace-assigned">5 asignados</span></div>
+          <div class="pace-row"><span class="pace-row-num">CIE-1092</span><span class="pace-row-name">Los Seres Vivos</span><span class="pace-row-pts">50 pts</span><span class="pace-available">Disponible</span></div>
+        </div>
+      </div>
+
+      <!-- HIS -->
+      <div class="subject-group">
+        <div class="subject-header" onclick="this.parentElement.classList.toggle('open')">
+          <div class="subject-dot" style="background:#5E5CE6"></div>
+          <span class="subject-title">Historia</span>
+          <span class="subject-count">8 PACEs</span>
+          <span class="subject-chevron">›</span>
+        </div>
+        <div class="pace-items">
+          <div class="pace-row"><span class="pace-row-num">HIS-1099</span><span class="pace-row-name">Historia de México I</span><span class="pace-row-pts">50 pts</span><span class="pace-assigned">4 asignados</span></div>
+          <div class="pace-row"><span class="pace-row-num">HIS-1100</span><span class="pace-row-name">Historia Universal I</span><span class="pace-row-pts">50 pts</span><span class="pace-available">Disponible</span></div>
+        </div>
+      </div>
+
+      <!-- BIB -->
+      <div class="subject-group">
+        <div class="subject-header" onclick="this.parentElement.classList.toggle('open')">
+          <div class="subject-dot" style="background:#C0392B"></div>
+          <span class="subject-title">Biblia</span>
+          <span class="subject-count">8 PACEs</span>
+          <span class="subject-chevron">›</span>
+        </div>
+        <div class="pace-items">
+          <div class="pace-row"><span class="pace-row-num">BIB-1045</span><span class="pace-row-name">Fundamentos de la Fe Cristiana</span><span class="pace-row-pts">50 pts</span><span class="pace-assigned">3 asignados</span></div>
+          <div class="pace-row"><span class="pace-row-num">BIB-1046</span><span class="pace-row-name">Vida y Enseñanzas de Jesús</span><span class="pace-row-pts">50 pts</span><span class="pace-available">Disponible</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="assign-panel">
+
+      <!-- STATS -->
+      <div class="panel-card">
+        <div class="panel-header"><h3>Catálogo</h3></div>
+        <div class="panel-body">
+          <div class="stats-mini">
+            <div class="stat-mini"><div class="stat-mini-val blue">47</div><div class="stat-mini-lbl">Total PACEs</div></div>
+            <div class="stat-mini"><div class="stat-mini-val green">31</div><div class="stat-mini-lbl">Asignados</div></div>
+            <div class="stat-mini"><div class="stat-mini-val" style="color:var(--warning)">8</div><div class="stat-mini-lbl">En Auto-Test</div></div>
+            <div class="stat-mini"><div class="stat-mini-val" style="color:var(--success)">52</div><div class="stat-mini-lbl">Completados</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ASSIGN FORM -->
+      <div class="panel-card">
+        <div class="panel-header">
+          <h3>Asignar PACE a Alumno</h3>
+          <p>Selecciona el PACE del catálogo y el alumno destinatario.</p>
+        </div>
+        <div class="panel-body">
+          <div class="selected-pace-preview">
+            <div class="spn">MAT-1096</div>
+            <div class="spt">Operaciones con Fracciones</div>
+            <div class="spm">Matemáticas · 50 puntos máximo</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Alumno</label>
+            <select class="form-select">
+              <option>Seleccionar alumno…</option>
+              <option>Alejandra Morales Vega — 8°</option>
+              <option>Carlos Rodríguez Sosa — 7°</option>
+              <option>Sofía Medina Ávila — 9°</option>
+              <option>Luis Peña Contreras — 8°</option>
+              <option>Valeria Hernández Cruz — 10°</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Fecha de inicio</label>
+            <input type="date" class="form-select" value="2026-04-14">
+          </div>
+          <button class="assign-btn">Asignar PACE</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+</body>
+</html>
