@@ -52,9 +52,11 @@ El sistema deberá ser operado desde tablets (iPad, prioritario) y computadoras 
 - Generación y validación de tokens JWT (stateless).
 - Tres roles con permisos diferenciados:
   - **Principal** — acceso total, reportes globales, administración de usuarios.
-  - **Supervisora** — asignación de PACEs, validación de metas, evaluación de desempeño.
-  - **Monitora** — revisión diaria de progreso, registro de scoring, asignación de méritos/deméritos.
+  - **Supervisora** — asignación de PACEs, validación de metas, evaluación de desempeño, calificaciones de examenes, resolucion de dudas academicas, asigancion de meritos y demeritos.
+  - **Monitora** — Revisión diaria de progreso, registro de scoring, asignación de méritos/deméritos.
 - Cierre de sesión y expiración automática de sesión.
+- Portal o acceso para padres de familia / alumnos.
+- Historial de entrevistas a padres de familia, espacio de comentarios, bandera de aceptado o rechazado, indices de alerta en padres o niño
 
 #### Módulo 2 — Gestión de Alumnos
 - Alta, edición y consulta de perfil del alumno (datos generales, grado, nivel).
@@ -64,13 +66,14 @@ El sistema deberá ser operado desde tablets (iPad, prioritario) y computadoras 
 #### Módulo 3 — PACEs y Progreso Académico
 - Asignación de PACEs por alumno y materia.
 - Registro de puntos por avance semanal (escala 0–50 por PACE).
-- Control de estado del PACE: En progreso / Listo para Score Station / Completado.
+- Control de estado del PACE: En progreso / Listo para Score Station / Completado /Calificado. (se debera de contemplar un historial de visualizacion paso a paso al padre de familia) 
 - Historial de PACEs completados por alumno.
 
 #### Módulo 4 — Metas Diarias
 - Registro y validación de metas por turno (mañana/tarde).
 - Indicador de cumplimiento diario y semanal.
 - Alertas automáticas cuando un alumno lleva 2 o más días sin registrar meta.
+- Mensajería interna o notificaciones push.
 
 #### Módulo 5 — Méritos y Deméritos
 - Registro de mérito o demérito con: motivo, cantidad de puntos, responsable, fecha/hora.
@@ -98,10 +101,7 @@ Los siguientes elementos **no están incluidos** en esta versión del proyecto y
 
 - Aplicación móvil nativa (iOS / Android).
 - Integración con plataformas externas de ACE (ACE Connect, PACEs Online, etc.).
-- Portal o acceso para padres de familia / alumnos.
 - Módulo de facturación, colegiaturas o pagos.
-- Mensajería interna o notificaciones push.
-- Importación masiva de datos históricos desde registros en papel u hojas de cálculo.
 - Generación de boletas, certificados o documentos escolares oficiales.
 - Capacitación presencial in-situ (se incluye documentación de usuario y sesión de onboarding).
 
