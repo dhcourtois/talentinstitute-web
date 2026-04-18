@@ -24,7 +24,22 @@ Talent Institute es un colegio cristiano ubicado en Mérida, Yucatán, que opera
 - **Score Stations**: estaciones de autoevaluación donde el alumno califica su propio trabajo antes de que la supervisora valide el resultado.
 - **Sistema de Méritos y Deméritos**: mecanismo de reconocimiento y corrección de comportamiento vinculado directamente a los privilegios del alumno (acceso a espacios como oficina, comedor, patio, etc.).
 - **Progresión individualizada**: cada alumno avanza a su propio ritmo, sin depender del grupo.
-
+- **Tabla de PACE's**:
+* Kindergarten/ Reading Readiness            1-12  (Colorear, tomamos ejemplos de paces de ABC, libros de apoyo) 
+* Kinder 3/ABC                               1-12  (Construccion de palabras, Matematicas, Naturales, Sociales, Speaking English)
+* 1 Primaria/ ABC 6 a 7 años                 1-12  (Español, Animal Science, Bible REading, Math, Science, Social)
+* 2 Primaria/ Elementary 1  (7 a 8 años)     13-24 (Math, English, WB, Science, Social, Español)
+* 3 Primaria/ Elementary 1  (8 a 9 años)     25-36 (Math, English, WB, Science, Social, Español)
+* 4 Primaria/ Elementary 2  (9 a 10 años)    37-48 (Math, English, WB, Science, Social, Español)
+* 5 Primaria/ Elementary 2  (10 a 11 años)   49-60 (Math, English, WB, Science, Social, Español)
+* 6 Primaria/ Elementary 3  (11 a 12 años)   61-72 (Math, English, WB, Science, Social, Español)
+* 1 Secundaria/                              73-85 (Math, English, WB, Science, Social, Español)
+* 2 Secundaria/                              85-94
+* 3 Secundaria/                              94-108
+* 1 Preparatoria/                            108-120
+* 2 Preparatoria/                            120-132
+* 3 Preparatoria/                            133-144
+  
 Actualmente el seguimiento de este proceso se realiza de forma manual, lo que genera fricciones operativas, falta de visibilidad del progreso en tiempo real, y dificultad para detectar alumnos en riesgo de estancamiento. El presente proyecto tiene como objetivo **digitalizar y centralizar** la gestión de este modelo pedagógico.
 
 ---
