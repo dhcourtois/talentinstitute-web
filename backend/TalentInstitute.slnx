@@ -1,0 +1,8 @@
+<Solution>
+  <Project Path="TalentInstitute.API/TalentInstitute.API.csproj" />
+  <Project Path="TalentInstitute.Application.Tests/TalentInstitute.Application.Tests.csproj" />
+  <Project Path="TalentInstitute.Application/TalentInstitute.Application.csproj" />
+  <Project Path="TalentInstitute.Domain.Tests/TalentInstitute.Domain.Tests.csproj" />
+  <Project Path="TalentInstitute.Domain/TalentInstitute.Domain.csproj" />
+  <Project Path="TalentInstitute.Infrastructure/TalentInstitute.Infrastructure.csproj" />
+</Solution>

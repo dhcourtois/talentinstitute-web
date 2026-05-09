@@ -2,43 +2,54 @@
 
 Plan granular para la base de código .NET.
 
-- [ ] **1. Arquitectura de la Solución**
-  - [ ] Crear la solución base: `dotnet new sln -n TalentInstitute`
-  - [ ] Crear las librerías: `Domain`, `Application`, `Infrastructure`.
-  - [ ] Crear el proyecto web HTTP: `API` (Web Api vacía - `dotnet new webapi -n TalentInstitute.API`).
-  - [ ] Establecer referencias mutuas: `API` -> `App` e `Infra`, `Infra` -> `App`, `App` -> `Domain`.
+- [x] **1. Arquitectura de la Solución**
+  - [x] Crear la solución base: `dotnet new sln -n TalentInstitute`
+  - [x] Crear las librerías: `Domain`, `Application`, `Infrastructure`.
+  - [x] Crear el proyecto web HTTP: `API` (Web Api vacía - `dotnet new webapi -n TalentInstitute.API`).
+  - [x] Establecer referencias mutuas: `API` -> `App` e `Infra`, `Infra` -> `App`, `App` -> `Domain`.
 
-- [ ] **2. Proyectos de Testing (xUnit y Moq)**
-  - [ ] Crear de proyecto de prueba: `TalentInstitute.Domain.Tests`.
-  - [ ] Crear de proyecto de prueba: `TalentInstitute.Application.Tests`.
-  - [ ] Instalar librerías de test: `Moq`, `FluentAssertions`, `xunit`.
-  - [ ] Vincular los proyectos de test a la solución global.
+- [x] **2. Proyectos de Testing (xUnit y Moq)**
+  - [x] Crear de proyecto de prueba: `TalentInstitute.Domain.Tests`.
+  - [x] Crear de proyecto de prueba: `TalentInstitute.Application.Tests`.
+  - [x] Instalar librerías de test: `Moq`, `FluentAssertions`, `xunit`.
+  - [x] Vincular los proyectos de test a la solución global.
 
-- [ ] **3. Implementación: Dominio en TDD**
-  - [ ] Test Red/Verde: Escribir entidad `EntrevistaPadre` con campos de evaluación de riesgo (violencia, religión, divorcio) y banderas de seguridad.
-  - [ ] Test Red: Escribir pruebas de fallos pre-programadas para `Alumno` (ej. no tener saldo de medallas negativo).
-  - [ ] Código Verde: Escribir clase estricta `Alumno.cs`.
-  - [ ] Test Red: Escribir pruebas para el comportamiento del ciclo vital del material `Pace`.
-  - [ ] Código Verde: Programar clase `PACE.cs` y su enlace `AlumnoPace.cs`.
+- [x] **3. Implementación: Dominio en TDD**
+  - [x] Test Red/Verde: Escribir entidad `EntrevistaPadre` con campos de evaluación de riesgo (violencia, religión, divorcio) y banderas de seguridad.
+  - [x] Test Red: Escribir pruebas de fallos pre-programadas para `Alumno` (ej. no tener saldo de medallas negativo).
+  - [x] Código Verde: Escribir clase estricta `Alumno.cs` (con `NumeroMatricula`, `Apellido`, `Nivel`, `RowVersion`).
+  - [x] Test Red: Escribir pruebas para el comportamiento del ciclo vital del material `Pace`.
+  - [x] Código Verde: Programar clase `PACE.cs` y su enlace `AlumnoPace.cs` (con `FechaInicio`, `FechaCompletado`, `PuntajeFinal`, `RowVersion`).
+  - [x] Entidad `Staff.cs` + enum `Rol` (Principal, Supervisora, Monitora) con invariantes + 5 tests TDD.
+  - [x] Entidad `Meta.cs` + enums `EstadoMeta` / `Turno` — máquina de estados completa (6 estados, 7 transiciones) + 10 tests TDD.
+  - [x] Entidad `Merito.cs` + enum `TipoMerito` — invariantes spec-mandated (Puntos > 0, Motivo no vacío, Revocar idempotente) + 5 tests TDD.
+  - [x] Invariante `AlumnoPace.ValidarAsignacionUnica()` — no duplicar PACE activo por materia + 3 tests TDD.
+  - [x] Entidad `ConfiguracionPrivilegios.cs` — umbrales de privilegios con validación cruzada.
 
-- [ ] **4. Implementación: Aplicación (Casos de Uso)**
-  - [ ] Interfaces: Definir abstracciones de Repositorio (`IPaceRepository`, `IUnitOfWork`, `IAuthService`).
-  - [ ] Uso de Moq para "mentir" a las validaciones y armar el ciclo sin la BD instalada aún.
-  - [ ] Flujo Funcional: `CheckStudentPaceProgressUseCase` (Anotar el estatus de Score de una Meta).
-  - [ ] Registro global IoC: Crear `DependencyInjection.cs` propio interno del proyecto App.
+- [x] **4. Implementación: Aplicación (Casos de Uso)**
+  - [x] Interfaces: Definir abstracciones de Repositorio (`IPaceRepository`, `IUnitOfWork`, `IAuthService`).
+  - [x] Interfaces adicionales: `IStaffRepository`, `IMetaRepository`, `IMeritoRepository`, `IConfiguracionRepository`, `IPasswordHasher`.
+  - [x] Uso de Moq para "mentir" a las validaciones y armar el ciclo sin la BD instalada aún.
+  - [x] Flujo Funcional: `CheckStudentPaceProgressUseCase` (Anotar el estatus de Score de una Meta).
+  - [x] Flujo Funcional: `RegistrarMeritoUseCase` — carga Alumno + Config, crea Merito, recalcula privilegios, guarda con UoW. 4 tests TDD.
+  - [x] `LoginUseCase` — reemplazadas credenciales hardcodeadas por `IStaffRepository` + `IPasswordHasher` (BCrypt).
+  - [x] Registro global IoC: `DependencyInjection.cs` con todos los use cases registrados.
 
-- [ ] **5. Implementación: Infraestructura (Persistencia con EF Core)**
-  - [ ] Instalar dependencias EF Core: `SqlServer` y `Tools`.
-  - [ ] Modificar `DbContext` creando los DbSets iniciales.
-  - [ ] Implementar la base `IEntityTypeConfiguration` (Fluent API para migrar el esquema SQL de manera precisa, sin atributos [Table] sucios).
-  - [ ] Instalar EF Core global y forzar la migración 001_Initial a Azure SQL Local/Nube.
-  - [ ] Crear Repositorios Concretos.
+- [x] **5. Implementación: Infraestructura (Persistencia con EF Core)**
+  - [x] Instalar dependencias EF Core: `SqlServer` y `Tools`.
+  - [x] Modificar `DbContext` creando los DbSets iniciales + `Staff`, `Metas`, `Meritos`, `ConfiguracionPrivilegios`.
+  - [x] Implementar la base `IEntityTypeConfiguration` (Fluent API para migrar el esquema SQL de manera precisa, sin atributos [Table] sucios).
+  - [x] Configuraciones EF agregadas: `StaffConfiguration`, `MetaConfiguration`, `MeritoConfiguration`, `ConfiguracionPrivilegiosConfiguration`. Existentes actualizadas: `AlumnoConfiguration`, `AlumnoPaceConfiguration`.
+  - [x] Instalar EF Core global y forzar la migración 001_Initial a Azure SQL Local/Nube.
+  - [x] Migración `002_AddCoreEntities` — nuevas tablas Staff, Metas, Meritos, ConfiguracionPrivilegios; RowVersion en Alumnos y AlumnoPaces.
+  - [x] Crear Repositorios Concretos: `StaffRepository`, `MetaRepository`, `MeritoRepository`, `ConfiguracionRepository`.
+  - [x] `BcryptPasswordHasher` — implementa `IPasswordHasher` con BCrypt.Net-Next.
 
-- [ ] **6. Ensamblaje: La Capa de API**
-  - [ ] Declaración de los endpoints principales sin cuerpo. Generación de swagger abierto.
-  - [ ] Configuración nativa del middleware de JWT: `services.AddAuthentication(JwtBearerDefaults...)`.
-  - [ ] Mapear los roles a Autorización (`[Authorize(Roles = "Supervisora")]`).
-  - [ ] Inyección de Middleware global de Excepciones del Dominio para devolver Error HTTP 400 automático con la razón en JSON si el Dominio es corrompido.
+- [x] **6. Ensamblaje: La Capa de API**
+  - [x] Declaración de los endpoints principales sin cuerpo. Generación de swagger abierto.
+  - [x] Añadir Global Exception Handler (para atrapar `DomainException` y retornar HTTP 400 limpio).
+  - [x] Enlazar un endpoint clave a nuestro `UseCase` y comprobar la vida completa (e.g. POST `/api/v1/paces/check`).
+  - [x] Test E2E simple (opcional o validado por Swagger manual).
 
 - [ ] **7. Seguridad e Implementación (Backend)**
   - [ ] Verificar la existencia de la carpeta `/secrets` localmente.
