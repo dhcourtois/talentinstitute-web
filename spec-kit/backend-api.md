@@ -87,6 +87,11 @@ Se utilizará como base el ruteo `/api/v1/`.
 - `GET /resumen` — Devuelve las métricas del dashboard general: alumnos activos, metas cumplidas hoy, PACEs en revisión, conteo de alertas. (Acceso: Principal, Supervisora.)
 - `GET /alertas` — Lista de alumnos con 2 o más días sin registrar meta, ordenados por días de inactividad. (Acceso: Principal, Supervisora.)
 
+### 8. Entrevistas a Padres (`/api/v1/Entrevistas`)
+- `GET /` — Lista de entrevistas registradas. (Acceso: Principal, Supervisora.)
+- `POST /` — Registra una nueva entrevista inicial (número de hijos, comentarios de riesgo, evaluación). (Acceso: Principal, Supervisora.)
+- `GET /{entrevistaId}` — Detalle de una entrevista.
+
 ## 🧪 Especificación de Pruebas TDD
 
 El Testing no es algo implementado a posteriori; es quien rige el ciclo de software en 'Talent Institute'.

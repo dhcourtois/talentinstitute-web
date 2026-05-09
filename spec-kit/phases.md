@@ -10,7 +10,8 @@ Este documento describe la hoja de ruta estratégica para la construcción del s
 *   **Identidad Global:** Desarrollo de las entidades de Staff y roles iniciales (Supervisora, Monitora, Principal).
 *   **Seguridad y Autenticación:** Implementación de generación y validación de tokens JWT. Configuración de Políticas basadas en Claims en el API.
 
-## Fase 2: Core (Lógica de PACEs y Metas)
+## Fase 2: Core (Lógica de PACEs, Metas y Entrevistas)
+*   **Módulo de Entrevistas a Padres:** Primera prioridad funcional. Registro inicial de interesados, evaluación de riesgo en el hogar, banderas de seguridad y comentarios (violencia, religión, divorcio).
 *   **Modelado del Sistema ACE:** Creación de las entidades nativas puras: `Alumno`, `Pace`, vínculo `AlumnoPace`, `Meta` diaria/semanal.
 *   **Desarrollo Dirigido por Pruebas (TDD):** Implementación de Unit Tests obligatorios para validar férreamente las reglas de negocio sobre balances y avances.
 *   **Casos de Uso Principales:** Desarrollo en la capa de Aplicación de los flujos de "Registro de Meta" y "Aumento de Scoring".

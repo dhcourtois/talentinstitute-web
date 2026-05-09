@@ -65,13 +65,18 @@ El sistema deberá ser operado desde tablets (iPad, prioritario) y computadoras 
 #### Módulo 1 — Autenticación y Control de Acceso
 - Inicio de sesión con correo y contraseña.
 - Generación y validación de tokens JWT (stateless).
-- Tres roles con permisos diferenciados:
-  - **Principal** — acceso total, reportes globales, administración de usuarios.
-  - **Supervisora** — asignación de PACEs, validación de metas, evaluación de desempeño, calificaciones de examenes, resolucion de dudas academicas, asigancion de meritos y demeritos.
-  - **Monitora** — Revisión diaria de progreso, registro de scoring, asignación de méritos/deméritos.
+- Tres roles iniciales configurados (sin módulo de creación dinámica por ahora, se dejará la opción para más adelante):
+  - **Principal** — sin restricciones.
+  - **Supervisora** — vistas a ciertas partes (registro de calificaciones, avances semanales, estatus, etc.).
+  - **Monitora** — acceso al perfil del alumno (deméritos, méritos, etc.).
 - Cierre de sesión y expiración automática de sesión.
 - Portal o acceso para padres de familia / alumnos.
-- Historial de entrevistas a padres de familia, espacio de comentarios, bandera de aceptado o rechazado, indices de alerta en padres o niño
+
+#### Módulo 1.5 — Entrevistas a Padres de Familia
+- Registro de información de familias interesadas/entrevistas iniciales.
+- Campos clave: número de hijos, y espacio para comentarios críticos.
+- Registro de factores de riesgo en el hogar: violencia familiar, divorcios, conocimiento de Dios (vital para la seguridad del personal ante posibles episodios de agresividad por parte de los padres).
+- Bandera de aceptado/rechazado e índices de alerta.
 
 #### Módulo 2 — Gestión de Alumnos
 - Alta, edición y consulta de perfil del alumno (datos generales, grado, nivel).
@@ -250,9 +255,9 @@ Este spec incluye decisiones de calidad que tienen un costo real en tiempo: TDD 
 ## 8. Modelo de Colaboración y Comunicación
 
 - **Herramienta de seguimiento:** Tablero compartido (Linear / Notion / GitHub Projects — por definir con el cliente).
-- **Reuniones de avance:** Sesión semanal de 30–45 minutos (videollamada) para revisión de entregables y prioridades.
+- **Dinámica de Trabajo (Sábados):** Bloque enfocado de 10:00 a 13:00 hrs para trabajo simultáneo e independiente en lugar de reuniones sincronas, optimizando el tiempo vía subida de cambios asíncrona.
 - **Canal de comunicación cotidiana:** WhatsApp o correo electrónico según preferencia del cliente.
-- **Revisión de fases:** Al finalizar cada fase se presentará un demo en vivo. La aprobación del cliente desbloquea la siguiente fase.
+- **Revisión de fases:** Al finalizar cada fase se presentará un demo asíncrono o en vivo. La aprobación del cliente desbloquea la siguiente fase.
 - **Control de versiones:** Todo el código vive en un repositorio privado de GitHub al que el cliente tendrá acceso completo en todo momento.
 - **Ambientes:**
   - `staging` — para pruebas y revisión del cliente, actualizado con cada merge a `develop`.

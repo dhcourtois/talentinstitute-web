@@ -15,6 +15,7 @@ Plan granular para la base de código .NET.
   - [ ] Vincular los proyectos de test a la solución global.
 
 - [ ] **3. Implementación: Dominio en TDD**
+  - [ ] Test Red/Verde: Escribir entidad `EntrevistaPadre` con campos de evaluación de riesgo (violencia, religión, divorcio) y banderas de seguridad.
   - [ ] Test Red: Escribir pruebas de fallos pre-programadas para `Alumno` (ej. no tener saldo de medallas negativo).
   - [ ] Código Verde: Escribir clase estricta `Alumno.cs`.
   - [ ] Test Red: Escribir pruebas para el comportamiento del ciclo vital del material `Pace`.

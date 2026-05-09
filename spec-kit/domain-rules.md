@@ -23,6 +23,7 @@
 | Término de negocio | Entidad Dominio (.NET) | Tabla SQL | Endpoint REST | Notas |
 |---|---|---|---|---|
 | Alumno | `Alumno` | `Alumnos` | `/api/v1/Alumnos` | No `Student`, no `Students` |
+| Entrevista a Padres | `EntrevistaPadre` | `EntrevistasPadres` | `/api/v1/Entrevistas` | Entrevista inicial con factores de riesgo |
 | PACE (módulo) | `Pace` | `Paces` | `/api/v1/Paces` | Acrónimo: sin mayúsculas compuestas |
 | PACE asignado a alumno | `AlumnoPace` | `AlumnoPaces` | — (sub-recurso de Alumnos) | No `StudentProgress` |
 | Meta diaria | `Meta` | `Metas` | `/api/v1/Progreso/metas` | No `DailyGoal` |
@@ -209,3 +210,5 @@ Estas reglas se validan en el constructor o en métodos del Domain. Su violació
 | `Meta` | `Turno` solo acepta `Mañana` o `Tarde` |
 | `Alumno` | `PrivilegeStatus` solo se modifica a través de `RecalcularPrivilegios()`, nunca directamente |
 | `ConfiguracionPrivilegios` | Todo umbral de revocación debe ser estrictamente menor que el umbral de otorgamiento para el mismo privilegio |
+| `EntrevistaPadre` | `NumeroHijos` debe ser mayor o igual a 0 |
+| `EntrevistaPadre` | Si hay banderas de riesgo de violencia o divorcio crítico, los `Comentarios` no pueden estar vacíos |
