@@ -1,3 +1,5 @@
+export type Rol = 'Principal' | 'Supervisora' | 'Monitora';
+
 export interface LoginRequest {
   email: string;
   password: string;

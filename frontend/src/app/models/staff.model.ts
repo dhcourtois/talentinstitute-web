@@ -1,4 +1,4 @@
-export type Rol = 'Principal' | 'Supervisora' | 'Monitora';
+import { Rol } from './auth.model';
 
 export interface Staff {
   id: string;
