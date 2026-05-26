@@ -51,6 +51,14 @@ public class AlumnoPace
         }
     }
 
+    public void MarcarListoParaAutoTest()
+    {
+        if (Estado != PaceEstado.EnProgreso)
+            throw new DomainException("El PACE debe estar en progreso para estar listo para el auto-test.");
+
+        Estado = PaceEstado.ListoParaAutoTest;
+    }
+
     public void CompletarAutoTest(bool exitoso)
     {
         if (Estado != PaceEstado.ListoParaAutoTest && Estado != PaceEstado.AutoTestFallido)

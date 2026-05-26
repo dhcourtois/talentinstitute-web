@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -30,5 +32,22 @@ public class PaceRepository : IPaceRepository
     public async Task AddAsync(Pace pace, CancellationToken cancellationToken = default)
     {
         await _context.Paces.AddAsync(pace, cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<AlumnoPace>> GetAlumnoPacesByAlumnoIdAsync(Guid alumnoId, CancellationToken cancellationToken = default)
+    {
+        return await _context.AlumnoPaces
+            .Where(ap => ap.AlumnoId == alumnoId)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task AddAlumnoPaceAsync(AlumnoPace alumnoPace, CancellationToken cancellationToken = default)
+    {
+        await _context.AlumnoPaces.AddAsync(alumnoPace, cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<AlumnoPace>> GetAllAlumnoPacesAsync(CancellationToken cancellationToken = default)
+    {
+        return await _context.AlumnoPaces.ToListAsync(cancellationToken);
     }
 }

@@ -51,49 +51,49 @@ Plan granular para la base de código .NET.
   - [x] Enlazar un endpoint clave a nuestro `UseCase` y comprobar la vida completa (e.g. POST `/api/v1/paces/check`).
   - [x] Test E2E simple (opcional o validado por Swagger manual).
 
-- [ ] **7. Seguridad e Implementación (Backend)**
-  - [ ] Verificar la existencia de la carpeta `/secrets` localmente.
-  - [ ] Configurar el perfil de publicación de Azure desde el archivo en `/secrets`.
-  - [ ] Configurar las variables de entorno en el Azure Web App utilizando los valores del Service Principal.
-  - [ ] Verificar política CORS en `Program.cs`: permitir origen de la SPA en staging y producción.
+- [x] **7. Seguridad e Implementación (Backend)**
+  - [x] Verificar la existencia de la carpeta `/secrets` localmente.
+  - [x] Configurar el perfil de publicación de Azure desde el archivo en `/secrets`.
+  - [x] Configurar las variables de entorno en el Azure Web App utilizando los valores del Service Principal.
+  - [x] Verificar política CORS en `Program.cs`: permitir origen de la SPA en staging y producción.
 
 ---
 
 ## Fase 3 — Frontend SPA (Angular 18 + TypeScript)
 
-- [ ] **8. Setup del Proyecto Frontend**
-  - [ ] Crear el proyecto: `ng new talentinstitute-web --routing --style=css --strict`
-  - [ ] Configurar `tsconfig.json` con paths alias (`@app/` → `src/app/`).
-  - [ ] Crear estructura de módulos/carpetas: `core/` (auth, interceptors, guards), `shared/` (componentes base), `features/` (dashboard, alumno), `models/`.
-  - [ ] Definir design tokens en `src/styles/tokens.css` (colores, radios, sombras, tipografía); importar en `styles.css` global.
-  - [ ] Configurar fuente Manrope vía Google Fonts en `index.html`.
-  - [ ] Registrar `HttpClientModule` en `app.config.ts` y configurar `baseUrl` desde `environment.ts` / `environment.prod.ts`.
+- [x] **8. Setup del Proyecto Frontend**
+  - [x] Crear el proyecto: `ng new talentinstitute-web --routing --style=css --strict`
+  - [x] Configurar `tsconfig.json` con paths alias (`@app/` → `src/app/`).
+  - [x] Crear estructura de módulos/carpetas: `core/` (auth, interceptors, guards), `shared/` (componentes base), `features/` (dashboard, alumno), `models/`.
+  - [x] Definir design tokens en `src/styles/tokens.css` (colores, radios, sombras, tipografía); importar en `styles.css` global.
+  - [x] Configurar fuente Manrope vía Google Fonts en `index.html`.
+  - [x] Registrar `HttpClientModule` en `app.config.ts` y configurar `baseUrl` desde `environment.ts` / `environment.prod.ts`.
 
-- [ ] **9. Modelos TypeScript y Servicios API**
-  - [ ] Definir interfaces en `src/app/models/`: `Alumno`, `Pace`, `AlumnoPace`, `Meta`, `Merito`, `Staff`, `DashboardResumen`, `Alerta`.
-  - [ ] Crear servicios en `src/app/core/services/`: `AlumnosService`, `PacesService`, `ProgresoService`, `MeritosService`, `DashboardService`, `AuthService`.
-  - [ ] Cada servicio usa `HttpClient` e inyecta la `baseUrl` desde el environment.
-  - [ ] **Interceptor JWT** (`JwtInterceptor`): adjunta `Authorization: Bearer <token>` en cada request saliente. Registrar en `app.config.ts`.
-  - [ ] **Interceptor de errores** (`ErrorInterceptor`): captura errores HTTP globalmente:
-    - **401 Unauthorized** → limpiar token de `localStorage` + navegar a `/login`. Cubre dos escenarios: credenciales incorrectas en login *y* token expirado mientras la monitora está en sesión activa en el salón.
-    - **403 Forbidden** → toast de advertencia "No tienes permiso para realizar esta acción" sin redirigir.
-    - **5xx Server Error** → toast de error genérico con opción de reintentar la última acción.
+- [x] **9. Modelos TypeScript y Servicios API**
+  - [x] Definir interfaces en `src/app/models/`: `Alumno`, `Pace`, `AlumnoPace`, `Meta`, `Merito`, `Staff`, `DashboardResumen`, `Alerta`.
+  - [x] Crear servicios en `src/app/core/services/`: `AlumnosService`, `PacesService`, `ProgresoService`, `MeritosService`, `DashboardService`, `AuthService`.
+  - [x] Cada servicio usa `HttpClient` e inyecta la `baseUrl` desde el environment.
+  - [x] **Interceptor JWT** (`JwtInterceptor`): adjunta `Authorization: Bearer <token>` en cada request saliente. Registrar en `app.config.ts`.
+  - [x] **Interceptor de errores** (`ErrorInterceptor`): captura errores HTTP globalmente:
+    - [x] **401 Unauthorized** → limpiar token de `localStorage` + navegar a `/login`. Cubre dos escenarios: credenciales incorrectas en login *y* token expirado mientras la monitora está en sesión activa en el salón.
+    - [x] **403 Forbidden** → toast de advertencia "No tienes permiso para realizar esta acción" sin redirigir.
+    - [x] **5xx Server Error** → toast de error genérico con opción de reintentar la última acción.
 
-- [ ] **10. Componentes Base (Design System — `SharedModule`)**
-  - [ ] `ButtonComponent` — variantes de Input: `variant` (primary, secondary, danger, ghost), `loading`, `disabled`.
-  - [ ] `BadgeComponent` — variante semántica por Input: green, orange, red, blue, gray.
-  - [ ] `CardComponent` — contenedor base con shadow y border-radius como ng-content wrapper.
-  - [ ] `ProgressBarComponent` — Input `value` (0–100); clase CSS de color calculada automáticamente por umbral.
-  - [ ] `ToastService` + `ToastComponent` — servicio inyectable para disparar notificaciones; máximo 3 simultáneas con auto-dismiss.
-  - [ ] `ModalComponent` — wrapper con `@Output() confirmed` y `@Output() cancelled`; usado para confirmaciones destructivas.
-  - [ ] `AvatarComponent` — genera iniciales y color de fondo determinístico a partir del nombre del alumno.
-  - [ ] `SpinnerComponent` — variantes inline y overlay de pantalla completa.
+- [x] **10. Componentes Base (Design System — `SharedModule`)**
+  - [x] `ButtonComponent` — variantes de Input: `variant` (primary, secondary, danger, ghost), `loading`, `disabled`.
+  - [x] `BadgeComponent` — variante semántica por Input: green, orange, red, blue, gray.
+  - [x] `CardComponent` — contenedor base con shadow y border-radius como ng-content wrapper.
+  - [x] `ProgressBarComponent` — Input `value` (0–100); clase CSS de color calculada automáticamente por umbral.
+  - [x] `ToastService` + `ToastComponent` — servicio inyectable para disparar notificaciones; máximo 3 simultáneas con auto-dismiss.
+  - [x] `ModalComponent` — wrapper con `@Output() confirmed` y `@Output() cancelled`; usado para confirmaciones destructivas.
+  - [x] `AvatarComponent` — genera iniciales y color de fondo determinístico a partir del nombre del alumno.
+  - [x] `SpinnerComponent` — variantes inline y overlay de pantalla completa.
 
-- [ ] **11. Autenticación y Guards**
-  - [ ] `AuthService`: métodos `login()`, `logout()`, `getToken()`, `getRole()`, `isAuthenticated()`. Token guardado en `localStorage`.
-  - [ ] `AuthGuard` (`CanActivateFn`): redirige a `/login` si no hay token válido.
-  - [ ] `RoleGuard` (`CanActivateFn`): recibe `data.roles` desde la config de rutas; redirige a `/dashboard` si el rol no tiene acceso.
-  - [ ] Directiva `*hasRole` (o pipe): oculta elementos del template según el rol del usuario autenticado.
+- [x] **11. Autenticación y Guards**
+  - [x] `AuthService`: métodos `login()`, `logout()`, `getToken()`, `getRole()`, `isAuthenticated()`. Token guardado en `localStorage`.
+  - [x] `AuthGuard` (`CanActivateFn`): redirige a `/login` si no hay token válido.
+  - [x] `RoleGuard` (`CanActivateFn`): recibe `data.roles` desde la config de rutas; redirige a `/dashboard` si el rol no tiene acceso.
+  - [x] Directiva `*hasRole` (o pipe): oculta elementos del template según el rol del usuario autenticado.
 
 - [ ] **12. Módulo de Login**
   - [ ] `LoginComponent` con `ReactiveForm`: email, contraseña, selector de rol (visual).

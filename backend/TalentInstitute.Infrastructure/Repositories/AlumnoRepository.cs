@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -31,5 +32,10 @@ public class AlumnoRepository : IAlumnoRepository
     {
         _context.Alumnos.Update(alumno);
         return Task.CompletedTask;
+    }
+
+    public async Task<IReadOnlyList<Alumno>> GetAllAsync(CancellationToken cancellationToken = default)
+    {
+        return await _context.Alumnos.ToListAsync(cancellationToken);
     }
 }

@@ -81,6 +81,12 @@ builder.Services.AddSwaggerGen(options =>
 
 var app = builder.Build();
 
+// Inicializar base de datos y semilla de prueba
+if (app.Environment.IsDevelopment())
+{
+    await TalentInstitute.API.Data.DbInitializer.SeedAsync(app.Services);
+}
+
 app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 
 // Configure the HTTP request pipeline.

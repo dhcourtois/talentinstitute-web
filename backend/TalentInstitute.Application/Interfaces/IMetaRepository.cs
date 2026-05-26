@@ -8,4 +8,5 @@ public interface IMetaRepository
     Task<IReadOnlyList<Meta>> GetByAlumnoPaceIdAsync(Guid alumnoPaceId, CancellationToken cancellationToken = default);
     Task AddAsync(Meta meta, CancellationToken cancellationToken = default);
     Task UpdateAsync(Meta meta, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<Meta>> GetAllAsync(CancellationToken cancellationToken = default);
 }

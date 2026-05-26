@@ -28,4 +28,9 @@ public class MetaRepository : IMetaRepository
         _context.Metas.Update(meta);
         return Task.CompletedTask;
     }
+
+    public async Task<IReadOnlyList<Meta>> GetAllAsync(CancellationToken cancellationToken = default)
+    {
+        return await _context.Metas.ToListAsync(cancellationToken);
+    }
 }
