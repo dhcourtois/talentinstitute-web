@@ -20,7 +20,7 @@ public class CheckStudentPaceProgressUseCase
     {
         var alumnoPace = await _paceRepository.GetAlumnoPaceByIdAsync(alumnoPaceId, cancellationToken);
         if (alumnoPace == null)
-            throw new Exception("AlumnoPace no encontrado.");
+            throw new KeyNotFoundException("AlumnoPace no encontrado.");
 
         // Anotar el estatus de Score (AutoTest)
         alumnoPace.CompletarAutoTest(exitoso);

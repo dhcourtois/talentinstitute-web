@@ -1,9 +1,12 @@
 export interface DashboardResumen {
-  totalAlumnosActivos: number;
-  metasHoy: number;
+  alumnosActivos?: number;
+  metasCompletadasHoy?: number;
+  alertasActivas?: number;
+  totalAlumnosActivos?: number;
+  metasHoy?: number;
   pacesEnRevision: number;
-  totalAlertas: number;
-  metasPorDia: MetasDia[];
+  totalAlertas?: number;
+  metasPorDia?: MetasDia[];
 }
 
 export interface MetasDia {

@@ -1,6 +1,7 @@
 export interface Pace {
-  id: number;
+  id: string;
   materia: string;
   numeroPace: number;
   puntajeMaximo: number;
+  puntajeMinimoAprobacion?: number;
 }

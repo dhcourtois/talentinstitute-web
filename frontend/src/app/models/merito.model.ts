@@ -4,12 +4,14 @@ export interface Merito {
   id: string;
   alumnoId: string;
   staffId: string;
+  staffName?: string;
   tipo: TipoMerito;
   puntos: number;
   motivo: string;
   fechaAplicado: string;
   revocado: boolean;
   staffIdRevoco?: string;
+  staffRevocoName?: string;
   fechaRevocacion?: string;
 }
 

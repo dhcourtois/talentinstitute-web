@@ -2,6 +2,21 @@
 
 Plan granular para la base de código .NET.
 
+## 0. Estabilización inmediata detectada en revisión
+
+- [x] Corregir build de API: reemplazar atributos `[PATCH]` inválidos por `[HttpPatch]` en Staff y Méritos.
+- [x] Alinear contrato de login inválido: API debe devolver `401 Unauthorized` para que el frontend muestre el flujo esperado.
+- [x] Alinear claims JWT con frontend: emitir/leer claim de rol compatible con `AuthService.getRole()`.
+- [x] Corregir rutas protegidas del frontend: el perfil de alumno debe permitir acceso a Monitora según la matriz UI/API.
+- [x] Completar endpoints de PACEs requeridos por el frontend: catálogo, asignación y consulta por alumno; alinear IDs `Guid` en modelos TypeScript.
+- [x] Reemplazar placeholders de Login, Dashboard y Perfil de Alumno por pantallas funcionales conectadas a API.
+- [ ] Validar manualmente Login, Dashboard y Perfil en navegador con API local/staging.
+- [ ] Reducir o reajustar presupuestos CSS de componentes Angular; `ng build` pasa, pero reporta warnings en Login, Dashboard y Alumno.
+- [ ] Implementar módulo real de Entrevistas a Padres; el controlador actual es stub.
+- [ ] Integrar build Angular, migraciones EF y separación staging/production en GitHub Actions.
+- [ ] Definir decisión de runtime: alinear SOW `.NET 8` vs proyectos `net10.0`.
+- [ ] Limpiar código template (`WeatherForecast`, `Class1`, `UnitTest1`) antes de cierre.
+
 - [x] **1. Arquitectura de la Solución**
   - [x] Crear la solución base: `dotnet new sln -n TalentInstitute`
   - [x] Crear las librerías: `Domain`, `Application`, `Infrastructure`.
@@ -95,31 +110,31 @@ Plan granular para la base de código .NET.
   - [x] `RoleGuard` (`CanActivateFn`): recibe `data.roles` desde la config de rutas; redirige a `/dashboard` si el rol no tiene acceso.
   - [x] Directiva `*hasRole` (o pipe): oculta elementos del template según el rol del usuario autenticado.
 
-- [ ] **12. Módulo de Login**
-  - [ ] `LoginComponent` con `ReactiveForm`: email, contraseña, selector de rol (visual).
-  - [ ] Validación en tiempo real: email con formato válido, contraseña mínimo 6 caracteres.
-  - [ ] Llamada a `POST /api/v1/Auth/login`; en éxito guardar token y navegar según rol.
-  - [ ] Manejo de error 401: mensaje inline "Credenciales incorrectas" sin recargar la página.
-  - [ ] Overlay de primera vez (heurística Nielsen #10) al primer login del usuario.
+- [x] **12. Módulo de Login**
+  - [x] `LoginComponent` con `ReactiveForm`: email, contraseña, selector de rol (visual).
+  - [x] Validación en tiempo real: email con formato válido, contraseña mínimo 6 caracteres.
+  - [x] Llamada a `POST /api/v1/Auth/login`; en éxito guardar token y navegar según rol.
+  - [x] Manejo de error 401: mensaje inline "Credenciales incorrectas" sin recargar la página.
+  - [x] Overlay de primera vez (heurística Nielsen #10) al primer login del usuario.
 
 - [ ] **13. Módulo Dashboard**
-  - [ ] `DashboardComponent`: orquesta llamadas paralelas con `forkJoin` a `DashboardService.getResumen()` y `DashboardService.getAlertas()`.
+  - [x] `DashboardComponent`: orquesta llamadas paralelas con `forkJoin` a `DashboardService.getResumen()` y `DashboardService.getAlertas()`.
   - [ ] `MetricCardComponent`: tarjeta reutilizable para las 4 métricas (alumnos activos, metas hoy, PACEs en revisión, alertas).
-  - [ ] `AlertBannerComponent`: muestra alumnos sin meta 2+ días; se oculta si no hay alertas.
-  - [ ] `AlumnosTableComponent`: tabla con paginación, filtro por nivel, navegación al perfil con `routerLink`.
+  - [x] Banner de alertas funcional inline: muestra alumnos sin meta 2+ días; se oculta si no hay alertas.
+  - [x] Tabla de alumnos funcional inline: tabla con paginación, filtro por nivel, navegación al perfil con `routerLink`.
   - [ ] `WeeklyChartComponent`: gráfica de barras semanales en CSS puro (sin librería de charts).
   - [ ] `ScorePendingListComponent`: panel de PACEs pendientes de Score Station.
   - [ ] Ruta protegida con `RoleGuard` para roles Principal y Supervisora.
 
 - [ ] **14. Módulo Alumno (Perfil)**
-  - [ ] `AlumnoProfileComponent`: obtiene el alumno por `id` desde `ActivatedRoute.params`, carga datos con `AlumnosService`.
-  - [ ] `AlumnoHeroComponent`: avatar, nombre, grado, fecha de ingreso, chips de privilegios activos/inactivos.
-  - [ ] `PaceCardComponent`: tarjeta de PACE con `ProgressBarComponent`, estado y botones de acción (Score Station, registrar puntos). Emite `@Output` para las acciones.
-  - [ ] `GoalChecklistComponent`: lista de metas del día separadas por turno; toggle con llamada a `PUT /api/v1/Progreso/metas/{metaId}/estatus`.
-  - [ ] `AddGoalFormComponent`: `ReactiveForm` inline; llama `POST /api/v1/Progreso`.
+  - [x] Perfil de alumno funcional inline: obtiene el alumno por `id` desde `ActivatedRoute.params`, carga datos con `AlumnosService`.
+  - [x] Hero de alumno funcional inline: avatar, nombre, grado, fecha de ingreso, chips de privilegios activos/inactivos.
+  - [x] Tarjetas de PACE funcionales inline con `ProgressBarComponent`, estado y acciones de Score Station.
+  - [x] Lista de metas funcional inline separada por turno; toggle con llamada a `PUT /api/v1/Progreso/metas/{metaId}/estatus`.
+  - [x] Formulario inline de metas con `ReactiveForm`; llama `POST /api/v1/Progreso`.
   - [ ] `QuickActionsComponent`: botones para otorgar mérito, registrar demérito, actualizar puntos — abren `ModalComponent` para confirmar.
-  - [ ] `MeritLogComponent`: lista de los últimos 10 méritos/deméritos del alumno.
-  - [ ] Elementos destructivos condicionados a rol con la directiva `*hasRole`.
+  - [x] Log funcional inline de los últimos 10 méritos/deméritos del alumno.
+  - [x] Acciones restringidas condicionadas por rol en template.
 
 ---
 

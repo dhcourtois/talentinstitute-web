@@ -22,7 +22,7 @@ export const routes: Routes = [
   {
     path: 'alumno/:id',
     canActivate: [authGuard, roleGuard],
-    data: { roles: ['Principal', 'Supervisora'] },
+    data: { roles: ['Principal', 'Supervisora', 'Monitora'] },
     loadComponent: () =>
       import('./features/alumno/alumno.component').then(m => m.AlumnoComponent),
   },
@@ -31,4 +31,3 @@ export const routes: Routes = [
     redirectTo: 'dashboard',
   },
 ];
-

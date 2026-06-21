@@ -19,12 +19,33 @@ public class PaceRepository : IPaceRepository
         _context = context;
     }
 
-    public async Task<Pace> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<Pace?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return await _context.Paces.FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
     }
 
-    public async Task<AlumnoPace> GetAlumnoPaceByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<Pace?> GetByMateriaYNumeroAsync(string materia, int numero, CancellationToken cancellationToken = default)
+    {
+        return await _context.Paces
+            .FirstOrDefaultAsync(p => p.Materia == materia && p.Numero == numero, cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<Pace>> GetCatalogoAsync(string? materia = null, CancellationToken cancellationToken = default)
+    {
+        var query = _context.Paces.AsNoTracking();
+
+        if (!string.IsNullOrWhiteSpace(materia))
+        {
+            query = query.Where(p => p.Materia == materia);
+        }
+
+        return await query
+            .OrderBy(p => p.Materia)
+            .ThenBy(p => p.Numero)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<AlumnoPace?> GetAlumnoPaceByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return await _context.AlumnoPaces.FirstOrDefaultAsync(ap => ap.Id == id, cancellationToken);
     }

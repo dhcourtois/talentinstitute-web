@@ -74,7 +74,7 @@ public class StaffController : ControllerBase
         }
     }
 
-    [PATCH("{staffId:guid}/desactivar")]
+    [HttpPatch("{staffId:guid}/desactivar")]
     public async Task<IActionResult> Deactivate(Guid staffId, CancellationToken cancellationToken)
     {
         try

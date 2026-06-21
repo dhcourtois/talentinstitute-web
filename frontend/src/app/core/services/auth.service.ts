@@ -43,7 +43,13 @@ export class AuthService {
     const token = this.getToken();
     if (!token) return null;
     try {
-      return this.decodePayload(token).rol as Rol;
+      const payload = this.decodePayload(token);
+      return (
+        payload.rol ??
+        payload.role ??
+        payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] ??
+        null
+      ) as Rol | null;
     } catch {
       return null;
     }
@@ -53,7 +59,12 @@ export class AuthService {
     const token = this.getToken();
     if (!token) return null;
     try {
-      return this.decodePayload(token).sub;
+      const payload = this.decodePayload(token);
+      return (
+        payload.sub ??
+        payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'] ??
+        null
+      );
     } catch {
       return null;
     }

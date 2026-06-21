@@ -16,6 +16,8 @@ export interface Meta {
   fechaObjetivo: string;
   puntajeObtenido?: number;
   estado: EstadoMeta;
+  materia?: string;
+  numeroPace?: number;
 }
 
 export interface ActualizarEstadoMetaRequest {

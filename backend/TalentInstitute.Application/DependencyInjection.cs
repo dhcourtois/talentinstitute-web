@@ -15,6 +15,8 @@ public static class DependencyInjection
         services.AddScoped<CrearAlumnoUseCase>();
         services.AddScoped<AsignarPaceUseCase>();
         services.AddScoped<ObtenerPacesAlumnoUseCase>();
+        services.AddScoped<ObtenerCatalogoPacesUseCase>();
+        services.AddScoped<CrearPaceUseCase>();
         services.AddScoped<ObtenerMetasSemanaUseCase>();
         services.AddScoped<RegistrarMetaUseCase>();
         services.AddScoped<ActualizarEstatusMetaUseCase>();

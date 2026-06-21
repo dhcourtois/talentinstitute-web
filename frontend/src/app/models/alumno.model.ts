@@ -6,7 +6,17 @@ export interface Alumno {
   nombre: string;
   apellido: string;
   nivel: string;
-  privilegioStatus: number;
+  fechaIngreso?: string;
+  privilegeStatus?: PrivilegeStatus;
+  privilegioStatus?: number;
   privilegiosActivos?: PrivilegioFlag[];
   balanceMeritos?: number;
+}
+
+export interface PrivilegeStatus {
+  oficina: boolean;
+  comedor: boolean;
+  patio: boolean;
+  biblioteca: boolean;
+  actividades: boolean;
 }

@@ -24,7 +24,7 @@ export class PacesService {
     return this.http.post<Pace>(this.url, pace);
   }
 
-  asignar(alumnoId: string, paceId: number): Observable<AlumnoPace> {
+  asignar(alumnoId: string, paceId: string): Observable<AlumnoPace> {
     return this.http.post<AlumnoPace>(`${this.url}/asignar`, { alumnoId, paceId });
   }
 }

@@ -74,7 +74,7 @@ public class MeritosController : ControllerBase
         return Ok(meritos);
     }
 
-    [PATCH("{meritoId:guid}/revocar")]
+    [HttpPatch("{meritoId:guid}/revocar")]
     [Authorize(Roles = "Principal,Supervisora")]
     public async Task<IActionResult> Revocar(Guid meritoId, CancellationToken cancellationToken)
     {

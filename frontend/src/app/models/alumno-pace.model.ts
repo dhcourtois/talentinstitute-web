@@ -11,7 +11,10 @@ export type EstadoAlumnoPace =
 export interface AlumnoPace {
   id: string;
   alumnoId: string;
-  paceId: number;
+  paceId: string;
+  materia?: string;
+  numeroPace?: number;
+  puntajeMaximo?: number;
   pace?: import('./pace.model').Pace;
   fechaInicio: string;
   fechaCompletado?: string;

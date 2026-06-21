@@ -23,6 +23,7 @@ public class JwtProvider : IJwtProvider
         {
             new(JwtRegisteredClaimNames.Sub, userId),
             new(JwtRegisteredClaimNames.Email, email),
+            new("rol", role),
             new(ClaimTypes.Role, role)
         };
 
