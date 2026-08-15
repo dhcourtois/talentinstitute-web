@@ -10,11 +10,14 @@ import { Alerta, Alumno, DashboardResumen, Rol } from '../../models';
 import { BadgeComponent, BadgeVariant } from '../../shared/components/badge/badge.component';
 import { ButtonComponent } from '../../shared/components/button/button.component';
 import { SpinnerComponent } from '../../shared/components/spinner/spinner.component';
+import { MetricCardComponent } from './metric-card.component';
+import { ScorePendingListComponent } from './score-pending-list.component';
+import { WeeklyChartComponent } from './weekly-chart.component';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, BadgeComponent, ButtonComponent, SpinnerComponent],
+  imports: [CommonModule, FormsModule, RouterLink, BadgeComponent, ButtonComponent, SpinnerComponent, MetricCardComponent, WeeklyChartComponent, ScorePendingListComponent],
   template: `
     <main class="page-shell">
       <header class="topbar">
@@ -40,22 +43,30 @@ import { SpinnerComponent } from '../../shared/components/spinner/spinner.compon
 
       <ng-container *ngIf="!loading && !errorMessage">
         <section class="metrics" *ngIf="canViewExecutiveMetrics">
-          <article class="metric">
-            <span>Alumnos activos</span>
-            <strong>{{ alumnosActivos }}</strong>
-          </article>
-          <article class="metric">
-            <span>Metas hoy</span>
-            <strong>{{ metasHoy }}</strong>
-          </article>
-          <article class="metric">
-            <span>PACEs en revisión</span>
-            <strong>{{ resumen?.pacesEnRevision ?? 0 }}</strong>
-          </article>
-          <article class="metric urgent">
-            <span>Alertas</span>
-            <strong>{{ totalAlertas }}</strong>
-          </article>
+          <app-metric-card
+            label="Alumnos activos"
+            [value]="alumnosActivos"
+            icon="👥"
+            accent="default"
+          />
+          <app-metric-card
+            label="Metas hoy"
+            [value]="metasHoy"
+            icon="🎯"
+            [accent]="metasHoy === 0 ? 'warning' : 'success'"
+          />
+          <app-metric-card
+            label="PACEs en revisión"
+            [value]="resumen?.pacesEnRevision ?? 0"
+            icon="📋"
+            accent="default"
+          />
+          <app-metric-card
+            label="Alertas"
+            [value]="totalAlertas"
+            icon="⚠️"
+            [accent]="totalAlertas > 0 ? 'warning' : 'default'"
+          />
         </section>
 
         <section class="monitor-note" *ngIf="!canViewExecutiveMetrics">
@@ -85,6 +96,11 @@ import { SpinnerComponent } from '../../shared/components/spinner/spinner.compon
             <app-badge variant="orange">{{ alerta.nivel ?? alerta.tipo ?? 'Seguimiento' }}</app-badge>
           </a>
         </section>
+
+        <div class="two-col" *ngIf="canViewExecutiveMetrics">
+          <app-weekly-chart [datos]="resumen?.metasPorDia ?? []" />
+          <app-score-pending-list [count]="resumen?.pacesEnRevision ?? 0" />
+        </div>
 
         <section class="students">
           <div class="section-header table-tools">
@@ -210,7 +226,13 @@ import { SpinnerComponent } from '../../shared/components/spinner/spinner.compon
       gap: var(--space-4);
     }
 
-    .metric,
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-4);
+      align-items: start;
+    }
+
     .alerts,
     .students,
     .monitor-note {
@@ -218,27 +240,6 @@ import { SpinnerComponent } from '../../shared/components/spinner/spinner.compon
       border: 1px solid var(--color-border);
       border-radius: var(--radius-md);
       box-shadow: var(--shadow-card);
-    }
-
-    .metric {
-      padding: var(--space-5);
-      display: grid;
-      gap: var(--space-2);
-    }
-
-    .metric span {
-      color: var(--color-text-secondary);
-      font-size: var(--font-size-sm);
-      font-weight: var(--font-weight-semibold);
-    }
-
-    .metric strong {
-      font-size: var(--font-size-2xl);
-      line-height: var(--line-height-tight);
-    }
-
-    .metric.urgent strong {
-      color: var(--color-warning);
     }
 
     .alerts,
@@ -383,6 +384,10 @@ import { SpinnerComponent } from '../../shared/components/spinner/spinner.compon
 
       .metrics {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .two-col {
+        grid-template-columns: 1fr;
       }
 
       .filters {
