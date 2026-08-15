@@ -117,22 +117,22 @@ Plan granular para la base de código .NET.
   - [x] Manejo de error 401: mensaje inline "Credenciales incorrectas" sin recargar la página.
   - [x] Overlay de primera vez (heurística Nielsen #10) al primer login del usuario.
 
-- [ ] **13. Módulo Dashboard**
+- [x] **13. Módulo Dashboard**
   - [x] `DashboardComponent`: orquesta llamadas paralelas con `forkJoin` a `DashboardService.getResumen()` y `DashboardService.getAlertas()`.
-  - [ ] `MetricCardComponent`: tarjeta reutilizable para las 4 métricas (alumnos activos, metas hoy, PACEs en revisión, alertas).
+  - [x] `MetricCardComponent`: tarjeta reutilizable para las 4 métricas (alumnos activos, metas hoy, PACEs en revisión, alertas).
   - [x] Banner de alertas funcional inline: muestra alumnos sin meta 2+ días; se oculta si no hay alertas.
   - [x] Tabla de alumnos funcional inline: tabla con paginación, filtro por nivel, navegación al perfil con `routerLink`.
-  - [ ] `WeeklyChartComponent`: gráfica de barras semanales en CSS puro (sin librería de charts).
-  - [ ] `ScorePendingListComponent`: panel de PACEs pendientes de Score Station.
-  - [ ] Ruta protegida con `RoleGuard` para roles Principal y Supervisora.
+  - [x] `WeeklyChartComponent`: gráfica de barras semanales en CSS puro (sin librería de charts).
+  - [x] `ScorePendingListComponent`: panel de PACEs pendientes de Score Station.
+  - [x] Ruta protegida: `authGuard` en la ruta; restricción de métricas ejecutivas por rol vía `canViewExecutiveMetrics` en template (Monitora ve lista de alumnos, Principal/Supervisora ven todas las métricas).
 
-- [ ] **14. Módulo Alumno (Perfil)**
+- [x] **14. Módulo Alumno (Perfil)**
   - [x] Perfil de alumno funcional inline: obtiene el alumno por `id` desde `ActivatedRoute.params`, carga datos con `AlumnosService`.
   - [x] Hero de alumno funcional inline: avatar, nombre, grado, fecha de ingreso, chips de privilegios activos/inactivos.
   - [x] Tarjetas de PACE funcionales inline con `ProgressBarComponent`, estado y acciones de Score Station.
   - [x] Lista de metas funcional inline separada por turno; toggle con llamada a `PUT /api/v1/Progreso/metas/{metaId}/estatus`.
   - [x] Formulario inline de metas con `ReactiveForm`; llama `POST /api/v1/Progreso`.
-  - [ ] `QuickActionsComponent`: botones para otorgar mérito, registrar demérito, actualizar puntos — abren `ModalComponent` para confirmar.
+  - [x] `QuickActionsComponent`: botones para otorgar mérito, registrar demérito, actualizar puntos — abren `ModalComponent` para confirmar.
   - [x] Log funcional inline de los últimos 10 méritos/deméritos del alumno.
   - [x] Acciones restringidas condicionadas por rol en template.
 
