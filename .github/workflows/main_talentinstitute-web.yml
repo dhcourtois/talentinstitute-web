@@ -141,6 +141,9 @@ jobs:
           slot-name: 'Production'
           package: app
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_60FCFC808AC342878CA1DB168B21A733 }}
+        # NOTA: El startup command 'dotnet TalentInstitute.API.dll' está configurado
+        # en Azure App Service → Configuration → General settings para evitar que
+        # Oryx auto-detecte el DLL incorrecto si quedan archivos de deploys anteriores.
 
   # ──────────────────────────────────────────────────────────────────────────
   # JOB 4b: Deploy a Producción (main → aprobación manual requerida)
