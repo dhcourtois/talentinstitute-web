@@ -31,6 +31,11 @@ public static class DependencyInjection
         services.AddScoped<EditarStaffUseCase>();
         services.AddScoped<DesactivarStaffUseCase>();
 
+        // Entrevistas a Padres
+        services.AddScoped<RegistrarEntrevistaUseCase>();
+        services.AddScoped<ObtenerEntrevistasUseCase>();
+        services.AddScoped<ObtenerDetalleEntrevistaUseCase>();
+
         return services;
     }
 }
