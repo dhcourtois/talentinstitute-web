@@ -238,7 +238,7 @@ export class WeeklyChartComponent implements OnChanges {
 
     this.isEmpty = raw.every(d => d.completadas === 0 && d.total === 0);
     this.maxTotal = Math.max(...raw.map(d => d.total), 1);
-    this.halfTotal = Math.round(this.maxTotal / 2);
+    this.halfTotal = this.maxTotal <= 2 ? 0 : Math.round(this.maxTotal / 2);
 
     this.bars = raw.map(d => ({
       label: this.dayLabel(d.fecha),
