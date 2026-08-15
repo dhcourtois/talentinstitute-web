@@ -13,7 +13,7 @@ Plan granular para la base de código .NET.
 - [ ] Validar manualmente Login, Dashboard y Perfil en navegador con API local/staging.
 - [ ] Reducir o reajustar presupuestos CSS de componentes Angular; `ng build` pasa, pero reporta warnings en Login, Dashboard y Alumno.
 - [ ] Implementar módulo real de Entrevistas a Padres; el controlador actual es stub.
-- [ ] Integrar build Angular, migraciones EF y separación staging/production en GitHub Actions.
+- [x] Integrar build Angular, migraciones EF y separación staging/production en GitHub Actions.
 - [ ] Definir decisión de runtime: alinear SOW `.NET 8` vs proyectos `net10.0`.
 - [ ] Limpiar código template (`WeatherForecast`, `Class1`, `UnitTest1`) antes de cierre.
 
