@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Talent Institute — Alumnos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #F5F5F7; --surface: #FFFFFF; --text-primary: #1D1D1F;
+      --text-secondary: #6E6E73; --accent: #0071E3; --border: #D2D2D7;
+      --success: #34C759; --warning: #FF9500; --danger: #FF3B30;
+      --radius-lg: 18px; --radius-md: 12px; --radius-sm: 8px;
+      --shadow-card: 0 2px 20px rgba(0,0,0,0.07);
+    }
+    body { font-family: 'Manrope', -apple-system, sans-serif; background: var(--bg); color: var(--text-primary); min-height: 100vh; }
+
+    nav {
+      background: rgba(255,255,255,0.88); backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100;
+      padding: 0 32px; display: flex; align-items: center; height: 56px; gap: 16px;
+    }
+    .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text-primary); }
+    .nav-logo-mark { width: 32px; height: 32px; background: linear-gradient(135deg,#0071E3,#34AADC); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+    .nav-logo-mark svg { width: 18px; height: 18px; fill: none; stroke: white; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .nav-logo span { font-size: 15px; font-weight: 700; letter-spacing: -0.2px; }
+    .nav-spacer { flex: 1; }
+    .nav-tabs { display: flex; gap: 4px; }
+    .nav-tab { padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; color: var(--text-secondary); cursor: pointer; text-decoration: none; transition: all 0.15s; }
+    .nav-tab.active { background: var(--accent); color: white; }
+    .nav-avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg,#5E5CE6,#BF5AF2); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: white; }
+
+    .page { max-width: 1140px; margin: 0 auto; padding: 32px 24px; }
+
+    .page-header { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
+    .page-header h2 { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; flex: 1; }
+
+    /* SEARCH + FILTER BAR */
+    .toolbar { display: flex; gap: 12px; margin-bottom: 20px; align-items: center; flex-wrap: wrap; }
+    .search-wrap { position: relative; flex: 1; min-width: 240px; }
+    .search-wrap svg { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); width: 15px; height: 15px; fill: none; stroke: var(--text-secondary); stroke-width: 2; stroke-linecap: round; }
+    .search-input {
+      width: 100%; padding: 10px 14px 10px 40px;
+      border: 1.5px solid var(--border); border-radius: var(--radius-md);
+      font-family: 'Manrope', sans-serif; font-size: 14px; color: var(--text-primary);
+      background: var(--surface); outline: none; transition: border-color 0.15s;
+    }
+    .search-input:focus { border-color: var(--accent); }
+
+    .filter-pills { display: flex; gap: 6px; flex-wrap: wrap; }
+    .pill {
+      padding: 7px 14px; border-radius: 20px; font-size: 12px; font-weight: 700;
+      border: 1.5px solid var(--border); background: var(--surface);
+      color: var(--text-secondary); cursor: pointer; transition: all 0.15s; white-space: nowrap;
+    }
+    .pill.active { background: var(--text-primary); color: white; border-color: var(--text-primary); }
+    .pill:hover:not(.active) { border-color: var(--accent); color: var(--accent); }
+
+    .btn-primary {
+      padding: 10px 20px; background: var(--accent); color: white; border: none;
+      border-radius: var(--radius-md); font-family: 'Manrope', sans-serif;
+      font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap;
+      display: flex; align-items: center; gap: 6px; transition: background 0.15s;
+    }
+    .btn-primary:hover { background: #0077ED; }
+
+    /* TABLE */
+    .table-card { background: var(--surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); overflow: hidden; }
+
+    table { width: 100%; border-collapse: collapse; }
+    thead th {
+      font-size: 11px; font-weight: 700; color: var(--text-secondary);
+      text-transform: uppercase; letter-spacing: 0.5px;
+      padding: 12px 20px; text-align: left; background: #FAFAFA;
+      border-bottom: 1px solid var(--border);
+    }
+    tbody td { padding: 14px 20px; font-size: 14px; border-bottom: 1px solid var(--bg); vertical-align: middle; }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover td { background: #FAFAFA; cursor: pointer; }
+
+    .student-cell { display: flex; align-items: center; gap: 10px; text-decoration: none; color: inherit; }
+    .av { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: white; flex-shrink: 0; }
+    .sname { font-weight: 700; font-size: 14px; }
+    .smeta { font-size: 12px; color: var(--text-secondary); margin-top: 1px; }
+
+    .pace-pills { display: flex; gap: 4px; flex-wrap: wrap; }
+    .pace-pip { font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 5px; }
+    .pace-pip.mat { background: rgba(0,113,227,0.1); color: var(--accent); }
+    .pace-pip.lec { background: rgba(255,149,0,0.1); color: #B25000; }
+    .pace-pip.cie { background: rgba(52,199,89,0.1); color: #1A7F36; }
+    .pace-pip.his { background: rgba(94,92,230,0.1); color: #5E5CE6; }
+    .pace-pip.bib { background: rgba(255,59,48,0.08); color: #C0392B; }
+
+    .badge { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px; display: inline-block; }
+    .badge-green { background: rgba(52,199,89,0.12); color: #1A7F36; }
+    .badge-orange { background: rgba(255,149,0,0.12); color: #B25000; }
+    .badge-red { background: rgba(255,59,48,0.1); color: #C0392B; }
+    .badge-gray { background: rgba(110,110,115,0.1); color: var(--text-secondary); }
+
+    .merit-num { font-size: 13px; font-weight: 800; }
+    .merit-num.pos { color: var(--success); }
+    .merit-num.neg { color: var(--danger); }
+    .merit-num.zero { color: var(--text-secondary); }
+
+    .priv-chips { display: flex; gap: 4px; }
+    .priv-chip { width: 8px; height: 8px; border-radius: 50%; }
+    .priv-chip.on { background: var(--success); }
+    .priv-chip.off { background: var(--border); }
+
+    .action-btn { background: none; border: 1.5px solid var(--border); border-radius: 8px; padding: 5px 10px; font-family: 'Manrope', sans-serif; font-size: 12px; font-weight: 700; color: var(--text-secondary); cursor: pointer; transition: all 0.15s; }
+    .action-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* PAGINATION */
+    .pagination { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-top: 1px solid var(--bg); }
+    .pagination-info { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
+    .pagination-btns { display: flex; gap: 4px; }
+    .page-btn { width: 32px; height: 32px; border-radius: 8px; border: 1.5px solid var(--border); background: var(--surface); font-family: 'Manrope', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); transition: all 0.15s; }
+    .page-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+    .page-btn:hover:not(.active) { border-color: var(--accent); color: var(--accent); }
+
+    /* MODAL OVERLAY (dummy) */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 200; align-items: center; justify-content: center; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: white; border-radius: var(--radius-lg); padding: 32px; width: 480px; box-shadow: 0 8px 40px rgba(0,0,0,0.16); }
+    .modal h3 { font-size: 20px; font-weight: 800; margin-bottom: 20px; letter-spacing: -0.3px; }
+    .modal-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .form-group { margin-bottom: 16px; }
+    .form-label { font-size: 12px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 6px; display: block; }
+    .form-input { width: 100%; padding: 11px 14px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-family: 'Manrope', sans-serif; font-size: 14px; color: var(--text-primary); background: #FAFAFA; outline: none; }
+    .form-input:focus { border-color: var(--accent); background: white; }
+    .form-select { appearance: none; }
+    .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; }
+    .btn-ghost { padding: 10px 20px; background: none; border: 1.5px solid var(--border); border-radius: var(--radius-md); font-family: 'Manrope', sans-serif; font-size: 13px; font-weight: 700; color: var(--text-secondary); cursor: pointer; }
+    .btn-ghost:hover { border-color: var(--text-primary); color: var(--text-primary); }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="login.html" class="nav-logo">
+    <div class="nav-logo-mark"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+    <span>Talent Institute</span>
+  </a>
+  <div class="nav-spacer"></div>
+  <div class="nav-tabs">
+    <a href="dashboard.html" class="nav-tab">Dashboard</a>
+    <a href="students.html" class="nav-tab active">Alumnos</a>
+    <a href="paces.html" class="nav-tab">PACEs</a>
+    <a href="reports.html" class="nav-tab">Reportes</a>
+  </div>
+  <div class="nav-spacer"></div>
+  <div class="nav-avatar">MG</div>
+</nav>
+
+<main class="page">
+  <div class="page-header">
+    <h2>Alumnos</h2>
+    <button class="btn-primary" onclick="document.getElementById('modal').classList.add('open')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Nuevo Alumno
+    </button>
+  </div>
+
+  <div class="toolbar">
+    <div class="search-wrap">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input class="search-input" type="text" placeholder="Buscar por nombre o matrícula…">
+    </div>
+    <div class="filter-pills">
+      <button class="pill active">Todos (24)</button>
+      <button class="pill">Grado 7 (6)</button>
+      <button class="pill">Grado 8 (7)</button>
+      <button class="pill">Grado 9 (6)</button>
+      <button class="pill">Grado 10 (5)</button>
+      <button class="pill">Con alertas (3)</button>
+    </div>
+  </div>
+
+  <div class="table-card">
+    <table>
+      <thead>
+        <tr>
+          <th>Alumno</th>
+          <th>Grado</th>
+          <th>PACEs Activos</th>
+          <th>Avance Prom.</th>
+          <th>Méritos</th>
+          <th>Privilegios</th>
+          <th>Estado</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr onclick="location='student.html'">
+          <td><div class="student-cell"><div class="av" style="background:linear-gradient(135deg,#5E5CE6,#BF5AF2)">AM</div><div><div class="sname">Alejandra Morales Vega</div><div class="smeta">Matrícula 2022-018</div></div></div></td>
+          <td>8°</td>
+          <td><div class="pace-pills"><span class="pace-pip mat">MAT</span><span class="pace-pip lec">LEC</span><span class="pace-pip cie">CIE</span></div></td>
+          <td><span style="font-weight:700;color:var(--success)">82%</span></td>
+          <td><span class="merit-num pos">+7</span></td>
+          <td><div class="priv-chips"><div class="priv-chip on" title="Oficina"></div><div class="priv-chip on" title="Comedor"></div><div class="priv-chip on" title="Patio"></div><div class="priv-chip off" title="Biblioteca"></div><div class="priv-chip off" title="Actividades"></div></div></td>
+          <td><span class="badge badge-green">Activo</span></td>
+          <td><button class="action-btn">Ver perfil</button></td>
+        </tr>
+        <tr onclick="location='student.html'">
+          <td><div class="student-cell"><div class="av" style="background:linear-gradient(135deg,#FF6B6B,#FF8E53)">CR</div><div><div class="sname">Carlos Rodríguez Sosa</div><div class="smeta">Matrícula 2023-004</div></div></div></td>
+          <td>7°</td>
+          <td><div class="pace-pills"><span class="pace-pip mat">MAT</span><span class="pace-pip lec">LEC</span></div></td>
+          <td><span style="font-weight:700;color:var(--danger)">32%</span></td>
+          <td><span class="merit-num neg">-2</span></td>
+          <td><div class="priv-chips"><div class="priv-chip on"></div><div class="priv-chip off"></div><div class="priv-chip on"></div><div class="priv-chip off"></div><div class="priv-chip off"></div></div></td>
+          <td><span class="badge badge-red">Alerta</span></td>
+          <td><button class="action-btn">Ver perfil</button></td>
+        </tr>
+        <tr onclick="location='student.html'">
+          <td><div class="student-cell"><div class="av" style="background:linear-gradient(135deg,#11998e,#38ef7d)">SM</div><div><div class="sname">Sofía Medina Ávila</div><div class="smeta">Matrícula 2022-011</div></div></div></td>
+          <td>9°</td>
+          <td><div class="pace-pills"><span class="pace-pip mat">MAT</span><span class="pace-pip lec">LEC</span><span class="pace-pip cie">CIE</span><span class="pace-pip his">HIS</span></div></td>
+          <td><span style="font-weight:700;color:var(--danger)">28%</span></td>
+          <td><span class="merit-num pos">+2</span></td>
+          <td><div class="priv-chips"><div class="priv-chip on"></div><div class="priv-chip on"></div><div class="priv-chip on"></div><div class="priv-chip off"></div><div class="priv-chip off"></div></div></td>
+          <td><span class="badge badge-red">Alerta</span></td>
+          <td><button class="action-btn">Ver perfil</button></td>
+        </tr>
+        <tr onclick="location='student.html'">
+          <td><div class="student-cell"><div class="av" style="background:linear-gradient(135deg,#f7971e,#ffd200)">LP</div><div><div class="sname">Luis Peña Contreras</div><div class="smeta">Matrícula 2022-009</div></div></div></td>
+          <td>8°</td>
+          <td><div class="pace-pills"><span class="pace-pip mat">MAT</span><span class="pace-pip lec">LEC</span><span class="pace-pip cie">CIE</span></div></td>
+          <td><span style="font-weight:700;color:var(--success)">68%</span></td>
+          <td><span class="merit-num pos">+10</span></td>
+          <td><div class="priv-chips"><div class="priv-chip on"></div><div class="priv-chip on"></div><div class="priv-chip on"></div><div class="priv-chip on"></div><div class="priv-chip off"></div></div></td>
+          <td><span class="badge badge-green">Activo</span></td>
+          <td><button class="action-btn">Ver perfil</button></td>
+        </tr>
+        <tr onclick="location='student.html'">
+          <td><div class="student-cell"><div class="av" style="background:linear-gradient(135deg,#4facfe,#00f2fe)">VH</div><div><div class="sname">Valeria Hernández Cruz</div><div class="smeta">Matrícula 2021-003</div></div></div></td>
+          <td>10°</td>
+          <td><div class="pace-pills"><span class="pace-pip mat">MAT</span><span class="pace-pip lec">LEC</span><span class="pace-pip cie">CIE</span><span class="pace-pip his">HIS</span><span class="pace-pip bib">BIB</span></div></td>
+          <td><span style="font-weight:700;color:var(--success)">91%</span></td>
+          <td><span class="merit-num pos">+13</span></td>
+          <td><div class="priv-chips"><div class="priv-chip on"></div><div class="priv-chip on"></div><div class="priv-chip on"></div><div class="priv-chip on"></div><div class="priv-chip on"></div></div></td>
+          <td><span class="badge badge-green">Activo</span></td>
+          <td><button class="action-btn">Ver perfil</button></td>
+        </tr>
+        <tr onclick="location='student.html'">
+          <td><div class="student-cell"><div class="av" style="background:linear-gradient(135deg,#a18cd1,#fbc2eb)">JP</div><div><div class="sname">Juan Pablo Torres Díaz</div><div class="smeta">Matrícula 2023-007</div></div></div></td>
+          <td>7°</td>
+          <td><div class="pace-pills"><span class="pace-pip mat">MAT</span><span class="pace-pip lec">LEC</span></div></td>
+          <td><span style="font-weight:700;color:var(--danger)">18%</span></td>
+          <td><span class="merit-num neg">-5</span></td>
+          <td><div class="priv-chips"><div class="priv-chip off"></div><div class="priv-chip off"></div><div class="priv-chip off"></div><div class="priv-chip off"></div><div class="priv-chip off"></div></div></td>
+          <td><span class="badge badge-red">Alerta</span></td>
+          <td><button class="action-btn">Ver perfil</button></td>
+        </tr>
+        <tr onclick="location='student.html'">
+          <td><div class="student-cell"><div class="av" style="background:linear-gradient(135deg,#43e97b,#38f9d7)">RA</div><div><div class="sname">Rodrigo Alamilla Brito</div><div class="smeta">Matrícula 2021-014</div></div></div></td>
+          <td>10°</td>
+          <td><div class="pace-pills"><span class="pace-pip mat">MAT</span><span class="pace-pip lec">LEC</span><span class="pace-pip his">HIS</span></div></td>
+          <td><span style="font-weight:700;color:var(--success)">74%</span></td>
+          <td><span class="merit-num pos">+6</span></td>
+          <td><div class="priv-chips"><div class="priv-chip on"></div><div class="priv-chip on"></div><div class="priv-chip on"></div><div class="priv-chip on"></div><div class="priv-chip off"></div></div></td>
+          <td><span class="badge badge-green">Activo</span></td>
+          <td><button class="action-btn">Ver perfil</button></td>
+        </tr>
+        <tr onclick="location='student.html'">
+          <td><div class="student-cell"><div class="av" style="background:linear-gradient(135deg,#f093fb,#f5576c)">IC</div><div><div class="sname">Isabella Chan Méndez</div><div class="smeta">Matrícula 2022-016</div></div></div></td>
+          <td>9°</td>
+          <td><div class="pace-pills"><span class="pace-pip mat">MAT</span><span class="pace-pip lec">LEC</span><span class="pace-pip cie">CIE</span></div></td>
+          <td><span style="font-weight:700;color:var(--warning)">55%</span></td>
+          <td><span class="merit-num pos">+4</span></td>
+          <td><div class="priv-chips"><div class="priv-chip on"></div><div class="priv-chip on"></div><div class="priv-chip on"></div><div class="priv-chip off"></div><div class="priv-chip off"></div></div></td>
+          <td><span class="badge badge-green">Activo</span></td>
+          <td><button class="action-btn">Ver perfil</button></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="pagination">
+      <span class="pagination-info">Mostrando 1–8 de 24 alumnos</span>
+      <div class="pagination-btns">
+        <button class="page-btn">‹</button>
+        <button class="page-btn active">1</button>
+        <button class="page-btn">2</button>
+        <button class="page-btn">3</button>
+        <button class="page-btn">›</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- MODAL NUEVO ALUMNO -->
+<div class="modal-overlay" id="modal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal">
+    <h3>Nuevo Alumno</h3>
+    <div class="modal-row">
+      <div class="form-group"><label class="form-label">Nombre(s)</label><input class="form-input" type="text" placeholder="Alejandra"></div>
+      <div class="form-group"><label class="form-label">Apellido(s)</label><input class="form-input" type="text" placeholder="Morales Vega"></div>
+    </div>
+    <div class="modal-row">
+      <div class="form-group"><label class="form-label">N° Matrícula</label><input class="form-input" type="text" placeholder="2026-025"></div>
+      <div class="form-group"><label class="form-label">Grado</label>
+        <select class="form-input form-select">
+          <option>Seleccionar…</option>
+          <option>Grado 7</option><option>Grado 8</option><option>Grado 9</option><option>Grado 10</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Fecha de ingreso</label><input class="form-input" type="date" value="2026-04-12"></div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="document.getElementById('modal').classList.remove('open')">Cancelar</button>
+      <button class="btn-primary" onclick="document.getElementById('modal').classList.remove('open')">Crear Alumno</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

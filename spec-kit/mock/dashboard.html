@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Talent Institute — Dashboard Supervisora</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #F5F5F7;
+      --surface: #FFFFFF;
+      --text-primary: #1D1D1F;
+      --text-secondary: #6E6E73;
+      --accent: #0071E3;
+      --border: #D2D2D7;
+      --success: #34C759;
+      --warning: #FF9500;
+      --danger: #FF3B30;
+      --radius-lg: 18px;
+      --radius-md: 12px;
+      --radius-sm: 8px;
+      --shadow-card: 0 2px 20px rgba(0,0,0,0.07);
+    }
+
+    body {
+      font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text-primary);
+      min-height: 100vh;
+    }
+
+    /* NAV */
+    nav {
+      background: rgba(255,255,255,0.88);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      height: 56px;
+      gap: 16px;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--text-primary);
+    }
+
+    .nav-logo-mark {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, #0071E3, #34AADC);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .nav-logo-mark svg { width: 18px; height: 18px; fill: none; stroke: white; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    .nav-logo span { font-size: 15px; font-weight: 700; letter-spacing: -0.2px; }
+
+    .nav-spacer { flex: 1; }
+
+    .nav-tabs {
+      display: flex;
+      gap: 4px;
+    }
+
+    .nav-tab {
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.15s;
+      background: transparent;
+      border: none;
+    }
+
+    .nav-tab.active {
+      background: var(--accent);
+      color: white;
+    }
+
+    .nav-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #5E5CE6, #BF5AF2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: white;
+      cursor: pointer;
+    }
+
+    /* CONTENT */
+    .page {
+      max-width: 1140px;
+      margin: 0 auto;
+      padding: 32px 24px;
+    }
+
+    /* ALERT BANNER */
+    .alert-banner {
+      background: rgba(255,149,0,0.1);
+      border: 1.5px solid rgba(255,149,0,0.3);
+      border-radius: var(--radius-md);
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    .alert-icon {
+      width: 32px;
+      height: 32px;
+      background: var(--warning);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .alert-icon svg { width: 16px; height: 16px; fill: white; }
+
+    .alert-text strong { font-size: 14px; font-weight: 700; color: #B25000; }
+    .alert-text p { font-size: 13px; color: #B25000; margin-top: 2px; }
+
+    .alert-dismiss {
+      margin-left: auto;
+      background: none;
+      border: none;
+      font-size: 20px;
+      color: #B25000;
+      cursor: pointer;
+      opacity: 0.6;
+      line-height: 1;
+    }
+
+    /* PAGE HEADER */
+    .page-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+
+    .page-header h2 {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+
+    .page-header p {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-top: 3px;
+    }
+
+    .week-badge {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      padding: 6px 14px;
+      border-radius: 20px;
+    }
+
+    /* STATS GRID */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-card);
+      padding: 24px 20px;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-size: 36px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+
+    .stat-delta {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 20px;
+      display: inline-block;
+    }
+
+    .stat-delta.up { background: rgba(52,199,89,0.12); color: #1A7F36; }
+    .stat-delta.down { background: rgba(255,59,48,0.1); color: #C0392B; }
+    .stat-delta.neutral { background: rgba(110,110,115,0.1); color: var(--text-secondary); }
+
+    .stat-card.accent-blue .stat-value { color: var(--accent); }
+    .stat-card.accent-green .stat-value { color: var(--success); }
+    .stat-card.accent-orange .stat-value { color: var(--warning); }
+    .stat-card.accent-red .stat-value { color: var(--danger); }
+
+    /* MAIN GRID */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 20px;
+    }
+
+    /* SECTION CARD */
+    .section-card {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-card);
+      overflow: hidden;
+    }
+
+    .section-header {
+      padding: 20px 24px 16px;
+      border-bottom: 1px solid var(--bg);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .section-header h3 {
+      font-size: 16px;
+      font-weight: 700;
+      flex: 1;
+    }
+
+    .section-header .count-badge {
+      font-size: 12px;
+      font-weight: 600;
+      background: var(--bg);
+      color: var(--text-secondary);
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+
+    .section-header .btn-sm {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    /* TABLE */
+    .student-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .student-table th {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 12px 24px;
+      text-align: left;
+      background: #FAFAFA;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .student-table td {
+      padding: 14px 24px;
+      font-size: 14px;
+      border-bottom: 1px solid #F5F5F7;
+      vertical-align: middle;
+    }
+
+    .student-table tr:last-child td { border-bottom: none; }
+
+    .student-table tr:hover td { background: #FAFAFA; }
+
+    .student-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--text-primary);
+    }
+
+    .avatar-sm {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: white;
+      flex-shrink: 0;
+    }
+
+    .student-name { font-weight: 600; font-size: 14px; }
+    .student-grade { font-size: 12px; color: var(--text-secondary); margin-top: 1px; }
+
+    .pace-tag {
+      font-size: 12px;
+      font-weight: 600;
+      background: rgba(0,113,227,0.08);
+      color: var(--accent);
+      padding: 4px 10px;
+      border-radius: 6px;
+      display: inline-block;
+    }
+
+    /* PROGRESS BAR */
+    .progress-wrap { width: 100px; }
+    .progress-bar-bg {
+      height: 6px;
+      background: var(--bg);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-bottom: 4px;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      background: var(--success);
+      transition: width 0.3s;
+    }
+    .progress-bar-fill.warn { background: var(--warning); }
+    .progress-bar-fill.danger { background: var(--danger); }
+    .progress-pct { font-size: 12px; font-weight: 600; color: var(--text-secondary); }
+
+    /* STATUS BADGE */
+    .badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 20px;
+      display: inline-block;
+      letter-spacing: 0.2px;
+    }
+
+    .badge-green { background: rgba(52,199,89,0.12); color: #1A7F36; }
+    .badge-orange { background: rgba(255,149,0,0.12); color: #B25000; }
+    .badge-red { background: rgba(255,59,48,0.1); color: #C0392B; }
+    .badge-blue { background: rgba(0,113,227,0.1); color: var(--accent); }
+    .badge-gray { background: rgba(110,110,115,0.1); color: var(--text-secondary); }
+
+    /* MERIT DISPLAY */
+    .merit-display {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .merit-display .m-pos { color: var(--success); }
+    .merit-display .m-neg { color: var(--danger); }
+    .merit-display .m-sep { color: var(--border); font-weight: 400; }
+
+    /* SIDE PANEL */
+    .side-panel { display: flex; flex-direction: column; gap: 16px; }
+
+    /* ALERTS LIST */
+    .alert-list { padding: 0 8px 8px; }
+
+    .alert-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px 16px;
+      border-radius: var(--radius-md);
+      transition: background 0.15s;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .alert-item:hover { background: var(--bg); }
+
+    .alert-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 5px;
+    }
+
+    .alert-item-text strong { font-size: 13px; font-weight: 700; }
+    .alert-item-text p { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+
+    /* MINI WEEKLY CHART */
+    .mini-chart {
+      padding: 16px 24px 20px;
+    }
+
+    .chart-bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      height: 80px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 8px;
+    }
+
+    .chart-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+
+    .chart-bar {
+      width: 100%;
+      border-radius: 4px 4px 0 0;
+      background: var(--accent);
+      opacity: 0.3;
+      transition: opacity 0.15s;
+    }
+
+    .chart-bar.current { opacity: 1; }
+
+    .chart-day {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+    }
+
+    .chart-legend {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    /* FOOTER NAV */
+    .footer-nav {
+      display: none;
+    }
+
+    @media (max-width: 900px) {
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      .main-grid { grid-template-columns: 1fr; }
+      .side-panel { display: none; }
+    }
+
+    @media (max-width: 600px) {
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      nav { padding: 0 16px; }
+      .nav-tabs { display: none; }
+      .page { padding: 20px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a href="login.html" class="nav-logo">
+      <div class="nav-logo-mark">
+        <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      </div>
+      <span>Talent Institute</span>
+    </a>
+    <div class="nav-spacer"></div>
+    <div class="nav-tabs">
+      <a href="dashboard.html" class="nav-tab active">Dashboard</a>
+      <a href="students.html" class="nav-tab">Alumnos</a>
+      <a href="paces.html" class="nav-tab">PACEs</a>
+      <a href="reports.html" class="nav-tab">Reportes</a>
+    </div>
+    <div class="nav-spacer"></div>
+    <div class="nav-avatar" title="Ma. González — Supervisora">MG</div>
+  </nav>
+
+  <main class="page">
+
+    <!-- ALERT BANNER -->
+    <div class="alert-banner">
+      <div class="alert-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+      </div>
+      <div class="alert-text">
+        <strong>3 alumnos llevan 2+ días sin registrar meta</strong>
+        <p>Revisar: Sofía M., Carlos R., y Juan P. — posible bloqueo en PACE actual.</p>
+      </div>
+      <button class="alert-dismiss">×</button>
+    </div>
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+      <div>
+        <h2>Dashboard General</h2>
+        <p>Semana del 7 al 11 de abril, 2026</p>
+      </div>
+      <div class="week-badge">Semana 29 del ciclo escolar</div>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats-grid">
+      <div class="stat-card accent-blue">
+        <div class="stat-label">Alumnos Activos</div>
+        <div class="stat-value">24</div>
+        <span class="stat-delta neutral">Sin cambios esta semana</span>
+      </div>
+      <div class="stat-card accent-green">
+        <div class="stat-label">Metas Cumplidas Hoy</div>
+        <div class="stat-value">18</div>
+        <span class="stat-delta up">+3 vs. ayer</span>
+      </div>
+      <div class="stat-card accent-orange">
+        <div class="stat-label">PACEs en Revisión</div>
+        <div class="stat-value">7</div>
+        <span class="stat-delta down">5 pendientes scoring</span>
+      </div>
+      <div class="stat-card accent-red">
+        <div class="stat-label">Alertas Activas</div>
+        <div class="stat-value">3</div>
+        <span class="stat-delta down">Requieren atención</span>
+      </div>
+    </div>
+
+    <!-- MAIN GRID -->
+    <div class="main-grid">
+
+      <!-- STUDENT TABLE -->
+      <div class="section-card">
+        <div class="section-header">
+          <h3>Progreso de Alumnos</h3>
+          <span class="count-badge">24 alumnos</span>
+          <button class="btn-sm">Ver todos →</button>
+        </div>
+        <table class="student-table">
+          <thead>
+            <tr>
+              <th>Alumno</th>
+              <th>PACE Actual</th>
+              <th>Avance Semanal</th>
+              <th>Metas Hoy</th>
+              <th>Méritos</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <a href="student.html" class="student-link">
+                  <div class="avatar-sm" style="background: linear-gradient(135deg,#5E5CE6,#BF5AF2);">AM</div>
+                  <div>
+                    <div class="student-name">Alejandra Morales</div>
+                    <div class="student-grade">Grado 8 · Mat/Lec/Cien</div>
+                  </div>
+                </a>
+              </td>
+              <td><span class="pace-tag">MAT-1097</span></td>
+              <td>
+                <div class="progress-wrap">
+                  <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:82%"></div></div>
+                  <div class="progress-pct">82% — 41/50 pts</div>
+                </div>
+              </td>
+              <td><span class="badge badge-green">Completada</span></td>
+              <td><div class="merit-display"><span class="m-pos">+8</span><span class="m-sep">/</span><span class="m-neg">-1</span></div></td>
+              <td><span class="badge badge-green">En progreso</span></td>
+            </tr>
+            <tr>
+              <td>
+                <a href="student.html" class="student-link">
+                  <div class="avatar-sm" style="background: linear-gradient(135deg,#FF6B6B,#FF8E53);">CR</div>
+                  <div>
+                    <div class="student-name">Carlos Rodríguez</div>
+                    <div class="student-grade">Grado 7 · Mat/Lec</div>
+                  </div>
+                </a>
+              </td>
+              <td><span class="pace-tag">MAT-1084</span></td>
+              <td>
+                <div class="progress-wrap">
+                  <div class="progress-bar-bg"><div class="progress-bar-fill warn" style="width:32%"></div></div>
+                  <div class="progress-pct">32% — 16/50 pts</div>
+                </div>
+              </td>
+              <td><span class="badge badge-orange">Sin registrar</span></td>
+              <td><div class="merit-display"><span class="m-pos">+2</span><span class="m-sep">/</span><span class="m-neg">-4</span></div></td>
+              <td><span class="badge badge-red">Estancado</span></td>
+            </tr>
+            <tr>
+              <td>
+                <a href="student.html" class="student-link">
+                  <div class="avatar-sm" style="background: linear-gradient(135deg,#11998e,#38ef7d);">SM</div>
+                  <div>
+                    <div class="student-name">Sofía Medina</div>
+                    <div class="student-grade">Grado 9 · Mat/Lec/Cien/His</div>
+                  </div>
+                </a>
+              </td>
+              <td><span class="pace-tag">LEC-1105</span></td>
+              <td>
+                <div class="progress-wrap">
+                  <div class="progress-bar-bg"><div class="progress-bar-fill warn" style="width:28%"></div></div>
+                  <div class="progress-pct">28% — 14/50 pts</div>
+                </div>
+              </td>
+              <td><span class="badge badge-orange">Sin registrar</span></td>
+              <td><div class="merit-display"><span class="m-pos">+5</span><span class="m-sep">/</span><span class="m-neg">-3</span></div></td>
+              <td><span class="badge badge-red">Estancada</span></td>
+            </tr>
+            <tr>
+              <td>
+                <a href="student.html" class="student-link">
+                  <div class="avatar-sm" style="background: linear-gradient(135deg,#f7971e,#ffd200);">LP</div>
+                  <div>
+                    <div class="student-name">Luis Peña</div>
+                    <div class="student-grade">Grado 8 · Mat/Lec/Cien</div>
+                  </div>
+                </a>
+              </td>
+              <td><span class="pace-tag">CIE-1091</span></td>
+              <td>
+                <div class="progress-wrap">
+                  <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:68%"></div></div>
+                  <div class="progress-pct">68% — 34/50 pts</div>
+                </div>
+              </td>
+              <td><span class="badge badge-green">Completada</span></td>
+              <td><div class="merit-display"><span class="m-pos">+10</span><span class="m-sep">/</span><span class="m-neg">-0</span></div></td>
+              <td><span class="badge badge-green">En progreso</span></td>
+            </tr>
+            <tr>
+              <td>
+                <a href="student.html" class="student-link">
+                  <div class="avatar-sm" style="background: linear-gradient(135deg,#4facfe,#00f2fe);">VH</div>
+                  <div>
+                    <div class="student-name">Valeria Hernández</div>
+                    <div class="student-grade">Grado 10 · Mat/Lec/Cien/His/Bib</div>
+                  </div>
+                </a>
+              </td>
+              <td><span class="pace-tag">MAT-1112</span></td>
+              <td>
+                <div class="progress-wrap">
+                  <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:96%"></div></div>
+                  <div class="progress-pct">96% — 48/50 pts</div>
+                </div>
+              </td>
+              <td><span class="badge badge-green">Completada</span></td>
+              <td><div class="merit-display"><span class="m-pos">+14</span><span class="m-sep">/</span><span class="m-neg">-1</span></div></td>
+              <td><span class="badge badge-blue">Listo para Auto-Test</span></td>
+            </tr>
+            <tr>
+              <td>
+                <a href="student.html" class="student-link">
+                  <div class="avatar-sm" style="background: linear-gradient(135deg,#a18cd1,#fbc2eb);">JP</div>
+                  <div>
+                    <div class="student-name">Juan Pablo Torres</div>
+                    <div class="student-grade">Grado 7 · Mat/Lec</div>
+                  </div>
+                </a>
+              </td>
+              <td><span class="pace-tag">LEC-1078</span></td>
+              <td>
+                <div class="progress-wrap">
+                  <div class="progress-bar-bg"><div class="progress-bar-fill danger" style="width:18%"></div></div>
+                  <div class="progress-pct">18% — 9/50 pts</div>
+                </div>
+              </td>
+              <td><span class="badge badge-red">Sin registrar</span></td>
+              <td><div class="merit-display"><span class="m-pos">+1</span><span class="m-sep">/</span><span class="m-neg">-6</span></div></td>
+              <td><span class="badge badge-red">En riesgo</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- SIDE PANEL -->
+      <div class="side-panel">
+
+        <!-- ALERTS -->
+        <div class="section-card">
+          <div class="section-header">
+            <h3>Alertas</h3>
+            <span class="count-badge" style="background:rgba(255,59,48,0.1);color:#C0392B;">3</span>
+          </div>
+          <div class="alert-list">
+            <a href="student.html" class="alert-item">
+              <div class="alert-dot" style="background:var(--danger)"></div>
+              <div class="alert-item-text">
+                <strong>Carlos R. — 2 días sin meta</strong>
+                <p>PACE MAT-1084 sin avance desde martes</p>
+              </div>
+            </a>
+            <a href="student.html" class="alert-item">
+              <div class="alert-dot" style="background:var(--danger)"></div>
+              <div class="alert-item-text">
+                <strong>Juan P. — Deméritos acumulados</strong>
+                <p>Balance negativo: -6 deméritos esta semana</p>
+              </div>
+            </a>
+            <a href="student.html" class="alert-item">
+              <div class="alert-dot" style="background:var(--warning)"></div>
+              <div class="alert-item-text">
+                <strong>Sofía M. — PACE sin score</strong>
+                <p>LEC-1105 esperando calificación de Score Station</p>
+              </div>
+            </a>
+          </div>
+        </div>
+
+        <!-- WEEKLY TREND -->
+        <div class="section-card">
+          <div class="section-header">
+            <h3>Metas esta semana</h3>
+          </div>
+          <div class="mini-chart">
+            <div class="chart-bars">
+              <div class="chart-bar-wrap">
+                <div class="chart-bar" style="height:52px"></div>
+                <span class="chart-day">Lun</span>
+              </div>
+              <div class="chart-bar-wrap">
+                <div class="chart-bar" style="height:68px"></div>
+                <span class="chart-day">Mar</span>
+              </div>
+              <div class="chart-bar-wrap">
+                <div class="chart-bar" style="height:44px"></div>
+                <span class="chart-day">Mié</span>
+              </div>
+              <div class="chart-bar-wrap">
+                <div class="chart-bar" style="height:76px"></div>
+                <span class="chart-day">Jue</span>
+              </div>
+              <div class="chart-bar-wrap">
+                <div class="chart-bar current" style="height:60px"></div>
+                <span class="chart-day">Vie</span>
+              </div>
+            </div>
+            <div class="chart-legend">
+              <span>21 metas lun.</span>
+              <span>Hoy: 18 completadas</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- PACEs pendientes -->
+        <div class="section-card">
+          <div class="section-header">
+            <h3>Score Station pendiente</h3>
+            <span class="count-badge">5</span>
+          </div>
+          <div class="alert-list">
+            <div class="alert-item" style="justify-content:space-between;">
+              <div class="alert-item-text">
+                <strong>Valeria H. — MAT-1112</strong>
+                <p>Esperando calificación final</p>
+              </div>
+              <span class="badge badge-blue">96%</span>
+            </div>
+            <div class="alert-item" style="justify-content:space-between;">
+              <div class="alert-item-text">
+                <strong>Luis P. — CIE-1091</strong>
+                <p>Listo para Score Station</p>
+              </div>
+              <span class="badge badge-orange">68%</span>
+            </div>
+            <div class="alert-item" style="justify-content:space-between;">
+              <div class="alert-item-text">
+                <strong>Rodrigo A. — HIS-1099</strong>
+                <p>Esperando calificación</p>
+              </div>
+              <span class="badge badge-blue">91%</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+</body>
+</html>
