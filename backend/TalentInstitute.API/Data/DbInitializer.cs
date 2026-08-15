@@ -16,8 +16,8 @@ public static class DbInitializer
         var context = scope.ServiceProvider.GetRequiredService<TalentInstituteDbContext>();
         var hasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
 
-        // Aplicar migraciones automáticas en desarrollo
-        await context.Database.MigrateAsync();
+        // MigrateAsync se llama en Program.cs para todos los entornos.
+        // Aquí solo sembramos datos iniciales de prueba.
 
         // Cada sección llama su propio SaveChangesAsync para evitar que EF
         // acumule inserts de secciones distintas y genere batches duplicados.

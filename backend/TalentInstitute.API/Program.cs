@@ -1,10 +1,12 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using TalentInstitute.Application;
 using TalentInstitute.Infrastructure;
 using TalentInstitute.Infrastructure.Authentication;
+using TalentInstitute.Infrastructure.Data;
 using TalentInstitute.API.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -81,7 +83,14 @@ builder.Services.AddSwaggerGen(options =>
 
 var app = builder.Build();
 
-// Inicializar base de datos y semilla de prueba
+// ── Migraciones automáticas en todos los entornos ─────────────────────────
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<TalentInstituteDbContext>();
+    await db.Database.MigrateAsync();
+}
+
+// Semilla de datos de prueba solo en Development
 if (app.Environment.IsDevelopment())
 {
     await TalentInstitute.API.Data.DbInitializer.SeedAsync(app.Services);
@@ -89,12 +98,15 @@ if (app.Environment.IsDevelopment())
 
 app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+// ── Servir SPA de Angular desde wwwroot ───────────────────────────────────
+app.UseDefaultFiles();
+app.UseStaticFiles();
 
 app.UseHttpsRedirection();
 
@@ -104,5 +116,8 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// Todas las rutas no-API redirigen a index.html para el router de Angular
+app.MapFallbackToFile("index.html");
 
 app.Run();
