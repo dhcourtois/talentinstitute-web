@@ -14,11 +14,12 @@ import { BadgeComponent, BadgeVariant } from '../../shared/components/badge/badg
 import { ButtonComponent } from '../../shared/components/button/button.component';
 import { ProgressBarComponent } from '../../shared/components/progress-bar/progress-bar.component';
 import { SpinnerComponent } from '../../shared/components/spinner/spinner.component';
+import { QuickActionsComponent } from './quick-actions.component';
 
 @Component({
   selector: 'app-alumno',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, BadgeComponent, ButtonComponent, ProgressBarComponent, SpinnerComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, BadgeComponent, ButtonComponent, ProgressBarComponent, SpinnerComponent, QuickActionsComponent],
   template: `
     <main class="page-shell">
       <header class="topbar">
@@ -60,6 +61,13 @@ import { SpinnerComponent } from '../../shared/components/spinner/spinner.compon
             <app-badge [variant]="item.active ? 'green' : 'gray'">{{ item.active ? 'Activo' : 'Inactivo' }}</app-badge>
           </div>
         </section>
+
+        <app-quick-actions
+          [alumnoId]="alumnoId"
+          [paces]="paces"
+          [role]="role"
+          (changed)="reload()"
+        />
 
         <div class="content-grid">
           <section class="panel paces-panel">

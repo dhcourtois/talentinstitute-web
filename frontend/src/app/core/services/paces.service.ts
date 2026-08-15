@@ -27,4 +27,8 @@ export class PacesService {
   asignar(alumnoId: string, paceId: string): Observable<AlumnoPace> {
     return this.http.post<AlumnoPace>(`${this.url}/asignar`, { alumnoId, paceId });
   }
+
+  checkProgress(alumnoPaceId: string, exitoso: boolean): Observable<void> {
+    return this.http.post<void>(`${this.url}/${alumnoPaceId}/check`, { exitoso });
+  }
 }
