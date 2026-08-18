@@ -121,7 +121,6 @@ Los siguientes elementos **no están incluidos** en esta versión del proyecto y
 
 - Aplicación móvil nativa (iOS / Android).
 - Integración con plataformas externas de ACE (ACE Connect, PACEs Online, etc.).
-- Módulo de facturación, colegiaturas o pagos.
 - Generación de boletas, certificados o documentos escolares oficiales.
 - Capacitación presencial in-situ (se incluye documentación de usuario y sesión de onboarding).
 
