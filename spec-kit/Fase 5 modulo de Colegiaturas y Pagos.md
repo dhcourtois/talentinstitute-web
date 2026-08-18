@@ -16,6 +16,7 @@ El objetivo principal es reemplazar los procesos manuales y hojas de cálculo (E
 3. Controlar pagos parciales, proyecciones anuales y compras de material didáctico (PACEs).
 4. Generar automáticamente **Recibos de Donación** digitales en formato PDF con diseño institucional y numeración consecutiva.
 5. Permitir la distribución ágil de comprobantes vía correo electrónico y mensajería WhatsApp.
+6. Permitir la impresion de los recibos de donaciones 
 
 ---
 
@@ -25,11 +26,11 @@ El sistema debe gestionar los siguientes conceptos configurables por nivel educa
 
 | Concepto | Tipo / Frecuencia | Monto Referencial | Descripción / Reglas |
 | :--- | :--- | :--- | :--- |
-| **Donación Mensual (Colegiatura)** | Recurrente (Mensual, Sep - Jun) | • Kindergarten: $1,800.00 MXN<br>• Elementary: $2,950.00 – $3,560.00 MXN | Colegiatura del mes en curso correspondiente al nivel del alumno. |
-| **Acceso Anual / Sistema** | Único Anual | $1,980.00 – $2,200.00 MXN | Cuota de inscripción / acceso a plataforma educativa anual. |
+| **Donación Mensual (Colegiatura)** | Recurrente (Mensual, Sep - Jun) | • Kindergarten: $1,800.00 MXN<br>• Elementary: $3,560.00 MXN | Colegiatura del mes en curso correspondiente al nivel del alumno. |
+| **Acceso Anual / Sistema** | Único Anual | $2,200.00 MXN | Cuota de inscripción / acceso a plataforma educativa anual. |
 | **Tienda de Recompensas** | Único Anual / Por Evento | $1,000.00 MXN | Fondo de incentivos y premiación de alumnos. |
-| **Materiales Didácticos (PACEs)** | Anual / Fraccionado | Proyección ~72 unidades (~$6,015.24 MXN) | Cuota de cuadernillos/material PACEs. Permite división en 2 exhibiciones (ej. 15 Julio y 15 Diciembre) o abonos parciales. |
-| **Penalización por Mora** | Cargo Adicional | $200.00 MXN | Recargo fijo aplicado a mensualidades pagadas fuera del periodo ordinario. |
+| **Materiales Didácticos (PACEs)** | Anual / Fraccionado | Proyección ~72 unidades (~$6,015.24 MXN) | Cuota de cuadernillos/material PACEs. Permite división en 2 exhibiciones (ej. 15 Julio y 15 Diciembre) o abonos parciales. El costo de los pace's dependera del tipo de cambio |
+| **Penalización por Mora** | Cargo Adicional | $200.00 MXN | Recargo fijo aplicado a mensualidades pagadas fuera del periodo ordinario. (solo aplica si tienen descuento familiar) |
 
 ---
 
@@ -38,7 +39,7 @@ El sistema debe gestionar los siguientes conceptos configurables por nivel educa
 ### 3.1. Fechas Límite y Periodo Ordinario
 * **Periodo Regular de Pago:** Del día **1 al 15** de cada mes.
 * **Periodo Extemporáneo:** A partir del día **16** del mes en curso hasta fin de mes.
-* **Aplicación de Recargo:** Todo pago de colegiatura mensual recibido del día 16 en adelante genera un cargo adicional automático de **$200.00 MXN**.
+* **Aplicación de Recargo:** Todo pago de colegiatura mensual recibido del día 16 en adelante genera un cargo adicional automático de **$200.00 MXN**.(solo aplica si tienen descuento familiar)
 
 ### 3.2. Descuentos por Alumno Único (Pronto Pago / Efectivo)
 * Si un alumno no cuenta con descuento familiar (es hijo único inscrito en la institución) y realiza su pago en **efectivo dentro del periodo regular (1 al 15 de cada mes)**, es elegible para un **10% de descuento** sobre la Donación Mensual en los niveles aplicables (ej. Elementary).
@@ -46,7 +47,7 @@ El sistema debe gestionar los siguientes conceptos configurables por nivel educa
 ### 3.3. Descuentos por Hermanos (Vínculo Familiar Multifamiliar)
 * Cuando una familia inscribe a **2 o más hermanos**:
   * El hijo de mayor colegiatura/grado paga cuota completa.
-  * El segundo hijo (o el de menor cuota mensual) recibe un **descuento porcentual (20% al 30%)** sobre su donación mensual base.
+  * El segundo hijo (o el de menor cuota mensual) recibe un **descuento porcentual (20%)** sobre su donación mensual base.
   * Los conceptos adicionales (Acceso Anual, Tienda de Recompensas y PACEs) se cobran sin descuento, salvo autorización administrativa expresa.
 
 ### 3.4. Pagos Parciales y Saldos a Favor / Pendientes
@@ -69,11 +70,12 @@ El sistema debe contar con un motor de renderizado de comprobantes con las sigui
 * **Detalle del Concepto:** Desglose del pago realizado (ej. *Donación mensual de $2,950.00 del mes de Septiembre* o *Donación Anual Acceso/Sistema*).
 * **Fecha y Método:** Fecha de emisión y método de pago (Efectivo, Transferencia, Depósito).
 * **Marca de Agua / Estatus:** Banderas visuales para pagos completos o recibos informativos con leyenda `(pendiente de pago)` en caso de adeudo.
+* **Imprimir** Boton que permita imprimir el recibo parcial o total
 
 ### 4.2. Canales de Distribución
 1. **Envío por WhatsApp:** Generación de mensaje predeterminado con enlace directo o adjunto del PDF hacia el teléfono celular registrado del tutor.
 2. **Envío por Correo Electrónico:** Envío automático del PDF adjunto a la dirección de correo registrada de la familia.
-3. **Descarga Directa:** Opción para descargar o imprimir el recibo inmediatamente tras capturar el pago.
+3. **Descarga Directa:** Opción para descargar e imprimir el recibo inmediatamente tras capturar el pago.
 
 ---
 
