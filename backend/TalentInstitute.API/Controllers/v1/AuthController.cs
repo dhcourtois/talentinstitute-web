@@ -20,7 +20,7 @@ public class AuthController : ControllerBase
     {
         try
         {
-            var token = await _loginUseCase.ExecuteAsync(request.Email, request.Password);
+            var token = await _loginUseCase.ExecuteAsync(request.Email, request.Password, request.VistaInicial);
             return Ok(new { token });
         }
         catch (System.Exception ex)
@@ -34,4 +34,5 @@ public class LoginRequest
 {
     public string Email { get; set; } = string.Empty;
     public string Password { get; set; } = string.Empty;
+    public string VistaInicial { get; set; } = string.Empty;
 }

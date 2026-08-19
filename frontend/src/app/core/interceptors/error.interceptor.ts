@@ -13,9 +13,11 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
       if (error.status === 401) {
-        // Token expirado o credenciales inválidas
-        localStorage.removeItem('ti_token');
-        router.navigate(['/login']);
+        // Token expirado o credenciales inválidas — solo redirigir si no estamos ya en el login
+        if (!router.url.startsWith('/login')) {
+          localStorage.removeItem('ti_token');
+          router.navigate(['/login']);
+        }
       } else if (error.status === 403) {
         toast.warning('No tienes permiso para realizar esta acción.');
       } else if (error.status >= 500) {
