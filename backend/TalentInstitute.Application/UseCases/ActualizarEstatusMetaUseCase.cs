@@ -62,10 +62,25 @@ public class ActualizarEstatusMetaUseCase
                 break;
 
             case EstadoMeta.Completada:
-                meta.Completar();
+                if (meta.Estado == EstadoMeta.Pendiente)
+                {
+                    meta.IniciarProgreso();
+                }
+                if (meta.Estado == EstadoMeta.EnProgreso)
+                {
+                    meta.Completar();
+                }
+                else
+                {
+                    throw new DomainException($"No se puede completar la meta en el estado actual '{meta.Estado}'.");
+                }
                 break;
 
             case EstadoMeta.Rechazada:
+                if (meta.Estado == EstadoMeta.Pendiente)
+                {
+                    meta.IniciarProgreso();
+                }
                 if (meta.Estado == EstadoMeta.EnProgreso)
                 {
                     meta.Rechazar();
