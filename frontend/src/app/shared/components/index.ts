@@ -5,4 +5,5 @@ export * from './card/card.component';
 export * from './modal/modal.component';
 export * from './progress-bar/progress-bar.component';
 export * from './spinner/spinner.component';
+export * from './session-timeout-modal/session-timeout-modal.component';
 export * from './toast/toast.component';
