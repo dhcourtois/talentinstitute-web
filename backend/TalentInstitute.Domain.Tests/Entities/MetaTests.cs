@@ -109,4 +109,24 @@ public class MetaTests
         Action action = () => meta.Completar();
         action.Should().Throw<DomainException>();
     }
+
+    [Fact]
+    public void Completar_DesdePendienteTrasIniciarProgreso_CambiaACompletada()
+    {
+        var meta = new Meta(Guid.NewGuid(), Turno.Mañana, 5, DateOnly.FromDateTime(DateTime.Today));
+        meta.Estado.Should().Be(EstadoMeta.Pendiente);
+        meta.IniciarProgreso();
+        meta.Completar();
+        meta.Estado.Should().Be(EstadoMeta.Completada);
+    }
+
+    [Fact]
+    public void Rechazar_DesdePendienteTrasIniciarProgreso_CambiaARechazada()
+    {
+        var meta = new Meta(Guid.NewGuid(), Turno.Tarde, 5, DateOnly.FromDateTime(DateTime.Today));
+        meta.Estado.Should().Be(EstadoMeta.Pendiente);
+        meta.IniciarProgreso();
+        meta.Rechazar();
+        meta.Estado.Should().Be(EstadoMeta.Rechazada);
+    }
 }
