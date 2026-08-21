@@ -278,13 +278,13 @@ export class LoginComponent {
       return;
     }
 
-    const { email, password } = this.form.getRawValue();
+    const { email, password, rol } = this.form.getRawValue();
     this.loading = true;
 
-    this.auth.login({ email, password }).subscribe({
+    this.auth.login({ email, password, vistaInicial: rol }).subscribe({
       next: () => {
         this.loading = false;
-        this.introRole = this.auth.getRole() ?? this.form.controls.rol.value;
+        this.introRole = this.auth.getRole() ?? rol;
         const introKey = `ti_intro_seen_${this.introRole}`;
 
         if (!localStorage.getItem(introKey)) {
@@ -294,9 +294,9 @@ export class LoginComponent {
 
         this.router.navigate(['/dashboard']);
       },
-      error: () => {
+      error: (err) => {
         this.loading = false;
-        this.errorMessage = 'Credenciales incorrectas.';
+        this.errorMessage = err?.error?.message ?? 'Credenciales incorrectas.';
       }
     });
   }
