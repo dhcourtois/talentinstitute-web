@@ -22,11 +22,13 @@ export class AlumnosService {
     return this.http.get<Alumno>(`${this.url}/${id}`);
   }
 
-  create(alumno: Partial<Alumno>): Observable<Alumno> {
-    return this.http.post<Alumno>(this.url, alumno);
+  create(
+    alumno: Pick<Alumno, 'numeroMatricula' | 'nombre' | 'apellido' | 'nivel'>
+  ): Observable<{ id: string; message: string }> {
+    return this.http.post<{ id: string; message: string }>(this.url, alumno);
   }
 
-  update(id: string, alumno: Partial<Alumno>): Observable<Alumno> {
-    return this.http.put<Alumno>(`${this.url}/${id}`, alumno);
+  update(id: string, alumno: Pick<Alumno, 'nombre' | 'apellido' | 'nivel'>): Observable<{ message: string }> {
+    return this.http.put<{ message: string }>(`${this.url}/${id}`, alumno);
   }
 }

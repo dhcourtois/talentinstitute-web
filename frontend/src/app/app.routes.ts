@@ -30,6 +30,13 @@ export const routes: Routes = [
           import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent),
       },
       {
+        path: 'alumnos',
+        canActivate: [roleGuard],
+        data: { roles: rolesDe('alumnos') },
+        loadComponent: () =>
+          import('./features/alumnos/alumnos.component').then(m => m.AlumnosComponent),
+      },
+      {
         path: 'alumno/:id',
         canActivate: [roleGuard],
         data: { roles: rolesDe('alumnos') },

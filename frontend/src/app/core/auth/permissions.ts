@@ -42,7 +42,7 @@ export const NAVEGACION: readonly ItemNavegacion[] = [
   { modulo: 'dashboard', etiqueta: 'Dashboard', ruta: '/dashboard', disponible: true },
   // Pendientes de la ola 3 (issues #10, #11 y #9): el permiso ya está definido,
   // falta construir la pantalla.
-  { modulo: 'alumnos', etiqueta: 'Alumnos', ruta: '/alumnos', disponible: false },
+  { modulo: 'alumnos', etiqueta: 'Alumnos', ruta: '/alumnos', disponible: true },
   { modulo: 'paces', etiqueta: 'PACEs', ruta: '/paces', disponible: false },
   { modulo: 'entrevistas', etiqueta: 'Entrevistas', ruta: '/entrevistas', disponible: true },
   { modulo: 'staff', etiqueta: 'Staff', ruta: '/staff', disponible: true },

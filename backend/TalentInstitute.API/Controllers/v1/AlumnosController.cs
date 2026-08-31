@@ -15,15 +15,18 @@ public class AlumnosController : ControllerBase
     private readonly ObtenerAlumnosUseCase _obtenerAlumnosUseCase;
     private readonly ObtenerDetalleAlumnoUseCase _obtenerDetalleAlumnoUseCase;
     private readonly CrearAlumnoUseCase _crearAlumnoUseCase;
+    private readonly EditarAlumnoUseCase _editarAlumnoUseCase;
 
     public AlumnosController(
         ObtenerAlumnosUseCase obtenerAlumnosUseCase,
         ObtenerDetalleAlumnoUseCase obtenerDetalleAlumnoUseCase,
-        CrearAlumnoUseCase crearAlumnoUseCase)
+        CrearAlumnoUseCase crearAlumnoUseCase,
+        EditarAlumnoUseCase editarAlumnoUseCase)
     {
         _obtenerAlumnosUseCase = obtenerAlumnosUseCase;
         _obtenerDetalleAlumnoUseCase = obtenerDetalleAlumnoUseCase;
         _crearAlumnoUseCase = crearAlumnoUseCase;
+        _editarAlumnoUseCase = editarAlumnoUseCase;
     }
 
     [HttpGet]
@@ -69,6 +72,38 @@ public class AlumnosController : ControllerBase
             return BadRequest(new { message = ex.Message });
         }
     }
+
+    [HttpPut("{id:guid}")]
+    [Authorize(Roles = "Principal,Supervisora")]
+    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateAlumnoRequest request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _editarAlumnoUseCase.ExecuteAsync(
+                id,
+                request.Nombre,
+                request.Apellido,
+                request.Nivel,
+                cancellationToken);
+
+            return Ok(new { message = "Alumno actualizado exitosamente." });
+        }
+        catch (System.Collections.Generic.KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+        catch (TalentInstitute.Domain.Exceptions.DomainException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+}
+
+public class UpdateAlumnoRequest
+{
+    public string Nombre { get; set; } = string.Empty;
+    public string Apellido { get; set; } = string.Empty;
+    public string Nivel { get; set; } = string.Empty;
 }
 
 public class CreateAlumnoRequest

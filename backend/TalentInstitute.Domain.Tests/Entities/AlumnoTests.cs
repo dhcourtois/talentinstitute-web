@@ -1,5 +1,6 @@
 using FluentAssertions;
 using TalentInstitute.Domain.Entities;
+using TalentInstitute.Domain.Exceptions;
 using Xunit;
 
 namespace TalentInstitute.Domain.Tests.Entities;
@@ -102,5 +103,50 @@ public class AlumnoTests
 
         // Assert 2
         alumno.PrivilegeStatus.Biblioteca.Should().BeTrue(); // Llegó a 10
+    }
+
+    [Fact]
+    public void ActualizarDatos_DadoDatosValidos_ActualizaNombreApellidoYNivel()
+    {
+        // Arrange
+        var alumno = CrearAlumno();
+
+        // Act
+        alumno.ActualizarDatos("Nuevo", "Apellido Nuevo", "2 Primaria");
+
+        // Assert
+        alumno.Nombre.Should().Be("Nuevo");
+        alumno.Apellido.Should().Be("Apellido Nuevo");
+        alumno.Nivel.Should().Be("2 Primaria");
+    }
+
+    [Fact]
+    public void ActualizarDatos_NoModificaLaMatricula()
+    {
+        // Arrange
+        var alumno = CrearAlumno();
+
+        // Act
+        alumno.ActualizarDatos("Nuevo", "Apellido Nuevo", "2 Primaria");
+
+        // Assert
+        alumno.NumeroMatricula.Should().Be("MAT-001");
+    }
+
+    [Theory]
+    [InlineData("", "Apellido", "Nivel")]
+    [InlineData("   ", "Apellido", "Nivel")]
+    [InlineData("Nombre", "", "Nivel")]
+    [InlineData("Nombre", "Apellido", "")]
+    public void ActualizarDatos_DadoCampoVacio_LanzaDomainException(string nombre, string apellido, string nivel)
+    {
+        // Arrange
+        var alumno = CrearAlumno();
+
+        // Act
+        var acto = () => alumno.ActualizarDatos(nombre, apellido, nivel);
+
+        // Assert
+        acto.Should().Throw<DomainException>();
     }
 }

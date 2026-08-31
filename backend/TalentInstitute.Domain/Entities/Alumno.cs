@@ -35,6 +35,26 @@ public class Alumno
         PrivilegeStatus = new PrivilegeStatus();
     }
 
+    /// <summary>
+    /// Actualiza los datos generales del alumno. La matrícula no se edita:
+    /// identifica al alumno y cambiarla rompería su historial.
+    /// </summary>
+    public void ActualizarDatos(string nombre, string apellido, string nivel)
+    {
+        if (string.IsNullOrWhiteSpace(nombre))
+            throw new DomainException("El nombre del alumno no puede estar vacío.");
+
+        if (string.IsNullOrWhiteSpace(apellido))
+            throw new DomainException("El apellido del alumno no puede estar vacío.");
+
+        if (string.IsNullOrWhiteSpace(nivel))
+            throw new DomainException("El nivel del alumno no puede estar vacío.");
+
+        Nombre = nombre;
+        Apellido = apellido;
+        Nivel = nivel;
+    }
+
     public void RecalcularPrivilegios(int nuevoBalance, ConfiguracionPrivilegios config)
     {
         BalanceMeritos = nuevoBalance;
