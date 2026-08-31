@@ -44,7 +44,7 @@ export const NAVEGACION: readonly ItemNavegacion[] = [
   // falta construir la pantalla.
   { modulo: 'alumnos', etiqueta: 'Alumnos', ruta: '/alumnos', disponible: false },
   { modulo: 'paces', etiqueta: 'PACEs', ruta: '/paces', disponible: false },
-  { modulo: 'entrevistas', etiqueta: 'Entrevistas', ruta: '/entrevistas', disponible: false },
+  { modulo: 'entrevistas', etiqueta: 'Entrevistas', ruta: '/entrevistas', disponible: true },
   { modulo: 'staff', etiqueta: 'Staff', ruta: '/staff', disponible: true },
   { modulo: 'configuracion', etiqueta: 'Configuración', ruta: '/configuracion', disponible: true }
 ];

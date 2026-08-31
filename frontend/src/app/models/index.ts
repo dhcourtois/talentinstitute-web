@@ -4,6 +4,7 @@ export * from './alerta.model';
 export * from './auth.model';
 export * from './configuracion.model';
 export * from './dashboard-resumen.model';
+export * from './entrevista.model';
 export * from './meta.model';
 export * from './merito.model';
 export * from './pace.model';
