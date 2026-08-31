@@ -26,9 +26,7 @@ import { WeeklyChartComponent } from './weekly-chart.component';
           <h1>Dashboard</h1>
         </div>
         <div class="topbar-actions">
-          <app-badge variant="blue">{{ role ?? 'Sesión' }}</app-badge>
           <app-button variant="ghost" (click)="reload()">Actualizar</app-button>
-          <app-button variant="secondary" (click)="logout()">Salir</app-button>
         </div>
       </header>
 
@@ -502,10 +500,6 @@ export class DashboardComponent implements OnInit {
 
   reload(): void {
     this.load();
-  }
-
-  logout(): void {
-    this.authService.logout();
   }
 
   previousPage(): void {

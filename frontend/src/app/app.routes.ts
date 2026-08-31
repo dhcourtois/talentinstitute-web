@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { roleGuard } from './core/guards/role.guard';
+import { rolesDe } from './core/auth/permissions';
 
 export const routes: Routes = [
   {
@@ -14,17 +15,42 @@ export const routes: Routes = [
       import('./features/login/login.component').then(m => m.LoginComponent),
   },
   {
-    path: 'dashboard',
+    // Todas las pantallas autenticadas viven bajo el shell, que arma el menú
+    // lateral a partir de la matriz de permisos del rol en sesión.
+    path: '',
     canActivate: [authGuard],
     loadComponent: () =>
-      import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent),
-  },
-  {
-    path: 'alumno/:id',
-    canActivate: [authGuard, roleGuard],
-    data: { roles: ['Principal', 'Supervisora', 'Monitora'] },
-    loadComponent: () =>
-      import('./features/alumno/alumno.component').then(m => m.AlumnoComponent),
+      import('./shared/layout/shell.component').then(m => m.ShellComponent),
+    children: [
+      {
+        path: 'dashboard',
+        canActivate: [roleGuard],
+        data: { roles: rolesDe('dashboard') },
+        loadComponent: () =>
+          import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent),
+      },
+      {
+        path: 'alumno/:id',
+        canActivate: [roleGuard],
+        data: { roles: rolesDe('alumnos') },
+        loadComponent: () =>
+          import('./features/alumno/alumno.component').then(m => m.AlumnoComponent),
+      },
+      {
+        path: 'staff',
+        canActivate: [roleGuard],
+        data: { roles: rolesDe('staff') },
+        loadComponent: () =>
+          import('./features/staff/staff.component').then(m => m.StaffComponent),
+      },
+      {
+        path: 'configuracion',
+        canActivate: [roleGuard],
+        data: { roles: rolesDe('configuracion') },
+        loadComponent: () =>
+          import('./features/configuracion/configuracion.component').then(m => m.ConfiguracionComponent),
+      },
+    ],
   },
   {
     path: '**',
