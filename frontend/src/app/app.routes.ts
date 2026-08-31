@@ -44,6 +44,13 @@ export const routes: Routes = [
           import('./features/alumno/alumno.component').then(m => m.AlumnoComponent),
       },
       {
+        path: 'paces',
+        canActivate: [roleGuard],
+        data: { roles: rolesDe('paces') },
+        loadComponent: () =>
+          import('./features/paces/paces.component').then(m => m.PacesComponent),
+      },
+      {
         path: 'entrevistas',
         canActivate: [roleGuard],
         data: { roles: rolesDe('entrevistas') },
