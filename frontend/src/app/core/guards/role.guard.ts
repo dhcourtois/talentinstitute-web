@@ -1,6 +1,7 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router, ActivatedRouteSnapshot } from '@angular/router';
 import { AuthService } from '../services/auth.service';
+import { rutaInicial } from '../auth/permissions';
 import { Rol } from '../../models';
 
 export const roleGuard: CanActivateFn = (route: ActivatedRouteSnapshot) => {
@@ -21,5 +22,7 @@ export const roleGuard: CanActivateFn = (route: ActivatedRouteSnapshot) => {
     return true;
   }
 
-  return router.createUrlTree(['/dashboard']);
+  // Se envía al primer módulo que el rol sí puede ver: redirigir siempre a
+  // /dashboard dejaba en bucle a quien tampoco tiene permiso sobre él.
+  return router.createUrlTree([rutaInicial(userRole)]);
 };

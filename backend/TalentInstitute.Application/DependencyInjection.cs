@@ -13,6 +13,7 @@ public static class DependencyInjection
         services.AddScoped<ObtenerAlumnosUseCase>();
         services.AddScoped<ObtenerDetalleAlumnoUseCase>();
         services.AddScoped<CrearAlumnoUseCase>();
+        services.AddScoped<EditarAlumnoUseCase>();
         services.AddScoped<AsignarPaceUseCase>();
         services.AddScoped<ObtenerPacesAlumnoUseCase>();
         services.AddScoped<ObtenerCatalogoPacesUseCase>();
@@ -30,6 +31,11 @@ public static class DependencyInjection
         services.AddScoped<CrearStaffUseCase>();
         services.AddScoped<EditarStaffUseCase>();
         services.AddScoped<DesactivarStaffUseCase>();
+
+        // Entrevistas a Padres
+        services.AddScoped<RegistrarEntrevistaUseCase>();
+        services.AddScoped<ObtenerEntrevistasUseCase>();
+        services.AddScoped<ObtenerDetalleEntrevistaUseCase>();
 
         return services;
     }

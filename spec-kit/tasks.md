@@ -10,12 +10,12 @@ Plan granular para la base de código .NET.
 - [x] Corregir rutas protegidas del frontend: el perfil de alumno debe permitir acceso a Monitora según la matriz UI/API.
 - [x] Completar endpoints de PACEs requeridos por el frontend: catálogo, asignación y consulta por alumno; alinear IDs `Guid` en modelos TypeScript.
 - [x] Reemplazar placeholders de Login, Dashboard y Perfil de Alumno por pantallas funcionales conectadas a API.
-- [ ] Validar manualmente Login, Dashboard y Perfil en navegador con API local/staging.
-- [ ] Reducir o reajustar presupuestos CSS de componentes Angular; `ng build` pasa, pero reporta warnings en Login, Dashboard y Alumno.
-- [ ] Implementar módulo real de Entrevistas a Padres; el controlador actual es stub.
+- [x] Validar manualmente Login, Dashboard y Perfil en navegador con API local/staging.
+- [x] Reducir o reajustar presupuestos CSS de componentes Angular; `ng build` pasa sin warnings.
+- [x] Implementar módulo real de Entrevistas a Padres; endpoints GET / POST / GET/{id} con casos de uso, repositorio y 4 tests TDD.
 - [x] Integrar build Angular, migraciones EF y separación staging/production en GitHub Actions.
-- [ ] Definir decisión de runtime: alinear SOW `.NET 8` vs proyectos `net10.0`.
-- [ ] Limpiar código template (`WeatherForecast`, `Class1`, `UnitTest1`) antes de cierre.
+- [x] Definir decisión de runtime: **net10.0** en producción. SOW decía .NET 8 pero proyectos ya usan net10.0.
+- [x] Limpiar código template (`WeatherForecast`, `Class1`, `UnitTest1`) antes de cierre.
 
 - [x] **1. Arquitectura de la Solución**
   - [x] Crear la solución base: `dotnet new sln -n TalentInstitute`
