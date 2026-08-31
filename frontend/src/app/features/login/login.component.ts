@@ -36,13 +36,50 @@ import { Rol } from '../../models';
 
           <label>
             <span>Contraseña</span>
-            <input
-              type="password"
-              formControlName="password"
-              autocomplete="current-password"
-              placeholder="Mínimo 6 caracteres"
-              [class.invalid]="isInvalid('password')"
-            />
+            <div class="password-field">
+              <input
+                [type]="passwordVisible ? 'text' : 'password'"
+                formControlName="password"
+                autocomplete="current-password"
+                placeholder="Mínimo 6 caracteres"
+                [class.invalid]="isInvalid('password')"
+              />
+              <button
+                type="button"
+                class="reveal"
+                [attr.aria-label]="passwordVisible ? 'Ocultar contraseña' : 'Mostrar contraseña mientras mantienes presionado'"
+                [attr.aria-pressed]="passwordVisible"
+                (pointerdown)="revealPassword($event)"
+                (pointerup)="hidePassword()"
+                (pointerleave)="hidePassword()"
+                (pointercancel)="hidePassword()"
+                (blur)="hidePassword()"
+                (keydown)="onRevealKeydown($event)"
+                (keyup)="onRevealKeyup($event)"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path
+                    d="M1.5 12S5.2 5.5 12 5.5 22.5 12 22.5 12 18.8 18.5 12 18.5 1.5 12 1.5 12Z"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.6"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                  <circle cx="12" cy="12" r="3.1" fill="none" stroke="currentColor" stroke-width="1.6" />
+                  <line
+                    *ngIf="!passwordVisible"
+                    x1="4"
+                    y1="20"
+                    x2="20"
+                    y2="4"
+                    stroke="currentColor"
+                    stroke-width="1.6"
+                    stroke-linecap="round"
+                  />
+                </svg>
+              </button>
+            </div>
           </label>
           <p class="field-error" *ngIf="isInvalid('password')">La contraseña debe tener al menos 6 caracteres.</p>
 
@@ -177,6 +214,47 @@ import { Rol } from '../../models';
       margin-top: 0;
     }
 
+    .password-field {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .password-field input {
+      width: 100%;
+      padding-right: calc(var(--tap-target-min, 44px) + var(--space-2));
+    }
+
+    .reveal {
+      position: absolute;
+      right: 0;
+      display: grid;
+      place-items: center;
+      width: var(--tap-target-min, 44px);
+      height: var(--tap-target-min, 44px);
+      border: none;
+      border-radius: var(--radius-sm);
+      background: transparent;
+      color: var(--color-text-secondary);
+      cursor: pointer;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .reveal:hover {
+      color: var(--color-text-primary);
+    }
+
+    .reveal:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: -2px;
+    }
+
+    .reveal svg {
+      width: 20px;
+      height: 20px;
+    }
+
     .role-picker {
       border: 0;
       display: grid;
@@ -249,6 +327,7 @@ export class LoginComponent {
   private readonly fb = inject(FormBuilder);
 
   readonly roles: Rol[] = ['Supervisora', 'Monitora', 'Principal'];
+  passwordVisible = false;
   readonly form = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]],
@@ -264,6 +343,31 @@ export class LoginComponent {
     private auth: AuthService,
     private router: Router
   ) {}
+
+  // La contraseña solo se revela mientras el control está presionado: soltar,
+  // salir del ícono o perder el foco la vuelve a ocultar de inmediato.
+  revealPassword(event: PointerEvent): void {
+    event.preventDefault();
+    this.passwordVisible = true;
+  }
+
+  hidePassword(): void {
+    this.passwordVisible = false;
+  }
+
+  onRevealKeydown(event: KeyboardEvent): void {
+    if (event.key === ' ' || event.key === 'Enter') {
+      event.preventDefault();
+      this.passwordVisible = true;
+    }
+  }
+
+  onRevealKeyup(event: KeyboardEvent): void {
+    if (event.key === ' ' || event.key === 'Enter') {
+      event.preventDefault();
+      this.passwordVisible = false;
+    }
+  }
 
   isInvalid(controlName: 'email' | 'password'): boolean {
     const control = this.form.controls[controlName];

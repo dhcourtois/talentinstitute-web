@@ -2,13 +2,16 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { forkJoin, of } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Observable, forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { AlumnosService } from '../../core/services/alumnos.service';
 import { AuthService } from '../../core/services/auth.service';
 import { MeritosService } from '../../core/services/meritos.service';
 import { PacesService } from '../../core/services/paces.service';
 import { ProgresoService } from '../../core/services/progreso.service';
 import { ToastService } from '../../core/services/toast.service';
+import { todayIso, weekStartIso } from '../../core/utils/fecha.util';
 import { Alumno, AlumnoPace, EstadoMeta, Merito, Meta, Pace, Rol } from '../../models';
 import { BadgeComponent, BadgeVariant } from '../../shared/components/badge/badge.component';
 import { ButtonComponent } from '../../shared/components/button/button.component';
@@ -76,7 +79,8 @@ import { QuickActionsComponent } from './quick-actions.component';
               <app-badge variant="blue">{{ paces.length }}</app-badge>
             </div>
 
-            <div class="empty" *ngIf="paces.length === 0">Este alumno aún no tiene PACEs asignados.</div>
+            <div class="section-error" *ngIf="pacesError">{{ pacesError }}</div>
+            <div class="empty" *ngIf="!pacesError && paces.length === 0">Este alumno aún no tiene PACEs asignados.</div>
 
             <article class="pace-card" *ngFor="let pace of paces">
               <div>
@@ -109,7 +113,8 @@ import { QuickActionsComponent } from './quick-actions.component';
               <app-badge variant="gray">{{ metas.length }}</app-badge>
             </div>
 
-            <div class="empty" *ngIf="metas.length === 0">No hay metas registradas esta semana.</div>
+            <div class="section-error" *ngIf="metasError">{{ metasError }}</div>
+            <div class="empty" *ngIf="!metasError && metas.length === 0">No hay metas registradas esta semana.</div>
 
             <article class="goal-row" *ngFor="let meta of metas">
               <div>
@@ -194,7 +199,8 @@ import { QuickActionsComponent } from './quick-actions.component';
               <app-button [loading]="registeringMerit" [disabled]="meritForm.invalid">Registrar</app-button>
             </form>
 
-            <div class="empty" *ngIf="meritos.length === 0">No hay méritos o deméritos registrados.</div>
+            <div class="section-error" *ngIf="meritosError">{{ meritosError }}</div>
+            <div class="empty" *ngIf="!meritosError && meritos.length === 0">No hay méritos o deméritos registrados.</div>
 
             <article class="merit-row" *ngFor="let merito of meritos.slice(0, 10)">
               <div>
@@ -437,6 +443,14 @@ import { QuickActionsComponent } from './quick-actions.component';
       background: var(--color-danger-bg);
     }
 
+    .section-error {
+      padding: var(--space-4);
+      border: 1px solid var(--color-danger);
+      border-radius: var(--radius-md);
+      color: var(--color-danger);
+      background: var(--color-danger-bg);
+    }
+
     @media (max-width: 980px) {
       .content-grid,
       .goals-panel,
@@ -503,6 +517,9 @@ export class AlumnoComponent implements OnInit {
   role: Rol | null = null;
   loading = true;
   errorMessage = '';
+  pacesError = '';
+  metasError = '';
+  meritosError = '';
   creatingGoal = false;
   registeringMerit = false;
   assigning = false;
@@ -558,13 +575,20 @@ export class AlumnoComponent implements OnInit {
 
     this.loading = true;
     this.errorMessage = '';
+    this.pacesError = '';
+    this.metasError = '';
+    this.meritosError = '';
 
+    // Solo el alumno es indispensable para pintar el perfil. Las demas secciones
+    // se degradan por separado para que una de ellas no deje la pantalla vacia.
     forkJoin({
       alumno: this.alumnosService.getById(this.alumnoId),
-      paces: this.pacesService.getByAlumno(this.alumnoId),
-      metas: this.progresoService.getSemana(this.alumnoId, this.weekStart()),
-      meritos: this.meritosService.getByAlumno(this.alumnoId),
-      catalogo: this.canManagePaces ? this.pacesService.getCatalogo() : of([] as Pace[])
+      paces: this.optional(this.pacesService.getByAlumno(this.alumnoId), [] as AlumnoPace[], message => (this.pacesError = message)),
+      metas: this.optional(this.progresoService.getSemana(this.alumnoId, this.weekStart()), [] as Meta[], message => (this.metasError = message)),
+      meritos: this.optional(this.meritosService.getByAlumno(this.alumnoId), [] as Merito[], message => (this.meritosError = message)),
+      catalogo: this.canManagePaces
+        ? this.optional(this.pacesService.getCatalogo(), [] as Pace[], message => (this.pacesError = message))
+        : of([] as Pace[])
     }).subscribe({
       next: result => {
         this.alumno = result.alumno;
@@ -574,9 +598,9 @@ export class AlumnoComponent implements OnInit {
         this.catalogo = result.catalogo;
         this.loading = false;
       },
-      error: () => {
+      error: (error: HttpErrorResponse) => {
         this.loading = false;
-        this.errorMessage = 'No se pudo cargar el perfil del alumno.';
+        this.errorMessage = this.describeError(error, 'No se pudo cargar el perfil del alumno.');
       }
     });
   }
@@ -744,15 +768,25 @@ export class AlumnoComponent implements OnInit {
     return progressByState[pace.estado] ?? 0;
   }
 
+  private optional<T>(source: Observable<T>, fallback: T, onError: (message: string) => void): Observable<T> {
+    return source.pipe(
+      catchError((error: HttpErrorResponse) => {
+        onError(this.describeError(error, 'No se pudo cargar esta sección.'));
+        return of(fallback);
+      })
+    );
+  }
+
+  private describeError(error: HttpErrorResponse, fallback: string): string {
+    const message = error?.error?.message;
+    return typeof message === 'string' && message.trim() ? message : fallback;
+  }
+
   private today(): string {
-    return new Date().toISOString().slice(0, 10);
+    return todayIso();
   }
 
   private weekStart(): string {
-    const date = new Date();
-    const day = date.getDay();
-    const diff = day === 0 ? -6 : 1 - day;
-    date.setDate(date.getDate() + diff);
-    return date.toISOString().slice(0, 10);
+    return weekStartIso();
   }
 }
