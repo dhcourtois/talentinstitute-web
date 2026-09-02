@@ -45,6 +45,33 @@ public class LoginUseCaseTests
         result.Should().Be("token");
     }
 
+    // Un cliente que va una versión atrás no manda vistaInicial. Ese caso debe
+    // autenticar igual: la vista inicial es preferencia de presentación, no un
+    // control de acceso, y rechazarla dejaba el login inservible ante cualquier
+    // desfase de versión entre frontend y backend.
+    [Theory]
+    [InlineData(Rol.Supervisora, "")]
+    [InlineData(Rol.Monitora,    "   ")]
+    [InlineData(Rol.Principal,   null)]
+    public async Task ExecuteAsync_VistaInicialVacia_DebeRetornarToken(Rol rol, string? vistaInicial)
+    {
+        // Arrange
+        var staff = CreateStaff(rol);
+        _repoMock.Setup(r => r.GetByEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                 .ReturnsAsync(staff);
+        _hasherMock.Setup(h => h.Verify(It.IsAny<string>(), It.IsAny<string>())).Returns(true);
+        _jwtMock.Setup(j => j.Generate(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Returns("token");
+
+        var sut = CreateSut();
+
+        // Act
+        var result = await sut.ExecuteAsync("test@talentinstitute.com", "password", vistaInicial!);
+
+        // Assert
+        result.Should().Be("token");
+    }
+
     [Theory]
     [InlineData(Rol.Supervisora, "Monitora")]
     [InlineData(Rol.Supervisora, "Principal")]
