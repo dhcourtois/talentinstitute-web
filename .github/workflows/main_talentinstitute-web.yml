@@ -140,6 +140,10 @@ jobs:
           app-name: 'talentinstitute-web'
           slot-name: 'Production'
           package: app
+          # Borra wwwroot antes de copiar. Sin esto los bundles con hash de
+          # deploys anteriores sobreviven, y un index.html cacheado en el
+          # navegador los sigue encontrando: la app corre código viejo.
+          clean: true
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_60FCFC808AC342878CA1DB168B21A733 }}
         # NOTA: El startup command 'dotnet TalentInstitute.API.dll' está configurado
         # en Azure App Service → Configuration → General settings para evitar que
@@ -170,4 +174,8 @@ jobs:
           app-name: 'talentinstitute-web'
           slot-name: 'Production'
           package: app
+          # Borra wwwroot antes de copiar. Sin esto los bundles con hash de
+          # deploys anteriores sobreviven, y un index.html cacheado en el
+          # navegador los sigue encontrando: la app corre código viejo.
+          clean: true
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_60FCFC808AC342878CA1DB168B21A733 }}

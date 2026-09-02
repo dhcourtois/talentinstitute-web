@@ -1,7 +1,9 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using TalentInstitute.Application.Interfaces;
 using TalentInstitute.Domain.Entities;
 using TalentInstitute.Infrastructure.Data;
@@ -84,5 +86,54 @@ public static class DbInitializer
                 await context.SaveChangesAsync();
             }
         }
+    }
+
+    /// <summary>
+    /// Crea la cuenta Principal inicial a partir de configuración, y solo si la
+    /// tabla Staff está vacía.
+    ///
+    /// SeedAsync corre únicamente en Development, así que en Azure la base
+    /// arranca sin ningún usuario tras un despliegue limpio. Como StaffController
+    /// exige [Authorize(Roles = "Principal")], no había forma de crear el primer
+    /// usuario: nadie podía entrar y nadie podía darse de alta.
+    ///
+    /// Se configura con Bootstrap__AdminEmail y Bootstrap__AdminPassword. Si no
+    /// están definidas no hace nada, así que no cambia el comportamiento actual
+    /// hasta que se definan. Conviene borrarlas una vez creada la cuenta.
+    /// </summary>
+    public static async Task BootstrapAdminAsync(IServiceProvider serviceProvider, IConfiguration configuration)
+    {
+        using var scope = serviceProvider.CreateScope();
+        var logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger(nameof(DbInitializer));
+        var context = scope.ServiceProvider.GetRequiredService<TalentInstituteDbContext>();
+
+        // Nunca toca una base que ya tiene usuarios.
+        if (await context.Staff.AnyAsync())
+            return;
+
+        var email = configuration["Bootstrap:AdminEmail"];
+        var password = configuration["Bootstrap:AdminPassword"];
+
+        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+        {
+            logger.LogWarning(
+                "La tabla Staff está vacía y no hay Bootstrap:AdminEmail / Bootstrap:AdminPassword configurados. " +
+                "Nadie puede iniciar sesión ni crear el primer usuario hasta que se definan.");
+            return;
+        }
+
+        if (password.Length < 6)
+        {
+            logger.LogError("Bootstrap:AdminPassword debe tener al menos 6 caracteres. No se creó la cuenta inicial.");
+            return;
+        }
+
+        var hasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
+        context.Staff.Add(new Staff(email, hasher.Hash(password), Rol.Principal));
+        await context.SaveChangesAsync();
+
+        logger.LogWarning(
+            "Cuenta Principal inicial creada para {Email}. Cambia la contraseña y elimina " +
+            "Bootstrap:AdminEmail / Bootstrap:AdminPassword de la configuración.", email);
     }
 }

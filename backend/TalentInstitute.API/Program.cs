@@ -95,6 +95,13 @@ if (app.Environment.IsDevelopment())
 {
     await TalentInstitute.API.Data.DbInitializer.SeedAsync(app.Services);
 }
+else
+{
+    // Fuera de Development no se siembran datos de prueba, pero sí hace falta
+    // poder crear la primera cuenta: sin ella nadie puede entrar y StaffController
+    // exige rol Principal para dar de alta usuarios.
+    await TalentInstitute.API.Data.DbInitializer.BootstrapAdminAsync(app.Services, app.Configuration);
+}
 
 app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 
@@ -105,8 +112,34 @@ if (app.Environment.IsDevelopment())
 }
 
 // ── Servir SPA de Angular desde wwwroot ───────────────────────────────────
+// index.html nunca se cachea: es el índice que apunta a los bundles con hash.
+// Si el navegador lo conserva, sigue pidiendo chunks de un deploy anterior y
+// la app queda corriendo código viejo contra el backend nuevo.
+// Los .js/.css sí llevan hash en el nombre (outputHashing: "all"), así que son
+// inmutables y se pueden cachear indefinidamente.
+var staticFileOptions = new StaticFileOptions
+{
+    OnPrepareResponse = ctx =>
+    {
+        var headers = ctx.Context.Response.Headers;
+        var name = ctx.File.Name;
+
+        if (name.EndsWith(".html", StringComparison.OrdinalIgnoreCase))
+        {
+            headers.CacheControl = "no-cache, no-store, must-revalidate";
+            headers.Pragma = "no-cache";
+            headers.Expires = "0";
+        }
+        else if (name.EndsWith(".js", StringComparison.OrdinalIgnoreCase)
+              || name.EndsWith(".css", StringComparison.OrdinalIgnoreCase))
+        {
+            headers.CacheControl = "public, max-age=31536000, immutable";
+        }
+    }
+};
+
 app.UseDefaultFiles();
-app.UseStaticFiles();
+app.UseStaticFiles(staticFileOptions);
 
 app.UseHttpsRedirection();
 
@@ -117,7 +150,9 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-// Todas las rutas no-API redirigen a index.html para el router de Angular
-app.MapFallbackToFile("index.html");
+// Todas las rutas no-API redirigen a index.html para el router de Angular.
+// Se pasan las mismas opciones para que el index servido por el fallback (que
+// es el de /login y cualquier deep link) también salga con no-cache.
+app.MapFallbackToFile("index.html", staticFileOptions);
 
 app.Run();
