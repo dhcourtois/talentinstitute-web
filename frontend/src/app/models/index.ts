@@ -1,6 +1,7 @@
 export * from './alumno.model';
 export * from './alumno-pace.model';
 export * from './alerta.model';
+export * from './anotacion.model';
 export * from './auth.model';
 export * from './configuracion.model';
 export * from './dashboard-resumen.model';

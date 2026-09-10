@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TalentInstitute.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using TalentInstitute.Infrastructure.Data;
 namespace TalentInstitute.Infrastructure.Migrations
 {
     [DbContext(typeof(TalentInstituteDbContext))]
-    partial class TalentInstituteDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260910005322_AddPrivilegiosManuales")]
+    partial class AddPrivilegiosManuales
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -109,38 +112,6 @@ namespace TalentInstitute.Infrastructure.Migrations
                     b.HasIndex("PaceId");
 
                     b.ToTable("AlumnoPaces", (string)null);
-                });
-
-            modelBuilder.Entity("TalentInstitute.Domain.Entities.Anotacion", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("AlumnoId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("FechaCreacion")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateOnly>("SemanaInicio")
-                        .HasColumnType("date");
-
-                    b.Property<Guid>("StaffId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Texto")
-                        .IsRequired()
-                        .HasMaxLength(2000)
-                        .HasColumnType("nvarchar(2000)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("StaffId");
-
-                    b.HasIndex("AlumnoId", "SemanaInicio");
-
-                    b.ToTable("Anotaciones", (string)null);
                 });
 
             modelBuilder.Entity("TalentInstitute.Domain.Entities.ConfiguracionPrivilegios", b =>
@@ -458,21 +429,6 @@ namespace TalentInstitute.Infrastructure.Migrations
                     b.HasOne("TalentInstitute.Domain.Entities.Pace", null)
                         .WithMany()
                         .HasForeignKey("PaceId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("TalentInstitute.Domain.Entities.Anotacion", b =>
-                {
-                    b.HasOne("TalentInstitute.Domain.Entities.Alumno", null)
-                        .WithMany()
-                        .HasForeignKey("AlumnoId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("TalentInstitute.Domain.Entities.Staff", null)
-                        .WithMany()
-                        .HasForeignKey("StaffId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });

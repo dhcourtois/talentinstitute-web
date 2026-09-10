@@ -63,6 +63,13 @@ import { SpinnerComponent } from '../../shared/components/spinner/spinner.compon
               <option *ngFor="let nivel of niveles" [value]="nivel"></option>
             </datalist>
           </label>
+          <label>
+            <span>Fecha de ingreso</span>
+            <input type="date" formControlName="fechaIngreso" aria-describedby="ingreso-ayuda" />
+            <small id="ingreso-ayuda">
+              {{ editandoId ? 'Puedes corregirla si el alumno ingresó antes.' : 'Si la dejas vacía se toma la fecha de hoy.' }}
+            </small>
+          </label>
           <div class="actions">
             <app-button *ngIf="editandoId" variant="ghost" type="button" (click)="cancelEdit()">
               Cancelar
@@ -112,6 +119,7 @@ import { SpinnerComponent } from '../../shared/components/spinner/spinner.compon
             <tr>
               <th scope="col">Alumno</th>
               <th scope="col">Nivel</th>
+              <th scope="col">Ingreso</th>
               <th scope="col">Balance</th>
               <th scope="col">Privilegios activos</th>
               <th scope="col" class="no-print"><span class="sr-only">Acciones</span></th>
@@ -124,6 +132,7 @@ import { SpinnerComponent } from '../../shared/components/spinner/spinner.compon
                 <span class="meta">{{ alumno.numeroMatricula }}</span>
               </th>
               <td>{{ alumno.nivel }}</td>
+              <td>{{ (alumno.fechaIngreso | date:'dd/MM/yyyy') || '—' }}</td>
               <td>
                 <app-badge [variant]="balanceVariant(alumno.balanceMeritos ?? 0)">
                   {{ alumno.balanceMeritos ?? 0 }}
@@ -343,7 +352,10 @@ export class AlumnosComponent implements OnInit {
     numeroMatricula: ['', [Validators.required, Validators.minLength(3)]],
     nombre: ['', [Validators.required, Validators.minLength(2)]],
     apellido: ['', [Validators.required, Validators.minLength(2)]],
-    nivel: ['', Validators.required]
+    nivel: ['', Validators.required],
+    // Opcional: al registrar, vacía significa "hoy"; al editar se precarga con
+    // la fecha vigente para que guardar sin tocarla no la mueva (issue #22).
+    fechaIngreso: ['']
   });
 
   ngOnInit(): void {
@@ -411,7 +423,8 @@ export class AlumnosComponent implements OnInit {
       numeroMatricula: alumno.numeroMatricula,
       nombre: alumno.nombre,
       apellido: alumno.apellido,
-      nivel: alumno.nivel
+      nivel: alumno.nivel,
+      fechaIngreso: this.fechaParaInput(alumno.fechaIngreso)
     });
     this.form.controls.numeroMatricula.disable();
   }
@@ -419,7 +432,7 @@ export class AlumnosComponent implements OnInit {
   cancelEdit(): void {
     this.editandoId = null;
     this.form.controls.numeroMatricula.enable();
-    this.form.reset({ numeroMatricula: '', nombre: '', apellido: '', nivel: '' });
+    this.form.reset({ numeroMatricula: '', nombre: '', apellido: '', nivel: '', fechaIngreso: '' });
   }
 
   save(): void {
@@ -429,11 +442,13 @@ export class AlumnosComponent implements OnInit {
     }
 
     this.saving = true;
-    const { numeroMatricula, nombre, apellido, nivel } = this.form.getRawValue();
+    const { numeroMatricula, nombre, apellido, nivel, fechaIngreso } = this.form.getRawValue();
+    // Vacía se manda como ausente: el backend interpreta null como "no la toques".
+    const ingreso = fechaIngreso ? { fechaIngreso } : {};
 
     const peticion = this.editandoId
-      ? this.service.update(this.editandoId, { nombre, apellido, nivel })
-      : this.service.create({ numeroMatricula, nombre, apellido, nivel });
+      ? this.service.update(this.editandoId, { nombre, apellido, nivel, ...ingreso })
+      : this.service.create({ numeroMatricula, nombre, apellido, nivel, ...ingreso });
 
     peticion.subscribe({
       next: response => {
@@ -449,17 +464,23 @@ export class AlumnosComponent implements OnInit {
     });
   }
 
+  /** El input[type=date] solo acepta `yyyy-MM-dd`; el backend manda ISO completo. */
+  private fechaParaInput(fecha?: string): string {
+    return fecha ? fecha.slice(0, 10) : '';
+  }
+
   print(): void {
     window.print();
   }
 
   exportCsv(): void {
-    const encabezados = ['Matrícula', 'Nombre', 'Apellido', 'Nivel', 'Balance', 'Privilegios activos'];
+    const encabezados = ['Matrícula', 'Nombre', 'Apellido', 'Nivel', 'Ingreso', 'Balance', 'Privilegios activos'];
     const filas = this.visibles.map(alumno => [
       alumno.numeroMatricula,
       alumno.nombre,
       alumno.apellido,
       alumno.nivel,
+      this.fechaParaInput(alumno.fechaIngreso),
       `${alumno.balanceMeritos ?? 0}`,
       this.privilegiosActivos(alumno).join(' / ')
     ]);

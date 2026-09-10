@@ -22,12 +22,13 @@ public class EditarAlumnoUseCase
         string nombre,
         string apellido,
         string nivel,
+        DateTime? fechaIngreso = null,
         CancellationToken cancellationToken = default)
     {
         var alumno = await _alumnoRepository.GetByIdAsync(id, cancellationToken)
             ?? throw new KeyNotFoundException($"Alumno con id '{id}' no encontrado.");
 
-        alumno.ActualizarDatos(nombre, apellido, nivel);
+        alumno.ActualizarDatos(nombre, apellido, nivel, fechaIngreso);
 
         await _alumnoRepository.UpdateAsync(alumno, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
