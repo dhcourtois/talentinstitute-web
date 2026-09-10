@@ -4,6 +4,7 @@ import { Observable, tap } from 'rxjs';
 import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { LoginRequest, LoginResponse, TokenPayload, Rol } from '../../models';
+import { SessionTimeoutService } from './session-timeout.service';
 
 const TOKEN_KEY = 'ti_token';
 
@@ -11,15 +12,23 @@ const TOKEN_KEY = 'ti_token';
 export class AuthService {
   private readonly url = `${environment.apiUrl}/Auth`;
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    private sessionTimeout: SessionTimeoutService
+  ) {}
 
   login(request: LoginRequest): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(`${this.url}/login`, request).pipe(
-      tap(response => localStorage.setItem(TOKEN_KEY, response.token))
+      tap(response => {
+        localStorage.setItem(TOKEN_KEY, response.token);
+        this.sessionTimeout.start();
+      })
     );
   }
 
   logout(): void {
+    this.sessionTimeout.stop();
     localStorage.removeItem(TOKEN_KEY);
     this.router.navigate(['/login']);
   }
@@ -75,3 +84,4 @@ export class AuthService {
     return JSON.parse(atob(base64)) as TokenPayload;
   }
 }
+

@@ -77,11 +77,13 @@ El sistema deberá ser operado desde tablets (iPad, prioritario) y computadoras 
 - Campos clave: número de hijos, y espacio para comentarios críticos.
 - Registro de factores de riesgo en el hogar: violencia familiar, divorcios, conocimiento de Dios (vital para la seguridad del personal ante posibles episodios de agresividad por parte de los padres).
 - Bandera de aceptado/rechazado e índices de alerta.
+- Registro de comentarios para anlisis de estudio socioeconomico
 
 #### Módulo 2 — Gestión de Alumnos
 - Alta, edición y consulta de perfil del alumno (datos generales, grado, nivel).
 - Vista de perfil individual con historial completo.
 - Indicador de privilegios activos e inactivos por alumno.
+- Lista de alumnos lista para exportar e imprimir
 
 #### Módulo 3 — PACEs y Progreso Académico
 - Asignación de PACEs por alumno y materia.

@@ -195,4 +195,29 @@ public class MetaTests
 
         acto.Should().NotThrow();
     }
+
+    // ── Transiciones desde Pendiente (QA_002, PR #15) ────────────────────────
+    // Venían de `main`, que nunca se había fusionado de vuelta a develop. Se
+    // conservan tal cual, portadas al constructor de rango: "5 páginas" pasa a
+    // ser el rango 1..5, que es la misma cantidad.
+
+    [Fact]
+    public void Completar_DesdePendienteTrasIniciarProgreso_CambiaACompletada()
+    {
+        var meta = new Meta(Guid.NewGuid(), Turno.Mañana, 1, 5, DateOnly.FromDateTime(DateTime.Today));
+        meta.Estado.Should().Be(EstadoMeta.Pendiente);
+        meta.IniciarProgreso();
+        meta.Completar();
+        meta.Estado.Should().Be(EstadoMeta.Completada);
+    }
+
+    [Fact]
+    public void Rechazar_DesdePendienteTrasIniciarProgreso_CambiaARechazada()
+    {
+        var meta = new Meta(Guid.NewGuid(), Turno.Tarde, 1, 5, DateOnly.FromDateTime(DateTime.Today));
+        meta.Estado.Should().Be(EstadoMeta.Pendiente);
+        meta.IniciarProgreso();
+        meta.Rechazar();
+        meta.Estado.Should().Be(EstadoMeta.Rechazada);
+    }
 }
