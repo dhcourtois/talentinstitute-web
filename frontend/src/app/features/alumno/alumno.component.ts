@@ -17,12 +17,13 @@ import { BadgeComponent, BadgeVariant } from '../../shared/components/badge/badg
 import { ButtonComponent } from '../../shared/components/button/button.component';
 import { ProgressBarComponent } from '../../shared/components/progress-bar/progress-bar.component';
 import { SpinnerComponent } from '../../shared/components/spinner/spinner.component';
+import { AnotacionesPanelComponent } from './anotaciones-panel.component';
 import { QuickActionsComponent } from './quick-actions.component';
 
 @Component({
   selector: 'app-alumno',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, BadgeComponent, ButtonComponent, ProgressBarComponent, SpinnerComponent, QuickActionsComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, BadgeComponent, ButtonComponent, ProgressBarComponent, SpinnerComponent, QuickActionsComponent, AnotacionesPanelComponent],
   template: `
     <main class="page-shell">
       <header class="topbar">
@@ -254,6 +255,8 @@ import { QuickActionsComponent } from './quick-actions.component';
               </article>
             </div>
           </section>
+
+          <app-anotaciones-panel class="notes-panel" [alumnoId]="alumnoId" />
         </div>
       </ng-container>
     </main>
@@ -419,6 +422,11 @@ import { QuickActionsComponent } from './quick-actions.component';
       font-size: 0.7rem;
       font-style: italic;
       color: var(--color-text-muted);
+    }
+
+    .notes-panel {
+      display: block;
+      grid-column: 1 / -1;
     }
 
     /* Agrupación semanal de méritos (issue #19) */

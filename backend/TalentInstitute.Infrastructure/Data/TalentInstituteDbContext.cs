@@ -18,6 +18,7 @@ public class TalentInstituteDbContext : DbContext
     public DbSet<Meta> Metas { get; set; }
     public DbSet<Merito> Meritos { get; set; }
     public DbSet<ConfiguracionPrivilegios> ConfiguracionPrivilegios { get; set; }
+    public DbSet<Anotacion> Anotaciones { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -29,6 +30,7 @@ public class TalentInstituteDbContext : DbContext
         modelBuilder.ApplyConfiguration(new MetaConfiguration());
         modelBuilder.ApplyConfiguration(new MeritoConfiguration());
         modelBuilder.ApplyConfiguration(new ConfiguracionPrivilegiosConfiguration());
+        modelBuilder.ApplyConfiguration(new AnotacionConfiguration());
 
         base.OnModelCreating(modelBuilder);
     }

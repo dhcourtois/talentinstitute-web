@@ -30,6 +30,7 @@
 | Mérito o Demérito | `Merito` | `Meritos` | `/api/v1/Meritos` | Sin acento en código: `Merito` |
 | Usuario del sistema (personal) | `Staff` | `Staff` | `/api/v1/Staff` | Excepción justificada: término universal en contexto educativo |
 | Configuración de privilegios | `ConfiguracionPrivilegios` | `ConfiguracionPrivilegios` | `/api/v1/Configuracion/privilegios` | Ver Sección 4 |
+| Anotación semanal | `Anotacion` | `Anotaciones` | `/api/v1/Anotaciones` | Observación del reporte semanal; anclada al lunes de su semana |
 
 > **Prohibido:** mezclar en el mismo contexto `Alumno` y `Student`, `Meta` y `DailyGoal`, `Merito` y `Merit`. Una vez adoptado el término canónico, es el único que existe en el sistema.
 
