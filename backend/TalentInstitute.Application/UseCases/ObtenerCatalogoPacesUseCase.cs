@@ -30,7 +30,8 @@ public class ObtenerCatalogoPacesUseCase
             Materia = p.Materia,
             NumeroPace = p.Numero,
             PuntajeMaximo = p.PuntajeMaximo,
-            PuntajeMinimoAprobacion = p.PuntajeMinimoAprobacion
+            PuntajeMinimoAprobacion = p.PuntajeMinimoAprobacion,
+            TotalPaginas = p.TotalPaginas
         }).ToList();
     }
 }
@@ -42,4 +43,7 @@ public class PaceDto
     public int NumeroPace { get; set; }
     public int PuntajeMaximo { get; set; }
     public int PuntajeMinimoAprobacion { get; set; }
+
+    /// <summary>Nulo en los PACEs capturados antes del issue #6.</summary>
+    public int? TotalPaginas { get; set; }
 }
