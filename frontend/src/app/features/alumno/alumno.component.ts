@@ -12,7 +12,7 @@ import { PacesService } from '../../core/services/paces.service';
 import { ProgresoService } from '../../core/services/progreso.service';
 import { ToastService } from '../../core/services/toast.service';
 import { todayIso, weekStartIso } from '../../core/utils/fecha.util';
-import { Alumno, AlumnoPace, EstadoMeta, Merito, Meta, Pace, Rol } from '../../models';
+import { Alumno, AlumnoPace, EstadoMeta, Merito, Meta, ModoPrivilegio, Pace, PrivilegioFlag, Rol } from '../../models';
 import { BadgeComponent, BadgeVariant } from '../../shared/components/badge/badge.component';
 import { ButtonComponent } from '../../shared/components/button/button.component';
 import { ProgressBarComponent } from '../../shared/components/progress-bar/progress-bar.component';
@@ -62,6 +62,23 @@ import { QuickActionsComponent } from './quick-actions.component';
           <div *ngFor="let item of privilegeItems(alumno)" class="privilege">
             <span>{{ item.label }}</span>
             <app-badge [variant]="item.active ? 'green' : 'gray'">{{ item.active ? 'Activo' : 'Inactivo' }}</app-badge>
+
+            <ng-container *ngIf="canOverridePrivileges; else soloLectura">
+              <select
+                class="privilege-mode"
+                [value]="item.mode"
+                [disabled]="savingPrivilege === item.flag"
+                [attr.aria-label]="'Modo del privilegio ' + item.label"
+                (change)="setPrivilege(item.flag, $event)"
+              >
+                <option value="auto">Automático</option>
+                <option value="activo">Forzar activo</option>
+                <option value="inactivo">Forzar inactivo</option>
+              </select>
+            </ng-container>
+            <ng-template #soloLectura>
+              <small class="privilege-note" *ngIf="item.mode !== 'auto'">Definido a mano</small>
+            </ng-template>
           </div>
         </section>
 
@@ -392,6 +409,18 @@ import { QuickActionsComponent } from './quick-actions.component';
       min-width: 0;
     }
 
+    .privilege-mode {
+      width: 100%;
+      padding: var(--space-1) var(--space-2);
+      font-size: 0.75rem;
+    }
+
+    .privilege-note {
+      font-size: 0.7rem;
+      font-style: italic;
+      color: var(--color-text-muted);
+    }
+
     /* Agrupación semanal de méritos (issue #19) */
     .merit-week {
       display: grid;
@@ -603,6 +632,7 @@ export class AlumnoComponent implements OnInit {
   registeringMerit = false;
   assigning = false;
   deletingMeritId: string | null = null;
+  savingPrivilege: PrivilegioFlag | null = null;
   scoreInputs: Record<string, number | null> = {};
 
   /**
@@ -655,6 +685,14 @@ export class AlumnoComponent implements OnInit {
 
   /** Solo el Principal elimina méritos, por acuerdo con el cliente (issue #19). */
   get canDeleteMerits(): boolean {
+    return this.role === 'Principal';
+  }
+
+  /**
+   * Forzar un privilegio es una excepción a la regla de méritos, así que queda
+   * en el Principal igual que en el endpoint (issue #21).
+   */
+  get canOverridePrivileges(): boolean {
     return this.role === 'Principal';
   }
 
@@ -879,15 +917,54 @@ export class AlumnoComponent implements OnInit {
     return `${alumno.nombre.charAt(0)}${alumno.apellido.charAt(0)}`.toUpperCase();
   }
 
-  privilegeItems(alumno: Alumno): Array<{ label: string; active: boolean }> {
+  privilegeItems(alumno: Alumno): Array<{ flag: PrivilegioFlag; label: string; active: boolean; mode: ModoPrivilegio }> {
     const status = alumno.privilegeStatus;
+    const manuales = alumno.privilegiosManuales;
+
+    const item = (flag: PrivilegioFlag, active: boolean, manual: boolean | null | undefined) => ({
+      flag,
+      label: flag,
+      active,
+      mode: this.modoDe(manual)
+    });
+
     return [
-      { label: 'Oficina', active: status?.oficina ?? alumno.privilegiosActivos?.includes('Oficina') ?? false },
-      { label: 'Comedor', active: status?.comedor ?? alumno.privilegiosActivos?.includes('Comedor') ?? false },
-      { label: 'Patio', active: status?.patio ?? alumno.privilegiosActivos?.includes('Patio') ?? false },
-      { label: 'Biblioteca', active: status?.biblioteca ?? alumno.privilegiosActivos?.includes('Biblioteca') ?? false },
-      { label: 'Actividades', active: status?.actividades ?? alumno.privilegiosActivos?.includes('Actividades') ?? false }
+      item('Oficina', status?.oficina ?? alumno.privilegiosActivos?.includes('Oficina') ?? false, manuales?.oficina),
+      item('Comedor', status?.comedor ?? alumno.privilegiosActivos?.includes('Comedor') ?? false, manuales?.comedor),
+      item('Patio', status?.patio ?? alumno.privilegiosActivos?.includes('Patio') ?? false, manuales?.patio),
+      item('Biblioteca', status?.biblioteca ?? alumno.privilegiosActivos?.includes('Biblioteca') ?? false, manuales?.biblioteca),
+      item('Actividades', status?.actividades ?? alumno.privilegiosActivos?.includes('Actividades') ?? false, manuales?.actividades)
     ];
+  }
+
+  /** Ausente o nulo significa que el privilegio lo sigue decidiendo el balance. */
+  private modoDe(manual: boolean | null | undefined): ModoPrivilegio {
+    if (manual === true) return 'activo';
+    if (manual === false) return 'inactivo';
+    return 'auto';
+  }
+
+  setPrivilege(flag: PrivilegioFlag, event: Event): void {
+    if (!this.alumno) return;
+
+    const modo = (event.target as HTMLSelectElement).value as ModoPrivilegio;
+    const activo = modo === 'auto' ? null : modo === 'activo';
+
+    this.savingPrivilege = flag;
+    this.alumnosService.actualizarPrivilegio(this.alumno.id, flag, activo).subscribe({
+      next: response => {
+        this.savingPrivilege = null;
+        this.toast.success(response?.message ?? 'Privilegio actualizado.');
+        this.load();
+      },
+      error: (error: HttpErrorResponse) => {
+        this.savingPrivilege = null;
+        this.toast.error(this.describeError(error, 'No se pudo actualizar el privilegio.'));
+        // La lista se recarga para que el select no quede mostrando un modo
+        // que el backend nunca llegó a aceptar.
+        this.load();
+      }
+    });
   }
 
   balanceVariant(balance: number): BadgeVariant {

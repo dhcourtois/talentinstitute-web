@@ -228,4 +228,107 @@ public class AlumnoTests
         // Assert
         acto.Should().Throw<DomainException>();
     }
+
+    // ── Anulación manual de privilegios (issue #21) ──────────────────────────
+
+    [Fact]
+    public void Alumno_Nace_ConTodosLosPrivilegiosEnAutomatico()
+    {
+        // Act
+        var alumno = CrearAlumno();
+
+        // Assert
+        alumno.PrivilegiosManuales.HayAlguno.Should().BeFalse();
+    }
+
+    [Fact]
+    public void EstablecerPrivilegioManual_ForzandoActivo_LoActivaAunqueElBalanceNoAlcance()
+    {
+        // Arrange: con balance 0 la biblioteca exige 3 puntos, así que está inactiva.
+        var alumno = CrearAlumno();
+        alumno.RecalcularPrivilegios(0, _configPredeterminada);
+        alumno.PrivilegeStatus.Biblioteca.Should().BeFalse();
+
+        // Act
+        alumno.EstablecerPrivilegioManual(Privilegio.Biblioteca, true, _configPredeterminada);
+
+        // Assert
+        alumno.PrivilegeStatus.Biblioteca.Should().BeTrue();
+    }
+
+    [Fact]
+    public void EstablecerPrivilegioManual_ForzandoInactivo_LoDesactivaAunqueElBalanceAlcance()
+    {
+        // Arrange
+        var alumno = CrearAlumno();
+        alumno.RecalcularPrivilegios(10, _configPredeterminada);
+        alumno.PrivilegeStatus.Actividades.Should().BeTrue();
+
+        // Act
+        alumno.EstablecerPrivilegioManual(Privilegio.Actividades, false, _configPredeterminada);
+
+        // Assert
+        alumno.PrivilegeStatus.Actividades.Should().BeFalse();
+    }
+
+    [Fact]
+    public void PrivilegioForzado_SobreviveAUnCambioDeBalance()
+    {
+        // Arrange: es lo que distingue una excepción de un ajuste momentáneo.
+        var alumno = CrearAlumno();
+        alumno.EstablecerPrivilegioManual(Privilegio.Patio, false, _configPredeterminada);
+
+        // Act
+        alumno.RecalcularPrivilegios(25, _configPredeterminada);
+
+        // Assert
+        alumno.PrivilegeStatus.Patio.Should().BeFalse();
+    }
+
+    [Fact]
+    public void EstablecerPrivilegioManual_ConNulo_DevuelveElPrivilegioAlBalance()
+    {
+        // Arrange
+        var alumno = CrearAlumno();
+        alumno.RecalcularPrivilegios(10, _configPredeterminada);
+        alumno.EstablecerPrivilegioManual(Privilegio.Actividades, false, _configPredeterminada);
+        alumno.PrivilegeStatus.Actividades.Should().BeFalse();
+
+        // Act
+        alumno.EstablecerPrivilegioManual(Privilegio.Actividades, null, _configPredeterminada);
+
+        // Assert: con balance 10 supera el umbral de 5, así que vuelve a activarse.
+        alumno.PrivilegeStatus.Actividades.Should().BeTrue();
+        alumno.PrivilegiosManuales.Actividades.Should().BeNull();
+    }
+
+    [Fact]
+    public void EstablecerPrivilegioManual_NoAfectaALosDemasPrivilegios()
+    {
+        // Arrange
+        var alumno = CrearAlumno();
+        alumno.RecalcularPrivilegios(0, _configPredeterminada);
+        var comedorAntes = alumno.PrivilegeStatus.Comedor;
+
+        // Act
+        alumno.EstablecerPrivilegioManual(Privilegio.Oficina, false, _configPredeterminada);
+
+        // Assert
+        alumno.PrivilegeStatus.Comedor.Should().Be(comedorAntes);
+        alumno.PrivilegiosManuales.Comedor.Should().BeNull();
+    }
+
+    [Fact]
+    public void EstablecerPrivilegioManual_NoAlteraElBalanceDeMeritos()
+    {
+        // Arrange: forzar un privilegio es una excepción administrativa, no un premio.
+        var alumno = CrearAlumno();
+        alumno.RecalcularPrivilegios(4, _configPredeterminada);
+
+        // Act
+        alumno.EstablecerPrivilegioManual(Privilegio.Biblioteca, true, _configPredeterminada);
+
+        // Assert
+        alumno.BalanceMeritos.Should().Be(4);
+    }
 }

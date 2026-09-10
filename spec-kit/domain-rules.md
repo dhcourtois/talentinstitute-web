@@ -164,6 +164,27 @@ public void RecalcularPrivilegios(int balanceMeritos, ConfiguracionPrivilegios c
 - El historial de méritos permanece inmutable como bitácora de auditoría; la revocación agrega un registro de tipo `Revocado`, no modifica el registro original.
 - Los privilegios son un **snapshot del estado actual**, no una bitácora histórica. La pregunta "¿qué privilegios tenía el alumno el martes pasado?" no está en el alcance de este sistema.
 
+### Anulación manual por alumno (issue #21)
+
+El balance de méritos sigue siendo la regla de fondo, pero el colegio necesita representar excepciones que un umbral no sabe expresar: una incapacidad médica que impide salir al patio, un permiso puntual del Principal.
+
+`Alumno.PrivilegiosManuales` guarda, por privilegio, un `bool?`:
+
+| Valor | Significado |
+|---|---|
+| `null` | Automático. Decide el balance contra los umbrales. Es el estado inicial y el de todos los alumnos previos a la migración. |
+| `true` | Forzado activo. Se mantiene aunque el balance caiga por debajo del umbral de revocación. |
+| `false` | Forzado inactivo. Se mantiene aunque el balance supere el umbral de otorgamiento. |
+
+```csharp
+// En Alumno.cs (Domain)
+public void EstablecerPrivilegioManual(Privilegio privilegio, bool? valor, ConfiguracionPrivilegios config)
+```
+
+La invariante se conserva: el método **no escribe `PrivilegeStatus`**. Registra la excepción y llama a `RecalcularPrivilegios()`, que resuelve cada privilegio como `manual ?? cálculo por umbral`. Devolver un privilegio a `null` lo reevalúa de inmediato contra la configuración vigente.
+
+Restringido al Principal (`PATCH /api/v1/Alumnos/{id}/privilegios`). Forzar un privilegio **no altera el balance de méritos**: es una excepción administrativa, no un premio.
+
 ---
 
 ## 5. Semana Académica y Turnos
@@ -208,7 +229,7 @@ Estas reglas se validan en el constructor o en métodos del Domain. Su violació
 | `AlumnoPace` | No se puede asignar un PACE si ya existe uno activo para la misma materia |
 | `Meta` | `PuntajeObtenido` no puede exceder `PuntajeMaximo` del PACE |
 | `Meta` | `Turno` solo acepta `Mañana` o `Tarde` |
-| `Alumno` | `PrivilegeStatus` solo se modifica a través de `RecalcularPrivilegios()`, nunca directamente |
+| `Alumno` | `PrivilegeStatus` solo se modifica a través de `RecalcularPrivilegios()`, nunca directamente — incluidas las anulaciones manuales, que entran como insumo de ese método |
 | `ConfiguracionPrivilegios` | Todo umbral de revocación debe ser estrictamente menor que el umbral de otorgamiento para el mismo privilegio |
 | `EntrevistaPadre` | `NumeroHijos` debe ser mayor o igual a 0 |
 | `EntrevistaPadre` | Si hay banderas de riesgo de violencia o divorcio crítico, los `Comentarios` no pueden estar vacíos |

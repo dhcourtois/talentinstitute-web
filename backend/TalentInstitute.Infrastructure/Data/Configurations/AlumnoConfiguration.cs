@@ -41,5 +41,16 @@ public class AlumnoConfiguration : IEntityTypeConfiguration<Alumno>
             ps.Property(p => p.Biblioteca).HasColumnName("Privilegio_Biblioteca");
             ps.Property(p => p.Actividades).HasColumnName("Privilegio_Actividades");
         });
+
+        // Anulaciones manuales (issue #21). Nulo = automático, que es el valor
+        // con el que quedan todos los alumnos existentes tras la migración.
+        builder.OwnsOne(a => a.PrivilegiosManuales, pm =>
+        {
+            pm.Property(p => p.Oficina).HasColumnName("PrivilegioManual_Oficina");
+            pm.Property(p => p.Comedor).HasColumnName("PrivilegioManual_Comedor");
+            pm.Property(p => p.Patio).HasColumnName("PrivilegioManual_Patio");
+            pm.Property(p => p.Biblioteca).HasColumnName("PrivilegioManual_Biblioteca");
+            pm.Property(p => p.Actividades).HasColumnName("PrivilegioManual_Actividades");
+        });
     }
 }
