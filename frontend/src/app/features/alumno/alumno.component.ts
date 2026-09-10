@@ -202,16 +202,40 @@ import { QuickActionsComponent } from './quick-actions.component';
             <div class="section-error" *ngIf="meritosError">{{ meritosError }}</div>
             <div class="empty" *ngIf="!meritosError && meritos.length === 0">No hay méritos o deméritos registrados.</div>
 
-            <article class="merit-row" *ngFor="let merito of meritos.slice(0, 10)">
-              <div>
-                <strong>{{ merito.tipo }} · {{ merito.puntos }} puntos</strong>
-                <span>{{ merito.motivo }}</span>
-                <small>{{ merito.fechaAplicado | date:'dd/MM/yyyy HH:mm' }} · {{ merito.staffName ?? 'Personal Escolar' }}</small>
+            <div class="merit-week" *ngFor="let semana of meritosPorSemana">
+              <div class="week-divider">
+                <span class="week-label">{{ semana.etiqueta }}</span>
+                <app-badge [variant]="balanceVariant(semana.balance)">
+                  {{ semana.balance > 0 ? '+' : '' }}{{ semana.balance }} en la semana
+                </app-badge>
               </div>
-              <app-badge [variant]="merito.revocado ? 'gray' : merito.tipo === 'Merito' ? 'green' : 'red'">
-                {{ merito.revocado ? 'Revocado' : merito.tipo }}
-              </app-badge>
-            </article>
+
+              <article class="merit-row" *ngFor="let merito of semana.registros" [class.revoked]="merito.revocado">
+                <div>
+                  <strong>{{ merito.tipo }} · {{ merito.puntos }} puntos</strong>
+                  <span>{{ merito.motivo }}</span>
+                  <small>{{ merito.fechaAplicado | date:'dd/MM/yyyy HH:mm' }} · {{ merito.staffName ?? 'Personal Escolar' }}</small>
+                  <small *ngIf="merito.revocado" class="revoked-note">
+                    Eliminado{{ merito.fechaRevocacion ? (' el ' + (merito.fechaRevocacion | date:'dd/MM/yyyy')) : '' }}
+                    {{ merito.staffRevocoName ? 'por ' + merito.staffRevocoName : '' }}
+                  </small>
+                </div>
+                <div class="merit-actions">
+                  <app-badge [variant]="merito.revocado ? 'gray' : merito.tipo === 'Merito' ? 'green' : 'red'">
+                    {{ merito.revocado ? 'Eliminado' : merito.tipo }}
+                  </app-badge>
+                  <button
+                    type="button"
+                    class="link-danger"
+                    *ngIf="canDeleteMerits && !merito.revocado"
+                    [disabled]="deletingMeritId === merito.id"
+                    (click)="deleteMerit(merito)"
+                  >
+                    {{ deletingMeritId === merito.id ? 'Eliminando…' : 'Eliminar' }}
+                  </button>
+                </div>
+              </article>
+            </div>
           </section>
         </div>
       </ng-container>
@@ -366,6 +390,61 @@ import { QuickActionsComponent } from './quick-actions.component';
       display: grid;
       gap: var(--space-1);
       min-width: 0;
+    }
+
+    /* Agrupación semanal de méritos (issue #19) */
+    .merit-week {
+      display: grid;
+      gap: var(--space-3);
+    }
+
+    .week-divider {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-3);
+      padding-bottom: var(--space-2);
+      border-bottom: 2px solid var(--color-border);
+    }
+
+    .week-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--color-text-muted);
+    }
+
+    .merit-actions {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .merit-row.revoked > div:first-child strong,
+    .merit-row.revoked > div:first-child span {
+      text-decoration: line-through;
+      color: var(--color-text-muted);
+    }
+
+    .revoked-note {
+      font-style: italic;
+    }
+
+    .link-danger {
+      padding: 0;
+      border: 0;
+      background: none;
+      font: inherit;
+      color: var(--color-danger);
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    .link-danger:disabled {
+      color: var(--color-text-muted);
+      cursor: progress;
+      text-decoration: none;
     }
 
     .inline-form {
@@ -523,7 +602,15 @@ export class AlumnoComponent implements OnInit {
   creatingGoal = false;
   registeringMerit = false;
   assigning = false;
+  deletingMeritId: string | null = null;
   scoreInputs: Record<string, number | null> = {};
+
+  /**
+   * Méritos agrupados por semana (issue #19). Se calcula al cargar y no en un
+   * getter: la detección de cambios lo llamaría en cada ciclo y reagrupar la
+   * lista completa en cada uno es trabajo que no hace falta repetir.
+   */
+  meritosPorSemana: SemanaDeMeritos[] = [];
 
   readonly goalForm = this.fb.nonNullable.group({
     alumnoPaceId: ['', Validators.required],
@@ -566,6 +653,11 @@ export class AlumnoComponent implements OnInit {
     return this.canScore;
   }
 
+  /** Solo el Principal elimina méritos, por acuerdo con el cliente (issue #19). */
+  get canDeleteMerits(): boolean {
+    return this.role === 'Principal';
+  }
+
   load(): void {
     if (!this.alumnoId) {
       this.loading = false;
@@ -595,6 +687,7 @@ export class AlumnoComponent implements OnInit {
         this.paces = result.paces;
         this.metas = result.metas;
         this.meritos = result.meritos;
+        this.meritosPorSemana = this.agruparPorSemana(result.meritos);
         this.catalogo = result.catalogo;
         this.loading = false;
       },
@@ -664,6 +757,69 @@ export class AlumnoComponent implements OnInit {
         this.toast.error('No se pudo guardar el registro.');
       }
     });
+  }
+
+  deleteMerit(merito: Merito): void {
+    const etiqueta = merito.tipo === 'Merito' ? 'el mérito' : 'el demérito';
+    const confirmado = window.confirm(
+      `¿Eliminar ${etiqueta} de ${merito.puntos} puntos?\n\n` +
+        `Motivo: ${merito.motivo}\n\n` +
+        'El balance del alumno se recalcula y el registro queda marcado como eliminado.'
+    );
+    if (!confirmado) return;
+
+    this.deletingMeritId = merito.id;
+    this.meritosService.revocar(merito.id).subscribe({
+      next: () => {
+        this.deletingMeritId = null;
+        this.toast.success('Registro eliminado.');
+        this.load();
+      },
+      error: (error: HttpErrorResponse) => {
+        this.deletingMeritId = null;
+        this.toast.error(this.describeError(error, 'No se pudo eliminar el registro.'));
+      }
+    });
+  }
+
+  /**
+   * Parte la lista en semanas de lunes a domingo. Sin esta separación los
+   * registros de semanas distintas se leen como un solo bloque y se confunden
+   * con el acumulado de la semana en curso (issue #19).
+   */
+  private agruparPorSemana(meritos: Merito[]): SemanaDeMeritos[] {
+    const grupos = new Map<string, SemanaDeMeritos>();
+
+    for (const merito of [...meritos].sort((a, b) => b.fechaAplicado.localeCompare(a.fechaAplicado))) {
+      const inicio = weekStartIso(new Date(merito.fechaAplicado));
+      let grupo = grupos.get(inicio);
+
+      if (!grupo) {
+        grupo = { inicio, etiqueta: this.etiquetaSemana(inicio), balance: 0, registros: [] };
+        grupos.set(inicio, grupo);
+      }
+
+      grupo.registros.push(merito);
+
+      // Un registro eliminado ya no cuenta: su balance fue revertido en el backend.
+      if (!merito.revocado) {
+        grupo.balance += merito.tipo === 'Merito' ? merito.puntos : -merito.puntos;
+      }
+    }
+
+    return [...grupos.values()].sort((a, b) => b.inicio.localeCompare(a.inicio));
+  }
+
+  private etiquetaSemana(inicioIso: string): string {
+    const [anio, mes, dia] = inicioIso.split('-').map(Number);
+    const inicio = new Date(anio, mes - 1, dia);
+    const fin = new Date(anio, mes - 1, dia + 6);
+
+    const corto = (fecha: Date) =>
+      `${`${fecha.getDate()}`.padStart(2, '0')}/${`${fecha.getMonth() + 1}`.padStart(2, '0')}`;
+
+    const esSemanaActual = inicioIso === weekStartIso();
+    return `${esSemanaActual ? 'Esta semana' : 'Semana'} · ${corto(inicio)} – ${corto(fin)}`;
   }
 
   assignPace(): void {
@@ -789,4 +945,14 @@ export class AlumnoComponent implements OnInit {
   private weekStart(): string {
     return weekStartIso();
   }
+}
+
+/** Un bloque semanal de la bitácora de méritos y deméritos. */
+interface SemanaDeMeritos {
+  /** Lunes de la semana, en formato `yyyy-MM-dd`. Ordena los grupos. */
+  inicio: string;
+  etiqueta: string;
+  /** Neto de la semana, ya sin los registros eliminados. */
+  balance: number;
+  registros: Merito[];
 }
