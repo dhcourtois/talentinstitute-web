@@ -192,7 +192,9 @@ Restringido al Principal (`PATCH /api/v1/Alumnos/{id}/privilegios`). Forzar un p
 
 ## 4.bis Portal de Padres de Familia (issue #8)
 
-El SOW se contradice sobre este módulo: §3.1 lo incluye en el Módulo 1 ("Portal o acceso para padres de familia / alumnos") y §10, supuesto 3, lo excluye ("sin acceso público ni portal de padres en esta versión"). Se implementó siguiendo §3.1, por decisión explícita del cliente. **Conviene cerrar esa contradicción en el SOW.**
+El SOW v1.0 se contradecía sobre este módulo: §3.1 lo incluía en el Módulo 1 y §10, supuesto 3, lo excluía de esta versión. Se implementó siguiendo §3.1, por decisión explícita del cliente, y **el SOW v1.1 ya quedó corregido**: el supuesto 3 describe hoy el acceso de solo consulta de los padres en lugar de negarlo.
+
+Quedan marcados como pendientes en el SOW dos puntos del alcance original que no forman parte de lo entregado: el acceso para alumnos (§3.1, Módulo 1) y el historial paso a paso del PACE visible al padre (§3.1, Módulo 3).
 
 ### Separación respecto del personal
 
