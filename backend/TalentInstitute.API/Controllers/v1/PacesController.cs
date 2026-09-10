@@ -52,6 +52,7 @@ public class PacesController : ControllerBase
                 request.NumeroPace,
                 request.PuntajeMaximo,
                 request.PuntajeMinimoAprobacion,
+                request.TotalPaginas,
                 cancellationToken);
 
             return CreatedAtAction(nameof(GetCatalogo), null, new { id, message = "PACE agregado al catálogo exitosamente." });
@@ -115,6 +116,12 @@ public class CreatePaceRequest
     public int NumeroPace { get; set; }
     public int PuntajeMaximo { get; set; } = 100;
     public int PuntajeMinimoAprobacion { get; set; } = 80;
+
+    /// <summary>
+    /// Total de páginas del cuadernillo. Opcional: sin él no se valida el
+    /// rango de páginas de una meta contra el PACE (issue #6).
+    /// </summary>
+    public int? TotalPaginas { get; set; }
 }
 
 public class AsignarPaceRequest

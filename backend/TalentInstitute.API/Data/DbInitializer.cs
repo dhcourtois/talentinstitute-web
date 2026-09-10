@@ -77,7 +77,7 @@ public static class DbInitializer
                 await context.SaveChangesAsync();
 
                 // 6. Meta diaria de ejemplo para Mateo
-                var metaMateo = new Meta(mateoPace.Id, Turno.Mañana, 5, DateOnly.FromDateTime(DateTime.UtcNow));
+                var metaMateo = new Meta(mateoPace.Id, Turno.Mañana, 1, 5, DateOnly.FromDateTime(DateTime.UtcNow));
                 context.Metas.Add(metaMateo);
 
                 mateoPace.RegistrarPrimeraMeta();

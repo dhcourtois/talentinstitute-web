@@ -4,4 +4,6 @@ export interface Pace {
   numeroPace: number;
   puntajeMaximo: number;
   puntajeMinimoAprobacion?: number;
+  /** Total de páginas del cuadernillo. Nulo en los PACEs capturados antes del issue #6. */
+  totalPaginas?: number | null;
 }

@@ -26,7 +26,7 @@
 | Entrevista a Padres | `EntrevistaPadre` | `EntrevistasPadres` | `/api/v1/Entrevistas` | Entrevista inicial con factores de riesgo |
 | PACE (módulo) | `Pace` | `Paces` | `/api/v1/Paces` | Acrónimo: sin mayúsculas compuestas |
 | PACE asignado a alumno | `AlumnoPace` | `AlumnoPaces` | — (sub-recurso de Alumnos) | No `StudentProgress` |
-| Meta diaria | `Meta` | `Metas` | `/api/v1/Progreso/metas` | No `DailyGoal` |
+| Meta diaria | `Meta` | `Metas` | `/api/v1/Progreso/metas` | No `DailyGoal`. Cubre un rango de páginas, no una sola |
 | Mérito o Demérito | `Merito` | `Meritos` | `/api/v1/Meritos` | Sin acento en código: `Merito` |
 | Usuario del sistema (personal) | `Staff` | `Staff` | `/api/v1/Staff` | Excepción justificada: término universal en contexto educativo |
 | Configuración de privilegios | `ConfiguracionPrivilegios` | `ConfiguracionPrivilegios` | `/api/v1/Configuracion/privilegios` | Ver Sección 4 |
@@ -229,6 +229,9 @@ Estas reglas se validan en el constructor o en métodos del Domain. Su violació
 | `Merito` | `Tipo` solo acepta los valores `Merito` o `Demerito` |
 | `AlumnoPace` | No se puede asignar un PACE si ya existe uno activo para la misma materia |
 | `Meta` | `PuntajeObtenido` no puede exceder `PuntajeMaximo` del PACE |
+| `Meta` | `PaginaInicial` debe ser mayor a 0 y `PaginaFinal` no puede ser menor que ella; una meta de una sola página es válida |
+| `Meta` | Si el `Pace` tiene `TotalPaginas` capturado, `PaginaFinal` no puede excederlo |
+| `Pace` | `TotalPaginas`, cuando se captura, debe ser mayor a 0 |
 | `Meta` | `Turno` solo acepta `Mañana` o `Tarde` |
 | `Alumno` | `PrivilegeStatus` solo se modifica a través de `RecalcularPrivilegios()`, nunca directamente — incluidas las anulaciones manuales, que entran como insumo de ese método |
 | `ConfiguracionPrivilegios` | Todo umbral de revocación debe ser estrictamente menor que el umbral de otorgamiento para el mismo privilegio |

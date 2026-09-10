@@ -14,5 +14,8 @@ public class PaceConfiguration : IEntityTypeConfiguration<Pace>
         builder.Property(p => p.Materia)
             .IsRequired()
             .HasMaxLength(50);
+
+        // Nulo en los PACEs capturados antes del issue #6.
+        builder.Property(p => p.TotalPaginas);
     }
 }

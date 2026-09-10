@@ -57,7 +57,8 @@ public class ProgresoController : ControllerBase
             var id = await _registrarMetaUseCase.ExecuteAsync(
                 request.AlumnoPaceId,
                 turnoEnum,
-                request.PaginasObjetivo,
+                request.PaginaInicial,
+                request.PaginaFinal,
                 request.FechaObjetivo,
                 cancellationToken);
 
@@ -109,7 +110,16 @@ public class RegistrarMetaRequest
 {
     public Guid AlumnoPaceId { get; set; }
     public string Turno { get; set; } = string.Empty;
-    public int PaginasObjetivo { get; set; }
+
+    /// <summary>Primera página del rango, inclusive.</summary>
+    public int PaginaInicial { get; set; }
+
+    /// <summary>
+    /// Última página del rango, inclusive. Igual a la inicial registra una sola
+    /// página, como antes del issue #6.
+    /// </summary>
+    public int PaginaFinal { get; set; }
+
     public DateOnly FechaObjetivo { get; set; }
 }
 

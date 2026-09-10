@@ -23,6 +23,7 @@ public class CrearPaceUseCase
         int numeroPace,
         int puntajeMaximo,
         int puntajeMinimoAprobacion,
+        int? totalPaginas = null,
         CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(materia))
@@ -53,7 +54,7 @@ public class CrearPaceUseCase
             throw new DomainException($"Ya existe el PACE {materiaNormalizada}-{numeroPace} en el catálogo.");
         }
 
-        var pace = new Pace(materiaNormalizada, numeroPace, puntajeMaximo, puntajeMinimoAprobacion);
+        var pace = new Pace(materiaNormalizada, numeroPace, puntajeMaximo, puntajeMinimoAprobacion, totalPaginas);
 
         await _paceRepository.AddAsync(pace, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);

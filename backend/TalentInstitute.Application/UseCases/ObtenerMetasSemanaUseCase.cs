@@ -50,6 +50,8 @@ public class ObtenerMetasSemanaUseCase
                     Id = m.Id,
                     AlumnoPaceId = m.AlumnoPaceId,
                     Turno = m.Turno.ToString(),
+                    PaginaInicial = m.PaginaInicial,
+                    PaginaFinal = m.PaginaFinal,
                     PaginasObjetivo = m.PaginasObjetivo,
                     FechaObjetivo = m.FechaObjetivo,
                     PuntajeObtenido = m.PuntajeObtenido,
@@ -69,6 +71,10 @@ public class MetaSemanaDto
     public Guid Id { get; set; }
     public Guid AlumnoPaceId { get; set; }
     public string Turno { get; set; } = string.Empty;
+    public int PaginaInicial { get; set; }
+    public int PaginaFinal { get; set; }
+
+    /// <summary>Derivada del rango; se envía calculada para que la pantalla no la recalcule.</summary>
     public int PaginasObjetivo { get; set; }
     public DateOnly FechaObjetivo { get; set; }
     public decimal? PuntajeObtenido { get; set; }
