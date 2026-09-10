@@ -20,7 +20,7 @@ public class CrearPaceUseCase
 
     public async Task<Guid> ExecuteAsync(
         string materia,
-        int numeroPace,
+        string numeroPace,
         int puntajeMaximo,
         int puntajeMinimoAprobacion,
         int? totalPaginas = null,
@@ -31,10 +31,9 @@ public class CrearPaceUseCase
             throw new DomainException("La materia del PACE no puede estar vacía.");
         }
 
-        if (numeroPace <= 0)
-        {
-            throw new DomainException("El número de PACE debe ser mayor a 0.");
-        }
+        // El formato del número lo valida y normaliza el constructor de `Pace`.
+        // Aquí solo se necesita la forma canónica para detectar el duplicado.
+        var numeroNormalizado = Pace.NormalizarNumero(numeroPace);
 
         if (puntajeMaximo <= 0)
         {
@@ -47,14 +46,14 @@ public class CrearPaceUseCase
         }
 
         var materiaNormalizada = materia.Trim().ToUpperInvariant();
-        var existente = await _paceRepository.GetByMateriaYNumeroAsync(materiaNormalizada, numeroPace, cancellationToken);
+        var existente = await _paceRepository.GetByMateriaYNumeroAsync(materiaNormalizada, numeroNormalizado, cancellationToken);
 
         if (existente is not null)
         {
-            throw new DomainException($"Ya existe el PACE {materiaNormalizada}-{numeroPace} en el catálogo.");
+            throw new DomainException($"Ya existe el PACE {materiaNormalizada}-{numeroNormalizado} en el catálogo.");
         }
 
-        var pace = new Pace(materiaNormalizada, numeroPace, puntajeMaximo, puntajeMinimoAprobacion, totalPaginas);
+        var pace = new Pace(materiaNormalizada, numeroNormalizado, puntajeMaximo, puntajeMinimoAprobacion, totalPaginas);
 
         await _paceRepository.AddAsync(pace, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);

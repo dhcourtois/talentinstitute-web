@@ -57,7 +57,7 @@ public class ObtenerMetasSemanaUseCase
                     PuntajeObtenido = m.PuntajeObtenido,
                     Estado = m.Estado.ToString(),
                     Materia = ap.Materia,
-                    NumeroPace = pace?.Numero ?? 0
+                    NumeroPace = pace?.Numero ?? string.Empty
                 });
             }
         }
@@ -80,5 +80,5 @@ public class MetaSemanaDto
     public decimal? PuntajeObtenido { get; set; }
     public string Estado { get; set; } = string.Empty;
     public string Materia { get; set; } = string.Empty;
-    public int NumeroPace { get; set; }
+    public string NumeroPace { get; set; } = string.Empty;
 }

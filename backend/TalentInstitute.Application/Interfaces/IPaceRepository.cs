@@ -9,7 +9,7 @@ namespace TalentInstitute.Application.Interfaces;
 public interface IPaceRepository
 {
     Task<Pace?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
-    Task<Pace?> GetByMateriaYNumeroAsync(string materia, int numero, CancellationToken cancellationToken = default);
+    Task<Pace?> GetByMateriaYNumeroAsync(string materia, string numero, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<Pace>> GetCatalogoAsync(string? materia = null, CancellationToken cancellationToken = default);
     Task<AlumnoPace?> GetAlumnoPaceByIdAsync(Guid id, CancellationToken cancellationToken = default);
     Task AddAsync(Pace pace, CancellationToken cancellationToken = default);

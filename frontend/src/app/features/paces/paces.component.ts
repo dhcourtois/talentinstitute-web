@@ -143,7 +143,14 @@ import { SpinnerComponent } from '../../shared/components/spinner/spinner.compon
             </label>
             <label>
               <span>Número de PACE</span>
-              <input type="number" formControlName="numeroPace" min="1" />
+              <input
+                type="text"
+                formControlName="numeroPace"
+                maxlength="20"
+                placeholder="1045 o RR01"
+                autocapitalize="characters"
+              />
+              <small>Letras y dígitos, sin espacios ni signos.</small>
             </label>
             <label>
               <span>Puntaje máximo</span>
@@ -373,7 +380,8 @@ export class PacesComponent implements OnInit {
 
   readonly paceForm = this.fb.nonNullable.group({
     materia: ['', Validators.required],
-    numeroPace: [1, [Validators.required, Validators.min(1)]],
+    // El mismo formato que valida el dominio, para avisar antes de enviar.
+    numeroPace: ['', [Validators.required, Validators.pattern(/^[A-Za-z0-9]{1,20}$/)]],
     puntajeMaximo: [100, [Validators.required, Validators.min(1)]],
     puntajeMinimoAprobacion: [80, [Validators.required, Validators.min(0)]],
     // Opcional: los PACEs ya capturados no lo tienen y no debe volverse obligatorio
@@ -401,8 +409,10 @@ export class PacesComponent implements OnInit {
     const filtrados = this.materiaFiltro
       ? this.catalogo.filter(pace => pace.materia === this.materiaFiltro)
       : this.catalogo;
+    // El número dejó de ser entero, así que se compara como texto. Entre
+    // códigos del mismo largo el resultado es idéntico al orden numérico.
     return [...filtrados].sort(
-      (a, b) => a.materia.localeCompare(b.materia) || a.numeroPace - b.numeroPace
+      (a, b) => a.materia.localeCompare(b.materia) || a.numeroPace.localeCompare(b.numeroPace)
     );
   }
 
@@ -513,7 +523,7 @@ export class PacesComponent implements OnInit {
     this.pacesService.create(payload).subscribe({
       next: () => {
         this.creating = false;
-        this.paceForm.reset({ materia: '', numeroPace: 1, puntajeMaximo: 100, puntajeMinimoAprobacion: 80, totalPaginas: null });
+        this.paceForm.reset({ materia: '', numeroPace: '', puntajeMaximo: 100, puntajeMinimoAprobacion: 80, totalPaginas: null });
         this.toast.success('PACE agregado al catálogo.');
         this.load();
       },
