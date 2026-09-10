@@ -153,6 +153,11 @@ import { SpinnerComponent } from '../../shared/components/spinner/spinner.compon
               <span>Mínimo de aprobación</span>
               <input type="number" formControlName="puntajeMinimoAprobacion" min="0" />
             </label>
+            <label>
+              <span>Total de páginas</span>
+              <input type="number" formControlName="totalPaginas" min="1" placeholder="Opcional" />
+              <small>Si lo capturas, el sistema valida que el rango de una meta quepa en el PACE.</small>
+            </label>
             <div class="actions">
               <app-button [loading]="creating" [disabled]="paceForm.invalid">Agregar al catálogo</app-button>
             </div>
@@ -167,6 +172,7 @@ import { SpinnerComponent } from '../../shared/components/spinner/spinner.compon
                 <th scope="col">PACE</th>
                 <th scope="col">Puntaje máximo</th>
                 <th scope="col">Mínimo de aprobación</th>
+                <th scope="col">Páginas</th>
               </tr>
             </thead>
             <tbody>
@@ -175,6 +181,7 @@ import { SpinnerComponent } from '../../shared/components/spinner/spinner.compon
                 <td>{{ pace.numeroPace }}</td>
                 <td>{{ pace.puntajeMaximo }}</td>
                 <td>{{ pace.puntajeMinimoAprobacion ?? '—' }}</td>
+                <td>{{ pace.totalPaginas ?? '—' }}</td>
               </tr>
             </tbody>
           </table>
@@ -368,7 +375,10 @@ export class PacesComponent implements OnInit {
     materia: ['', Validators.required],
     numeroPace: [1, [Validators.required, Validators.min(1)]],
     puntajeMaximo: [100, [Validators.required, Validators.min(1)]],
-    puntajeMinimoAprobacion: [80, [Validators.required, Validators.min(0)]]
+    puntajeMinimoAprobacion: [80, [Validators.required, Validators.min(0)]],
+    // Opcional: los PACEs ya capturados no lo tienen y no debe volverse obligatorio
+    // de golpe para quien solo quiere dar de alta uno nuevo (issue #6).
+    totalPaginas: [null as number | null]
   });
 
   ngOnInit(): void {
@@ -496,10 +506,14 @@ export class PacesComponent implements OnInit {
     }
 
     this.creating = true;
-    this.pacesService.create(this.paceForm.getRawValue()).subscribe({
+    const { totalPaginas, ...pace } = this.paceForm.getRawValue();
+    // Vacío se manda ausente; el backend interpreta null como "sin capturar".
+    const payload = totalPaginas ? { ...pace, totalPaginas } : pace;
+
+    this.pacesService.create(payload).subscribe({
       next: () => {
         this.creating = false;
-        this.paceForm.reset({ materia: '', numeroPace: 1, puntajeMaximo: 100, puntajeMinimoAprobacion: 80 });
+        this.paceForm.reset({ materia: '', numeroPace: 1, puntajeMaximo: 100, puntajeMinimoAprobacion: 80, totalPaginas: null });
         this.toast.success('PACE agregado al catálogo.');
         this.load();
       },

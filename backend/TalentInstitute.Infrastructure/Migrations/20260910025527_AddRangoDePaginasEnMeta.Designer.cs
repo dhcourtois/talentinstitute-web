@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TalentInstitute.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using TalentInstitute.Infrastructure.Data;
 namespace TalentInstitute.Infrastructure.Migrations
 {
     [DbContext(typeof(TalentInstituteDbContext))]
-    partial class TalentInstituteDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260910025527_AddRangoDePaginasEnMeta")]
+    partial class AddRangoDePaginasEnMeta
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -346,66 +349,6 @@ namespace TalentInstitute.Infrastructure.Migrations
                     b.ToTable("Paces", (string)null);
                 });
 
-            modelBuilder.Entity("TalentInstitute.Domain.Entities.PadreAlumno", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("AlumnoId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("FechaVinculo")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("PadreFamiliaId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AlumnoId");
-
-                    b.HasIndex("PadreFamiliaId", "AlumnoId")
-                        .IsUnique();
-
-                    b.ToTable("PadresAlumnos", (string)null);
-                });
-
-            modelBuilder.Entity("TalentInstitute.Domain.Entities.PadreFamilia", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("Activo")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<DateTime>("FechaCreacion")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Nombre")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("PasswordHash")
-                        .IsRequired()
-                        .HasMaxLength(512)
-                        .HasColumnType("nvarchar(512)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Email")
-                        .IsUnique();
-
-                    b.ToTable("PadresFamilia", (string)null);
-                });
-
             modelBuilder.Entity("TalentInstitute.Domain.Entities.Staff", b =>
                 {
                     b.Property<Guid>("Id")
@@ -564,21 +507,6 @@ namespace TalentInstitute.Infrastructure.Migrations
                         .WithMany()
                         .HasForeignKey("AlumnoPaceId")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("TalentInstitute.Domain.Entities.PadreAlumno", b =>
-                {
-                    b.HasOne("TalentInstitute.Domain.Entities.Alumno", null)
-                        .WithMany()
-                        .HasForeignKey("AlumnoId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("TalentInstitute.Domain.Entities.PadreFamilia", null)
-                        .WithMany()
-                        .HasForeignKey("PadreFamiliaId")
-                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 #pragma warning restore 612, 618

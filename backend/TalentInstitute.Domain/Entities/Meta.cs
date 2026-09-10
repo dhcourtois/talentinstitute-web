@@ -7,22 +7,62 @@ public class Meta
     public Guid Id { get; private set; }
     public Guid AlumnoPaceId { get; private set; }
     public Turno Turno { get; private set; }
-    public int PaginasObjetivo { get; private set; }
+
+    /// <summary>Primera página del rango, inclusive.</summary>
+    public int PaginaInicial { get; private set; }
+
+    /// <summary>Última página del rango, inclusive. Igual a la inicial en una meta de una sola página.</summary>
+    public int PaginaFinal { get; private set; }
+
     public DateOnly FechaObjetivo { get; private set; }
     public decimal? PuntajeObtenido { get; private set; }
     public EstadoMeta Estado { get; private set; }
 
-    public Meta(Guid alumnoPaceId, Turno turno, int paginasObjetivo, DateOnly fechaObjetivo)
+    /// <summary>
+    /// Cuántas páginas cubre la meta. Se deriva del rango en lugar de guardarse:
+    /// si fuera un campo aparte podría contradecir a `PaginaInicial` y
+    /// `PaginaFinal`, y entonces habría dos verdades sobre lo mismo.
+    /// </summary>
+    public int PaginasObjetivo => PaginaFinal - PaginaInicial + 1;
+
+    // Requerido por EF Core.
+    private Meta() { }
+
+    /// <param name="paginaFinal">
+    /// Inclusive. Igual a <paramref name="paginaInicial"/> registra una sola
+    /// página, que es el comportamiento que existía antes del issue #6.
+    /// </param>
+    public Meta(Guid alumnoPaceId, Turno turno, int paginaInicial, int paginaFinal, DateOnly fechaObjetivo)
     {
-        if (paginasObjetivo <= 0)
-            throw new DomainException("Las páginas objetivo deben ser mayor a 0.");
+        if (paginaInicial <= 0)
+            throw new DomainException("La página inicial debe ser mayor a 0.");
+
+        if (paginaFinal < paginaInicial)
+            throw new DomainException("La página final no puede ser menor que la página inicial.");
 
         Id = Guid.NewGuid();
         AlumnoPaceId = alumnoPaceId;
         Turno = turno;
-        PaginasObjetivo = paginasObjetivo;
+        PaginaInicial = paginaInicial;
+        PaginaFinal = paginaFinal;
         FechaObjetivo = fechaObjetivo;
         Estado = EstadoMeta.Pendiente;
+    }
+
+    /// <summary>
+    /// Valida que el rango quepa en el PACE. Se expone aparte del constructor
+    /// porque el total de páginas vive en `Pace` y la meta no lo conoce.
+    /// </summary>
+    public static void ValidarRangoContraPace(int paginaInicial, int paginaFinal, int? totalPaginasDelPace)
+    {
+        if (!totalPaginasDelPace.HasValue)
+            return; // PACE sin total capturado: no hay contra qué validar.
+
+        if (paginaFinal > totalPaginasDelPace.Value)
+        {
+            throw new DomainException(
+                $"El rango va hasta la página {paginaFinal}, pero el PACE solo tiene {totalPaginasDelPace.Value} páginas.");
+        }
     }
 
     // Pendiente → EnProgreso (automático al inicio del turno)

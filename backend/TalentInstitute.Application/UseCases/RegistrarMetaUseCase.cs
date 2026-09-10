@@ -26,14 +26,20 @@ public class RegistrarMetaUseCase
     public async Task<Guid> ExecuteAsync(
         Guid alumnoPaceId,
         Turno turno,
-        int paginasObjetivo,
+        int paginaInicial,
+        int paginaFinal,
         DateOnly fechaObjetivo,
         CancellationToken cancellationToken = default)
     {
         var alumnoPace = await _paceRepository.GetAlumnoPaceByIdAsync(alumnoPaceId, cancellationToken)
             ?? throw new KeyNotFoundException($"AlumnoPace con id '{alumnoPaceId}' no encontrado.");
 
-        var meta = new Meta(alumnoPaceId, turno, paginasObjetivo, fechaObjetivo);
+        // El total de páginas vive en el PACE del catálogo, no en la asignación,
+        // así que hay que traerlo para poder validar el rango contra él.
+        var pace = await _paceRepository.GetByIdAsync(alumnoPace.PaceId, cancellationToken);
+        Meta.ValidarRangoContraPace(paginaInicial, paginaFinal, pace?.TotalPaginas);
+
+        var meta = new Meta(alumnoPaceId, turno, paginaInicial, paginaFinal, fechaObjetivo);
 
         // Si es la primera meta registrada para el PACE, cambia el estado del PACE de Asignado a EnProgreso
         alumnoPace.RegistrarPrimeraMeta();

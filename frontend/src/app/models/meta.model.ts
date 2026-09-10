@@ -12,6 +12,9 @@ export interface Meta {
   id: string;
   alumnoPaceId: string;
   turno: Turno;
+  paginaInicial: number;
+  paginaFinal: number;
+  /** Derivada del rango; la envía el backend ya calculada. */
   paginasObjetivo: number;
   fechaObjetivo: string;
   puntajeObtenido?: number;
@@ -29,6 +32,8 @@ export interface CrearMetaRequest {
   alumnoId: string;
   alumnoPaceId: string;
   turno: Turno;
-  paginasObjetivo: number;
+  paginaInicial: number;
+  /** Inclusive. Igual a la inicial registra una sola página. */
+  paginaFinal: number;
   fechaObjetivo: string;
 }

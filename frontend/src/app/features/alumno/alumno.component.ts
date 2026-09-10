@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Observable, forkJoin, of } from 'rxjs';
@@ -136,7 +136,7 @@ import { QuickActionsComponent } from './quick-actions.component';
 
             <article class="goal-row" *ngFor="let meta of metas">
               <div>
-                <strong>{{ meta.turno }} · {{ meta.paginasObjetivo }} páginas</strong>
+                <strong>{{ meta.turno }} · {{ rangoDePaginas(meta) }}</strong>
                 <span>{{ meta.fechaObjetivo | date:'dd/MM/yyyy' }} · {{ meta.materia ?? 'PACE' }} {{ meta.numeroPace ?? '' }}</span>
               </div>
               <app-badge [variant]="metaVariant(meta.estado)">{{ meta.estado }}</app-badge>
@@ -181,8 +181,12 @@ import { QuickActionsComponent } from './quick-actions.component';
                 </select>
               </label>
               <label>
-                <span>Páginas</span>
-                <input type="number" min="1" formControlName="paginasObjetivo" />
+                <span>Página inicial</span>
+                <input type="number" min="1" formControlName="paginaInicial" />
+              </label>
+              <label>
+                <span>Página final</span>
+                <input type="number" min="1" formControlName="paginaFinal" />
               </label>
               <label>
                 <span>Fecha</span>
@@ -190,6 +194,9 @@ import { QuickActionsComponent } from './quick-actions.component';
               </label>
               <app-button [loading]="creatingGoal" [disabled]="goalForm.invalid">Agregar meta</app-button>
             </form>
+            <p class="goal-hint" *ngIf="goalForm.hasError('rangoInvalido')">
+              La página final no puede ser menor que la inicial.
+            </p>
           </section>
 
           <section class="panel merits-panel">
@@ -493,9 +500,19 @@ import { QuickActionsComponent } from './quick-actions.component';
       border-top: 1px solid var(--color-border);
     }
 
-    .goal-form,
     .merit-form {
       grid-template-columns: repeat(4, minmax(0, 1fr)) auto;
+    }
+
+    /* Una columna más que méritos: el rango ocupa dos campos (issue #6). */
+    .goal-form {
+      grid-template-columns: repeat(5, minmax(0, 1fr)) auto;
+    }
+
+    .goal-hint {
+      margin: 0;
+      font-size: 0.78rem;
+      color: var(--color-danger);
     }
 
     .merit-form .wide {
@@ -650,12 +667,17 @@ export class AlumnoComponent implements OnInit {
    */
   meritosPorSemana: SemanaDeMeritos[] = [];
 
-  readonly goalForm = this.fb.nonNullable.group({
-    alumnoPaceId: ['', Validators.required],
-    turno: ['Mañana' as 'Mañana' | 'Tarde', Validators.required],
-    paginasObjetivo: [1, [Validators.required, Validators.min(1)]],
-    fechaObjetivo: [this.today(), Validators.required]
-  });
+  readonly goalForm = this.fb.nonNullable.group(
+    {
+      alumnoPaceId: ['', Validators.required],
+      turno: ['Mañana' as 'Mañana' | 'Tarde', Validators.required],
+      paginaInicial: [1, [Validators.required, Validators.min(1)]],
+      paginaFinal: [1, [Validators.required, Validators.min(1)]],
+      fechaObjetivo: [this.today(), Validators.required]
+    },
+    // El backend valida lo mismo; esto solo evita el viaje de ida y vuelta.
+    { validators: rangoDePaginasValido }
+  );
 
   readonly meritForm = this.fb.nonNullable.group({
     tipo: ['Merito' as 'Merito' | 'Demerito', Validators.required],
@@ -761,13 +783,17 @@ export class AlumnoComponent implements OnInit {
       alumnoId: this.alumno.id,
       alumnoPaceId: value.alumnoPaceId,
       turno: value.turno,
-      paginasObjetivo: value.paginasObjetivo,
+      paginaInicial: value.paginaInicial,
+      paginaFinal: value.paginaFinal,
       fechaObjetivo: value.fechaObjetivo
     }).subscribe({
       next: () => {
         this.creatingGoal = false;
         this.toast.success('Meta registrada.');
-        this.goalForm.patchValue({ paginasObjetivo: 1 });
+        // El rango avanza solo: la siguiente meta suele arrancar donde terminó
+        // la anterior, que es justo el flujo que describe el issue #6.
+        const siguiente = value.paginaFinal + 1;
+        this.goalForm.patchValue({ paginaInicial: siguiente, paginaFinal: siguiente });
         this.load();
       },
       error: () => {
@@ -921,6 +947,18 @@ export class AlumnoComponent implements OnInit {
     this.scoreInputs[metaId] = Number.isFinite(value) ? value : null;
   }
 
+  /** "Páginas 1 a 5", o "Página 5" cuando el rango cubre una sola. */
+  rangoDePaginas(meta: Meta): string {
+    if (meta.paginaInicial == null || meta.paginaFinal == null) {
+      // Defensa por si el backend viejo sigue respondiendo durante un despliegue.
+      return `${meta.paginasObjetivo} páginas`;
+    }
+
+    return meta.paginaInicial === meta.paginaFinal
+      ? `Página ${meta.paginaInicial}`
+      : `Páginas ${meta.paginaInicial} a ${meta.paginaFinal}`;
+  }
+
   initials(alumno: Alumno): string {
     return `${alumno.nombre.charAt(0)}${alumno.apellido.charAt(0)}`.toUpperCase();
   }
@@ -1030,6 +1068,19 @@ export class AlumnoComponent implements OnInit {
   private weekStart(): string {
     return weekStartIso();
   }
+}
+
+/**
+ * La página final no puede quedar por debajo de la inicial (issue #6).
+ * Vive fuera de la clase porque no depende de su estado.
+ */
+function rangoDePaginasValido(control: AbstractControl): ValidationErrors | null {
+  const inicial = control.get('paginaInicial')?.value;
+  const final = control.get('paginaFinal')?.value;
+
+  if (typeof inicial !== 'number' || typeof final !== 'number') return null;
+
+  return final < inicial ? { rangoInvalido: true } : null;
 }
 
 /** Un bloque semanal de la bitácora de méritos y deméritos. */
