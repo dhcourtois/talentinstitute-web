@@ -149,4 +149,186 @@ public class AlumnoTests
         // Assert
         acto.Should().Throw<DomainException>();
     }
+
+    // ── Fecha de ingreso editable (issue #22) ────────────────────────────────
+
+    [Fact]
+    public void Constructor_SinFechaIngreso_TomaLaFechaDeAlta()
+    {
+        // Act
+        var alumno = CrearAlumno();
+
+        // Assert
+        alumno.FechaIngreso.Should().Be(DateTime.UtcNow.Date);
+    }
+
+    [Fact]
+    public void Constructor_ConFechaIngreso_RespetaLaFechaIndicada()
+    {
+        // Arrange
+        var ingreso = new DateTime(2019, 8, 26);
+
+        // Act
+        var alumno = new Alumno("MAT-002", "Test", "Apellido", "1 Primaria", ingreso);
+
+        // Assert
+        alumno.FechaIngreso.Should().Be(ingreso);
+    }
+
+    [Fact]
+    public void ActualizarDatos_ConFechaIngreso_LaModifica()
+    {
+        // Arrange
+        var alumno = CrearAlumno();
+        var nuevaFecha = new DateTime(2021, 1, 11);
+
+        // Act
+        alumno.ActualizarDatos("Test", "Apellido", "1 Primaria", nuevaFecha);
+
+        // Assert
+        alumno.FechaIngreso.Should().Be(nuevaFecha);
+    }
+
+    [Fact]
+    public void ActualizarDatos_SinFechaIngreso_DejaLaFechaComoEstaba()
+    {
+        // Arrange: quien edita solo el nivel no debe mover una fecha que no tocó.
+        var ingreso = new DateTime(2019, 8, 26);
+        var alumno = new Alumno("MAT-002", "Test", "Apellido", "1 Primaria", ingreso);
+
+        // Act
+        alumno.ActualizarDatos("Test", "Apellido", "2 Primaria");
+
+        // Assert
+        alumno.FechaIngreso.Should().Be(ingreso);
+    }
+
+    [Fact]
+    public void FechaIngreso_SeGuardaSinHora()
+    {
+        // Arrange: es un dato de calendario, no un instante.
+        var conHora = new DateTime(2019, 8, 26, 15, 42, 7);
+
+        // Act
+        var alumno = new Alumno("MAT-002", "Test", "Apellido", "1 Primaria", conHora);
+
+        // Assert
+        alumno.FechaIngreso.Should().Be(new DateTime(2019, 8, 26));
+    }
+
+    [Fact]
+    public void ActualizarDatos_ConFechaIngresoInvalida_LanzaDomainException()
+    {
+        // Arrange
+        var alumno = CrearAlumno();
+
+        // Act
+        var acto = () => alumno.ActualizarDatos("Test", "Apellido", "1 Primaria", new DateTime(1899, 12, 31));
+
+        // Assert
+        acto.Should().Throw<DomainException>();
+    }
+
+    // ── Anulación manual de privilegios (issue #21) ──────────────────────────
+
+    [Fact]
+    public void Alumno_Nace_ConTodosLosPrivilegiosEnAutomatico()
+    {
+        // Act
+        var alumno = CrearAlumno();
+
+        // Assert
+        alumno.PrivilegiosManuales.HayAlguno.Should().BeFalse();
+    }
+
+    [Fact]
+    public void EstablecerPrivilegioManual_ForzandoActivo_LoActivaAunqueElBalanceNoAlcance()
+    {
+        // Arrange: con balance 0 la biblioteca exige 3 puntos, así que está inactiva.
+        var alumno = CrearAlumno();
+        alumno.RecalcularPrivilegios(0, _configPredeterminada);
+        alumno.PrivilegeStatus.Biblioteca.Should().BeFalse();
+
+        // Act
+        alumno.EstablecerPrivilegioManual(Privilegio.Biblioteca, true, _configPredeterminada);
+
+        // Assert
+        alumno.PrivilegeStatus.Biblioteca.Should().BeTrue();
+    }
+
+    [Fact]
+    public void EstablecerPrivilegioManual_ForzandoInactivo_LoDesactivaAunqueElBalanceAlcance()
+    {
+        // Arrange
+        var alumno = CrearAlumno();
+        alumno.RecalcularPrivilegios(10, _configPredeterminada);
+        alumno.PrivilegeStatus.Actividades.Should().BeTrue();
+
+        // Act
+        alumno.EstablecerPrivilegioManual(Privilegio.Actividades, false, _configPredeterminada);
+
+        // Assert
+        alumno.PrivilegeStatus.Actividades.Should().BeFalse();
+    }
+
+    [Fact]
+    public void PrivilegioForzado_SobreviveAUnCambioDeBalance()
+    {
+        // Arrange: es lo que distingue una excepción de un ajuste momentáneo.
+        var alumno = CrearAlumno();
+        alumno.EstablecerPrivilegioManual(Privilegio.Patio, false, _configPredeterminada);
+
+        // Act
+        alumno.RecalcularPrivilegios(25, _configPredeterminada);
+
+        // Assert
+        alumno.PrivilegeStatus.Patio.Should().BeFalse();
+    }
+
+    [Fact]
+    public void EstablecerPrivilegioManual_ConNulo_DevuelveElPrivilegioAlBalance()
+    {
+        // Arrange
+        var alumno = CrearAlumno();
+        alumno.RecalcularPrivilegios(10, _configPredeterminada);
+        alumno.EstablecerPrivilegioManual(Privilegio.Actividades, false, _configPredeterminada);
+        alumno.PrivilegeStatus.Actividades.Should().BeFalse();
+
+        // Act
+        alumno.EstablecerPrivilegioManual(Privilegio.Actividades, null, _configPredeterminada);
+
+        // Assert: con balance 10 supera el umbral de 5, así que vuelve a activarse.
+        alumno.PrivilegeStatus.Actividades.Should().BeTrue();
+        alumno.PrivilegiosManuales.Actividades.Should().BeNull();
+    }
+
+    [Fact]
+    public void EstablecerPrivilegioManual_NoAfectaALosDemasPrivilegios()
+    {
+        // Arrange
+        var alumno = CrearAlumno();
+        alumno.RecalcularPrivilegios(0, _configPredeterminada);
+        var comedorAntes = alumno.PrivilegeStatus.Comedor;
+
+        // Act
+        alumno.EstablecerPrivilegioManual(Privilegio.Oficina, false, _configPredeterminada);
+
+        // Assert
+        alumno.PrivilegeStatus.Comedor.Should().Be(comedorAntes);
+        alumno.PrivilegiosManuales.Comedor.Should().BeNull();
+    }
+
+    [Fact]
+    public void EstablecerPrivilegioManual_NoAlteraElBalanceDeMeritos()
+    {
+        // Arrange: forzar un privilegio es una excepción administrativa, no un premio.
+        var alumno = CrearAlumno();
+        alumno.RecalcularPrivilegios(4, _configPredeterminada);
+
+        // Act
+        alumno.EstablecerPrivilegioManual(Privilegio.Biblioteca, true, _configPredeterminada);
+
+        // Assert
+        alumno.BalanceMeritos.Should().Be(4);
+    }
 }

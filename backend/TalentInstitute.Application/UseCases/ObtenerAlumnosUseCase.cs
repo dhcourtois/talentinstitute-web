@@ -36,6 +36,14 @@ public class ObtenerAlumnosUseCase
                 Patio = a.PrivilegeStatus.Patio,
                 Biblioteca = a.PrivilegeStatus.Biblioteca,
                 Actividades = a.PrivilegeStatus.Actividades
+            },
+            PrivilegiosManuales = new PrivilegiosManualesDto
+            {
+                Oficina = a.PrivilegiosManuales.Oficina,
+                Comedor = a.PrivilegiosManuales.Comedor,
+                Patio = a.PrivilegiosManuales.Patio,
+                Biblioteca = a.PrivilegiosManuales.Biblioteca,
+                Actividades = a.PrivilegiosManuales.Actividades
             }
         }).ToList();
     }
@@ -51,6 +59,13 @@ public class AlumnoDto
     public DateTime FechaIngreso { get; set; }
     public int BalanceMeritos { get; set; }
     public PrivilegeStatusDto PrivilegeStatus { get; set; } = new();
+
+    /// <summary>
+    /// Qué privilegios están forzados a mano y cuáles siguen en automático.
+    /// La interfaz lo necesita para distinguir "activo porque le alcanza el
+    /// balance" de "activo porque el Principal lo decidió" (issue #21).
+    /// </summary>
+    public PrivilegiosManualesDto PrivilegiosManuales { get; set; } = new();
 }
 
 public class PrivilegeStatusDto
@@ -60,4 +75,14 @@ public class PrivilegeStatusDto
     public bool Patio { get; set; }
     public bool Biblioteca { get; set; }
     public bool Actividades { get; set; }
+}
+
+/// <summary>Nulo en un privilegio significa que sigue en automático.</summary>
+public class PrivilegiosManualesDto
+{
+    public bool? Oficina { get; set; }
+    public bool? Comedor { get; set; }
+    public bool? Patio { get; set; }
+    public bool? Biblioteca { get; set; }
+    public bool? Actividades { get; set; }
 }

@@ -35,6 +35,14 @@ public class ObtenerDetalleAlumnoUseCase
                 Patio = a.PrivilegeStatus.Patio,
                 Biblioteca = a.PrivilegeStatus.Biblioteca,
                 Actividades = a.PrivilegeStatus.Actividades
+            },
+            PrivilegiosManuales = new PrivilegiosManualesDto
+            {
+                Oficina = a.PrivilegiosManuales.Oficina,
+                Comedor = a.PrivilegiosManuales.Comedor,
+                Patio = a.PrivilegiosManuales.Patio,
+                Biblioteca = a.PrivilegiosManuales.Biblioteca,
+                Actividades = a.PrivilegiosManuales.Actividades
             }
         };
     }

@@ -74,8 +74,13 @@ public class MeritosController : ControllerBase
         return Ok(meritos);
     }
 
+    /// <summary>
+    /// Elimina un mérito o demérito revocándolo: el registro se conserva con
+    /// quién lo quitó y cuándo, y el balance del alumno se revierte.
+    /// Restringido al Principal por acuerdo con el cliente (issue #19).
+    /// </summary>
     [HttpPatch("{meritoId:guid}/revocar")]
-    [Authorize(Roles = "Principal,Supervisora")]
+    [Authorize(Roles = "Principal")]
     public async Task<IActionResult> Revocar(Guid meritoId, CancellationToken cancellationToken)
     {
         try
