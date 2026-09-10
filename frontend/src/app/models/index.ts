@@ -9,4 +9,5 @@ export * from './entrevista.model';
 export * from './meta.model';
 export * from './merito.model';
 export * from './pace.model';
+export * from './padre.model';
 export * from './staff.model';

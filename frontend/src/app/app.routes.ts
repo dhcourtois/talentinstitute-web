@@ -1,13 +1,29 @@
-import { Routes } from '@angular/router';
+import { inject } from '@angular/core';
+import { CanActivateFn, Router, Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { roleGuard } from './core/guards/role.guard';
-import { rolesDe } from './core/auth/permissions';
+import { AuthService } from './core/services/auth.service';
+import { rolesDe, rutaInicial } from './core/auth/permissions';
+
+/** Manda a cada rol a la primera pantalla que sí puede ver. */
+const inicioSegunRol: CanActivateFn = () => {
+  const auth = inject(AuthService);
+  const router = inject(Router);
+
+  if (!auth.isAuthenticated()) return router.createUrlTree(['/login']);
+
+  return router.createUrlTree([rutaInicial(auth.getRole())]);
+};
 
 export const routes: Routes = [
   {
+    // El destino depende del rol: el padre de familia no tiene dashboard, así
+    // que una redirección fija a /dashboard lo mandaría a una pantalla que el
+    // guard le rebota (issue #8).
     path: '',
-    redirectTo: 'dashboard',
     pathMatch: 'full',
+    canActivate: [inicioSegunRol],
+    children: [],
   },
   {
     path: 'login',
@@ -71,10 +87,26 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/configuracion/configuracion.component').then(m => m.ConfiguracionComponent),
       },
+      {
+        path: 'padres',
+        canActivate: [roleGuard],
+        data: { roles: rolesDe('padres') },
+        loadComponent: () =>
+          import('./features/padres/padres.component').then(m => m.PadresComponent),
+      },
+      {
+        // Única pantalla del rol Padre (issue #8).
+        path: 'portal',
+        canActivate: [roleGuard],
+        data: { roles: rolesDe('portal') },
+        loadComponent: () =>
+          import('./features/portal/portal.component').then(m => m.PortalComponent),
+      },
     ],
   },
   {
     path: '**',
-    redirectTo: 'dashboard',
+    canActivate: [inicioSegunRol],
+    children: [],
   },
 ];

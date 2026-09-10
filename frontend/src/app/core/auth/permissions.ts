@@ -7,7 +7,9 @@ export type Modulo =
   | 'paces'
   | 'entrevistas'
   | 'staff'
-  | 'configuracion';
+  | 'configuracion'
+  | 'padres'
+  | 'portal';
 
 /**
  * Matriz de permisos por rol — fuente única de verdad del frontend.
@@ -20,13 +22,18 @@ export type Modulo =
  *   Principal   → acceso completo.
  *   Supervisora → todo excepto Staff y Configuración.
  *   Monitora    → operación diaria sobre el alumno.
+ *   Padre       → solo el portal de consulta (issue #8).
  */
 export const MODULOS_POR_ROL: Record<Rol, readonly Modulo[]> = {
-  Principal: ['dashboard', 'alumnos', 'paces', 'entrevistas', 'staff', 'configuracion'],
+  Principal: ['dashboard', 'alumnos', 'paces', 'entrevistas', 'staff', 'configuracion', 'padres'],
   Supervisora: ['dashboard', 'alumnos', 'paces', 'entrevistas'],
   // La Monitora entra al dashboard porque es su lista de alumnos; las métricas
   // ejecutivas ya se ocultan dentro de la pantalla.
-  Monitora: ['dashboard', 'alumnos']
+  Monitora: ['dashboard', 'alumnos'],
+  // El padre de familia no comparte ni un módulo con el personal. La lista de
+  // un solo elemento es deliberada: cualquier módulo que se agregue aquí le
+  // abriría una pantalla de operación.
+  Padre: ['portal']
 };
 
 export interface ItemNavegacion {
@@ -44,7 +51,9 @@ export const NAVEGACION: readonly ItemNavegacion[] = [
   { modulo: 'paces', etiqueta: 'PACEs', ruta: '/paces', disponible: true },
   { modulo: 'entrevistas', etiqueta: 'Entrevistas', ruta: '/entrevistas', disponible: true },
   { modulo: 'staff', etiqueta: 'Staff', ruta: '/staff', disponible: true },
-  { modulo: 'configuracion', etiqueta: 'Configuración', ruta: '/configuracion', disponible: true }
+  { modulo: 'configuracion', etiqueta: 'Configuración', ruta: '/configuracion', disponible: true },
+  { modulo: 'padres', etiqueta: 'Padres de familia', ruta: '/padres', disponible: true },
+  { modulo: 'portal', etiqueta: 'Mis hijos', ruta: '/portal', disponible: true }
 ];
 
 export function puedeVer(rol: Rol | null, modulo: Modulo): boolean {

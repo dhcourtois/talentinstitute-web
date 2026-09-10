@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { ButtonComponent } from '../../shared/components/button/button.component';
 import { Rol } from '../../models';
+import { rutaInicial } from '../../core/auth/permissions';
 
 @Component({
   selector: 'app-login',
@@ -326,7 +327,9 @@ import { Rol } from '../../models';
 export class LoginComponent {
   private readonly fb = inject(FormBuilder);
 
-  readonly roles: Rol[] = ['Supervisora', 'Monitora', 'Principal'];
+  // 'Padre' entra aquí para que la cuenta del portal pueda elegir su propia
+  // vista inicial; el rol real sigue viniendo del token (issue #8).
+  readonly roles: Rol[] = ['Supervisora', 'Monitora', 'Principal', 'Padre'];
   passwordVisible = false;
   readonly form = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
@@ -396,7 +399,7 @@ export class LoginComponent {
           return;
         }
 
-        this.router.navigate(['/dashboard']);
+        this.irAlInicio();
       },
       error: (err) => {
         this.loading = false;
@@ -408,6 +411,14 @@ export class LoginComponent {
   finishIntro(): void {
     localStorage.setItem(`ti_intro_seen_${this.introRole}`, 'true');
     this.showIntro = false;
-    this.router.navigate(['/dashboard']);
+    this.irAlInicio();
+  }
+
+  /**
+   * El destino depende del rol. Navegar siempre a /dashboard mandaba al padre
+   * de familia a una pantalla que el guard le rebota (issue #8).
+   */
+  private irAlInicio(): void {
+    this.router.navigate([rutaInicial(this.auth.getRole())]);
   }
 }
