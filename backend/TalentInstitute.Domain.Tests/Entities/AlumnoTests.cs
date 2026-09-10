@@ -149,4 +149,83 @@ public class AlumnoTests
         // Assert
         acto.Should().Throw<DomainException>();
     }
+
+    // ── Fecha de ingreso editable (issue #22) ────────────────────────────────
+
+    [Fact]
+    public void Constructor_SinFechaIngreso_TomaLaFechaDeAlta()
+    {
+        // Act
+        var alumno = CrearAlumno();
+
+        // Assert
+        alumno.FechaIngreso.Should().Be(DateTime.UtcNow.Date);
+    }
+
+    [Fact]
+    public void Constructor_ConFechaIngreso_RespetaLaFechaIndicada()
+    {
+        // Arrange
+        var ingreso = new DateTime(2019, 8, 26);
+
+        // Act
+        var alumno = new Alumno("MAT-002", "Test", "Apellido", "1 Primaria", ingreso);
+
+        // Assert
+        alumno.FechaIngreso.Should().Be(ingreso);
+    }
+
+    [Fact]
+    public void ActualizarDatos_ConFechaIngreso_LaModifica()
+    {
+        // Arrange
+        var alumno = CrearAlumno();
+        var nuevaFecha = new DateTime(2021, 1, 11);
+
+        // Act
+        alumno.ActualizarDatos("Test", "Apellido", "1 Primaria", nuevaFecha);
+
+        // Assert
+        alumno.FechaIngreso.Should().Be(nuevaFecha);
+    }
+
+    [Fact]
+    public void ActualizarDatos_SinFechaIngreso_DejaLaFechaComoEstaba()
+    {
+        // Arrange: quien edita solo el nivel no debe mover una fecha que no tocó.
+        var ingreso = new DateTime(2019, 8, 26);
+        var alumno = new Alumno("MAT-002", "Test", "Apellido", "1 Primaria", ingreso);
+
+        // Act
+        alumno.ActualizarDatos("Test", "Apellido", "2 Primaria");
+
+        // Assert
+        alumno.FechaIngreso.Should().Be(ingreso);
+    }
+
+    [Fact]
+    public void FechaIngreso_SeGuardaSinHora()
+    {
+        // Arrange: es un dato de calendario, no un instante.
+        var conHora = new DateTime(2019, 8, 26, 15, 42, 7);
+
+        // Act
+        var alumno = new Alumno("MAT-002", "Test", "Apellido", "1 Primaria", conHora);
+
+        // Assert
+        alumno.FechaIngreso.Should().Be(new DateTime(2019, 8, 26));
+    }
+
+    [Fact]
+    public void ActualizarDatos_ConFechaIngresoInvalida_LanzaDomainException()
+    {
+        // Arrange
+        var alumno = CrearAlumno();
+
+        // Act
+        var acto = () => alumno.ActualizarDatos("Test", "Apellido", "1 Primaria", new DateTime(1899, 12, 31));
+
+        // Assert
+        acto.Should().Throw<DomainException>();
+    }
 }

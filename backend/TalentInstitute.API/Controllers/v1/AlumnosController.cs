@@ -63,11 +63,16 @@ public class AlumnosController : ControllerBase
                 request.Nombre,
                 request.Apellido,
                 request.Nivel,
+                request.FechaIngreso,
                 cancellationToken);
 
             return CreatedAtAction(nameof(GetById), new { id }, new { id, message = "Alumno creado exitosamente." });
         }
         catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (TalentInstitute.Domain.Exceptions.DomainException ex)
         {
             return BadRequest(new { message = ex.Message });
         }
@@ -84,6 +89,7 @@ public class AlumnosController : ControllerBase
                 request.Nombre,
                 request.Apellido,
                 request.Nivel,
+                request.FechaIngreso,
                 cancellationToken);
 
             return Ok(new { message = "Alumno actualizado exitosamente." });
@@ -104,6 +110,12 @@ public class UpdateAlumnoRequest
     public string Nombre { get; set; } = string.Empty;
     public string Apellido { get; set; } = string.Empty;
     public string Nivel { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Nula deja la fecha de ingreso como está (issue #22): así un cliente que
+    /// no manda el campo no reescribe un dato que el usuario no editó.
+    /// </summary>
+    public DateTime? FechaIngreso { get; set; }
 }
 
 public class CreateAlumnoRequest
@@ -112,4 +124,7 @@ public class CreateAlumnoRequest
     public string Nombre { get; set; } = string.Empty;
     public string Apellido { get; set; } = string.Empty;
     public string Nivel { get; set; } = string.Empty;
+
+    /// <summary>Nula toma la fecha de alta, el comportamiento previo.</summary>
+    public DateTime? FechaIngreso { get; set; }
 }

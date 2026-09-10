@@ -14,7 +14,12 @@ public class Alumno
     public PrivilegeStatus PrivilegeStatus { get; private set; }
     public byte[] RowVersion { get; private set; } = Array.Empty<byte>();
 
-    public Alumno(string numeroMatricula, string nombre, string apellido, string nivel)
+    /// <param name="fechaIngreso">
+    /// Opcional. Si se omite se toma la fecha de alta, que es el comportamiento
+    /// histórico; se recibe para poder capturar alumnos que ya estaban en el
+    /// colegio antes de que existiera el sistema.
+    /// </param>
+    public Alumno(string numeroMatricula, string nombre, string apellido, string nivel, DateTime? fechaIngreso = null)
     {
         if (string.IsNullOrWhiteSpace(nombre))
             throw new DomainException("El nombre del alumno no puede estar vacío.");
@@ -30,7 +35,7 @@ public class Alumno
         Nombre = nombre;
         Apellido = apellido;
         Nivel = nivel;
-        FechaIngreso = DateTime.UtcNow;
+        FechaIngreso = NormalizarFechaIngreso(fechaIngreso ?? DateTime.UtcNow);
         BalanceMeritos = 0;
         PrivilegeStatus = new PrivilegeStatus();
     }
@@ -39,7 +44,11 @@ public class Alumno
     /// Actualiza los datos generales del alumno. La matrícula no se edita:
     /// identifica al alumno y cambiarla rompería su historial.
     /// </summary>
-    public void ActualizarDatos(string nombre, string apellido, string nivel)
+    /// <param name="fechaIngreso">
+    /// Opcional. Si se omite, la fecha de ingreso queda como estaba: quien edite
+    /// solo el nivel no debería mover una fecha que no tocó.
+    /// </param>
+    public void ActualizarDatos(string nombre, string apellido, string nivel, DateTime? fechaIngreso = null)
     {
         if (string.IsNullOrWhiteSpace(nombre))
             throw new DomainException("El nombre del alumno no puede estar vacío.");
@@ -53,6 +62,24 @@ public class Alumno
         Nombre = nombre;
         Apellido = apellido;
         Nivel = nivel;
+
+        if (fechaIngreso.HasValue)
+            FechaIngreso = NormalizarFechaIngreso(fechaIngreso.Value);
+    }
+
+    /// <summary>
+    /// La fecha de ingreso es un dato de calendario, no un instante: se guarda a
+    /// medianoche para que dos alumnos dados de alta el mismo día comparen igual.
+    /// </summary>
+    private static DateTime NormalizarFechaIngreso(DateTime fecha)
+    {
+        if (fecha == default)
+            throw new DomainException("La fecha de ingreso del alumno no es válida.");
+
+        if (fecha.Year < 1900)
+            throw new DomainException("La fecha de ingreso del alumno no puede ser anterior al año 1900.");
+
+        return fecha.Date;
     }
 
     public void RecalcularPrivilegios(int nuevoBalance, ConfiguracionPrivilegios config)

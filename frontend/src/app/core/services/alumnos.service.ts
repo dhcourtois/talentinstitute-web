@@ -23,12 +23,15 @@ export class AlumnosService {
   }
 
   create(
-    alumno: Pick<Alumno, 'numeroMatricula' | 'nombre' | 'apellido' | 'nivel'>
+    alumno: Pick<Alumno, 'numeroMatricula' | 'nombre' | 'apellido' | 'nivel'> & { fechaIngreso?: string }
   ): Observable<{ id: string; message: string }> {
     return this.http.post<{ id: string; message: string }>(this.url, alumno);
   }
 
-  update(id: string, alumno: Pick<Alumno, 'nombre' | 'apellido' | 'nivel'>): Observable<{ message: string }> {
+  update(
+    id: string,
+    alumno: Pick<Alumno, 'nombre' | 'apellido' | 'nivel'> & { fechaIngreso?: string }
+  ): Observable<{ message: string }> {
     return this.http.put<{ message: string }>(`${this.url}/${id}`, alumno);
   }
 }
