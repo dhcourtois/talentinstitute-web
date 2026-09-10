@@ -5,13 +5,23 @@
 
 | | |
 |---|---|
-| **Documento** | Statement of Work v1.0 |
+| **Documento** | Statement of Work v1.1 |
 | **Proyecto** | Sistema Institucional Talent Institute |
 | **Cliente** | Talent Institute — Instituto Cristiano en Los Héroes |
 | **Dirección** | Calle 83 No. 492, Fracc. Los Héroes, C.P. 97306, Mérida, Yucatán |
 | **Contacto cliente** | 55 7505 9352 |
 | **Fecha de emisión** | Abril 2026 |
-| **Versión** | 1.0 |
+| **Versión** | 1.1 |
+| **Última revisión** | Septiembre 2026 |
+
+---
+
+## 0. Historial de revisiones
+
+| Versión | Fecha | Cambio |
+|---|---|---|
+| 1.0 | Abril 2026 | Emisión inicial. |
+| 1.1 | Septiembre 2026 | Se resuelve una contradicción del documento sobre el acceso de padres de familia: §3.1 (Módulo 1) lo incluía en el alcance y §10 (supuesto 3) lo excluía de esta versión. Se resolvió a favor de §3.1 —el portal de consulta para padres está implementado y en producción— y se corrigió el supuesto 3 para que coincida. En el mismo paso se marcaron como **pendientes** dos puntos del alcance original que no forman parte de lo entregado: el acceso para alumnos y el historial paso a paso del PACE visible al padre. |
 
 ---
 
@@ -54,7 +64,7 @@ Desarrollar una **aplicación web institucional** (Sistema Institucional) que pe
 4. Visualizar alertas tempranas sobre alumnos estancados o en riesgo.
 5. Controlar privilegios de los alumnos con base en su comportamiento y cumplimiento de metas.
 
-El sistema deberá ser operado desde tablets (iPad, prioritario) y computadoras de escritorio por tres perfiles de usuario con distintos niveles de acceso.
+El sistema deberá ser operado desde tablets (iPad, prioritario) y computadoras de escritorio por tres perfiles de usuario del colegio con distintos niveles de acceso. A ellos se suma el acceso de **solo consulta** de los padres de familia, que no operan el sistema (ver Módulo 1).
 
 ---
 
@@ -65,12 +75,13 @@ El sistema deberá ser operado desde tablets (iPad, prioritario) y computadoras 
 #### Módulo 1 — Autenticación y Control de Acceso
 - Inicio de sesión con correo y contraseña.
 - Generación y validación de tokens JWT (stateless).
-- Tres roles iniciales configurados (sin módulo de creación dinámica por ahora, se dejará la opción para más adelante):
+- Tres roles internos configurados (sin módulo de creación dinámica por ahora, se dejará la opción para más adelante):
   - **Principal** — sin restricciones.
   - **Supervisora** — vistas a ciertas partes (registro de calificaciones, avances semanales, estatus, etc.).
   - **Monitora** — acceso al perfil del alumno (deméritos, méritos, etc.).
 - Cierre de sesión y expiración automática de sesión.
-- Portal o acceso para padres de familia / alumnos.
+- **Portal de consulta para padres de familia.** Cuenta propia con correo y contraseña, independiente de las cuentas del personal. Acceso de **solo lectura**, limitado a los alumnos vinculados a esa cuenta: metas de la semana y bitácora de méritos y deméritos. El padre no puede editar nada ni alcanzar ninguna pantalla de operación interna.
+  - ⏳ **Pendiente:** acceso para alumnos. El alcance original decía "padres de familia / alumnos"; solo se implementó el de padres. Queda por definir con el colegio si entra en esta versión o en una fase posterior.
 
 #### Módulo 1.5 — Entrevistas a Padres de Familia
 - Registro de información de familias interesadas/entrevistas iniciales.
@@ -88,7 +99,8 @@ El sistema deberá ser operado desde tablets (iPad, prioritario) y computadoras 
 #### Módulo 3 — PACEs y Progreso Académico
 - Asignación de PACEs por alumno y materia.
 - Registro de puntos por avance semanal (escala 0–50 por PACE).
-- Control de estado del PACE: En progreso / Listo para Score Station / Completado /Calificado. (se debera de contemplar un historial de visualizacion paso a paso al padre de familia) 
+- Control de estado del PACE: En progreso / Listo para Score Station / Completado / Calificado.
+  - ⏳ **Pendiente:** el historial de visualización paso a paso del PACE para el padre de familia. El portal de padres muestra hoy metas de la semana y méritos/deméritos, no el avance del PACE estado por estado.
 - Historial de PACEs completados por alumno.
 
 #### Módulo 4 — Metas Diarias
@@ -287,7 +299,7 @@ Este SOW se elabora bajo los siguientes supuestos. Si alguno cambia, el alcance 
 
 1. Se contará con una suscripción activa de Microsoft Azure para el despliegue.
 2. El número de alumnos activos no supera los **150 alumnos** en el lanzamiento inicial (arquitectura dimensionada para este volumen).
-3. El sistema será utilizado exclusivamente por personal interno del colegio (sin acceso público ni portal de padres en esta versión).
+3. El sistema **no tiene acceso público ni anónimo**: toda pantalla exige una cuenta. Lo operan las cuentas del personal interno del colegio (Principal, Supervisora, Monitora). Los padres de familia tienen acceso de **solo consulta**, limitado a los alumnos vinculados a su cuenta, según el portal descrito en el Módulo 1. Las cuentas de padre las crea y vincula el Principal; no hay auto-registro.
 4. Las reglas de negocio del sistema de méritos/privilegios estarán definidas antes del inicio de la Fase 2.
 5. No se requiere migración de datos históricos; el sistema arranca con datos limpios.
 6. El dominio web y el certificado SSL se gestionan por separado.
@@ -300,7 +312,9 @@ Este SOW se elabora bajo los siguientes supuestos. Si alguno cambia, el alcance 
 
 El sistema se considerará formalmente aceptado cuando:
 
-- [ ] Los tres roles (Principal, Supervisora, Monitora) pueden iniciar sesión y acceder únicamente a las funcionalidades correspondientes a su rol.
+- [ ] Los tres roles internos (Principal, Supervisora, Monitora) pueden iniciar sesión y acceder únicamente a las funcionalidades correspondientes a su rol.
+- [ ] Un padre de familia puede iniciar sesión y consultar las metas de la semana y los méritos/deméritos **únicamente** de los alumnos vinculados a su cuenta, sin poder editar nada.
+- [ ] Un padre de familia **no** puede acceder a la información de un alumno que no tiene vinculado, ni siquiera alterando el identificador en la dirección.
 - [ ] Una Supervisora puede asignar un PACE a un alumno y registrar avance de puntos.
 - [ ] Una Monitora puede registrar la meta diaria de un alumno y otorgar/quitar un mérito.
 - [ ] El Dashboard General refleja en tiempo real las alertas de alumnos sin meta registrada.
