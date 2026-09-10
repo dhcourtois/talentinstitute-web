@@ -40,7 +40,7 @@ public class PaceDto
 {
     public Guid Id { get; set; }
     public string Materia { get; set; } = string.Empty;
-    public int NumeroPace { get; set; }
+    public string NumeroPace { get; set; } = string.Empty;
     public int PuntajeMaximo { get; set; }
     public int PuntajeMinimoAprobacion { get; set; }
 

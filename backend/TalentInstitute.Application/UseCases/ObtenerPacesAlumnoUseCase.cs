@@ -34,7 +34,7 @@ public class ObtenerPacesAlumnoUseCase
                 FechaInicio = ap.FechaInicio,
                 FechaCompletado = ap.FechaCompletado,
                 PuntajeFinal = ap.PuntajeFinal,
-                NumeroPace = pace?.Numero ?? 0,
+                NumeroPace = pace?.Numero ?? string.Empty,
                 PuntajeMaximo = pace?.PuntajeMaximo ?? 100
             });
         }
@@ -53,6 +53,6 @@ public class AlumnoPaceDto
     public DateTime FechaInicio { get; set; }
     public DateTime? FechaCompletado { get; set; }
     public decimal? PuntajeFinal { get; set; }
-    public int NumeroPace { get; set; }
+    public string NumeroPace { get; set; } = string.Empty;
     public int PuntajeMaximo { get; set; }
 }

@@ -15,6 +15,11 @@ public class PaceConfiguration : IEntityTypeConfiguration<Pace>
             .IsRequired()
             .HasMaxLength(50);
 
+        // Alfanumérico: además de 1045 el colegio maneja códigos como RR01.
+        builder.Property(p => p.Numero)
+            .IsRequired()
+            .HasMaxLength(Pace.LargoMaximoNumero);
+
         // Nulo en los PACEs capturados antes del issue #6.
         builder.Property(p => p.TotalPaginas);
     }

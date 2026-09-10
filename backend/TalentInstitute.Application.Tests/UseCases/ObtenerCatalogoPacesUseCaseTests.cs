@@ -19,8 +19,8 @@ public class ObtenerCatalogoPacesUseCaseTests
         // Arrange
         var paces = new List<Pace>
         {
-            new("MAT", 1045, 100, 80),
-            new("MAT", 1046, 100, 85)
+            new("MAT", "1045", 100, 80),
+            new("MAT", "1046", 100, 85)
         };
 
         var paceRepositoryMock = new Mock<IPaceRepository>();
@@ -35,7 +35,7 @@ public class ObtenerCatalogoPacesUseCaseTests
 
         // Assert
         result.Should().HaveCount(2);
-        result.Select(p => p.NumeroPace).Should().ContainInOrder(1045, 1046);
+        result.Select(p => p.NumeroPace).Should().ContainInOrder("1045", "1046");
         result[0].Materia.Should().Be("MAT");
         result[1].PuntajeMinimoAprobacion.Should().Be(85);
     }

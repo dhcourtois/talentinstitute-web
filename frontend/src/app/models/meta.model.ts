@@ -20,7 +20,7 @@ export interface Meta {
   puntajeObtenido?: number;
   estado: EstadoMeta;
   materia?: string;
-  numeroPace?: number;
+  numeroPace?: string;
 }
 
 export interface ActualizarEstadoMetaRequest {

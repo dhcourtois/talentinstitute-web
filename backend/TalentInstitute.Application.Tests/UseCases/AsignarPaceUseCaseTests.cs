@@ -69,7 +69,7 @@ public class AsignarPaceUseCaseTests
     {
         // Arrange
         var alumno = new Alumno("MAT-111", "Juan", "Perez", "1 Primaria");
-        var pace = new Pace("MAT", 1045);
+        var pace = new Pace("MAT", "1045");
 
         _alumnoRepositoryMock.Setup(repo => repo.GetByIdAsync(alumno.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(alumno);
@@ -94,7 +94,7 @@ public class AsignarPaceUseCaseTests
     {
         // Arrange
         var alumno = new Alumno("MAT-111", "Juan", "Perez", "1 Primaria");
-        var pace = new Pace("MAT", 1045);
+        var pace = new Pace("MAT", "1045");
         var alumnoPaceExistente = new AlumnoPace(alumno.Id, Guid.NewGuid(), "MAT"); // Estado Asignado por defecto (activo)
 
         _alumnoRepositoryMock.Setup(repo => repo.GetByIdAsync(alumno.Id, It.IsAny<CancellationToken>()))

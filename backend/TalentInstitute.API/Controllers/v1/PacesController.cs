@@ -113,7 +113,11 @@ public class PacesController : ControllerBase
 public class CreatePaceRequest
 {
     public string Materia { get; set; } = string.Empty;
-    public int NumeroPace { get; set; }
+    /// <summary>
+    /// Alfanumérico: 1045 o RR01. Se normaliza a mayúsculas y no admite
+    /// espacios ni signos.
+    /// </summary>
+    public string NumeroPace { get; set; } = string.Empty;
     public int PuntajeMaximo { get; set; } = 100;
     public int PuntajeMinimoAprobacion { get; set; } = 80;
 

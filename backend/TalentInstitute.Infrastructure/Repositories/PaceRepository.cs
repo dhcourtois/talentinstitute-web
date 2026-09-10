@@ -24,10 +24,14 @@ public class PaceRepository : IPaceRepository
         return await _context.Paces.FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
     }
 
-    public async Task<Pace?> GetByMateriaYNumeroAsync(string materia, int numero, CancellationToken cancellationToken = default)
+    public async Task<Pace?> GetByMateriaYNumeroAsync(string materia, string numero, CancellationToken cancellationToken = default)
     {
+        // Se normaliza aquí también para que encontrar un PACE no dependa de
+        // cómo escribió el número quien llama: "rr01" y "RR01" son el mismo.
+        var normalizado = Pace.NormalizarNumero(numero);
+
         return await _context.Paces
-            .FirstOrDefaultAsync(p => p.Materia == materia && p.Numero == numero, cancellationToken);
+            .FirstOrDefaultAsync(p => p.Materia == materia && p.Numero == normalizado, cancellationToken);
     }
 
     public async Task<IReadOnlyList<Pace>> GetCatalogoAsync(string? materia = null, CancellationToken cancellationToken = default)

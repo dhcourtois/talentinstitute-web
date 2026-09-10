@@ -10,7 +10,7 @@ export interface ScorePendingItem {
   alumnoId: string;
   nombreAlumno: string;
   materia: string;
-  numeroPace: number;
+  numeroPace: string;
   estado: EstadoAlumnoPace;
 }
 
@@ -260,7 +260,7 @@ export class ScorePendingListComponent implements OnChanges {
         alumnoId: p.alumnoId,
         nombreAlumno,
         materia: p.materia ?? p.pace?.materia ?? '—',
-        numeroPace: p.numeroPace ?? p.pace?.numeroPace ?? 0,
+        numeroPace: p.numeroPace ?? p.pace?.numeroPace ?? '',
         estado: p.estado
       }));
   }
