@@ -12,12 +12,13 @@ namespace TalentInstitute.Application.Tests.UseCases;
 
 public class LoginUseCaseTests
 {
-    private readonly Mock<IStaffRepository> _repoMock     = new();
-    private readonly Mock<IPasswordHasher>  _hasherMock   = new();
-    private readonly Mock<IJwtProvider>     _jwtMock      = new();
+    private readonly Mock<IStaffRepository>         _repoMock   = new();
+    private readonly Mock<IPadreFamiliaRepository>  _padreMock  = new();
+    private readonly Mock<IPasswordHasher>          _hasherMock = new();
+    private readonly Mock<IJwtProvider>             _jwtMock    = new();
 
     private LoginUseCase CreateSut() =>
-        new(_repoMock.Object, _hasherMock.Object, _jwtMock.Object);
+        new(_repoMock.Object, _padreMock.Object, _hasherMock.Object, _jwtMock.Object);
 
     private Staff CreateStaff(Rol rol) =>
         new("test@talentinstitute.com", "hashedPassword", rol);
@@ -129,5 +130,100 @@ public class LoginUseCaseTests
 
         // Assert
         await act.Should().ThrowAsync<Exception>().WithMessage("Credenciales inválidas.");
+    }
+
+    // ── Acceso de padres de familia (issue #8) ───────────────────────────────
+
+    private PadreFamilia CrearPadre() => new("papa@ejemplo.com", "hashedPassword", "Juan Pérez");
+
+    [Fact]
+    public async Task ExecuteAsync_SinCuentaDePersonal_AutenticaComoPadre()
+    {
+        // Arrange: una sola pantalla de acceso para dos tablas distintas.
+        _repoMock.Setup(r => r.GetByEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                 .ReturnsAsync((Staff?)null);
+        _padreMock.Setup(r => r.GetByEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                  .ReturnsAsync(CrearPadre());
+        _hasherMock.Setup(h => h.Verify(It.IsAny<string>(), It.IsAny<string>())).Returns(true);
+        _jwtMock.Setup(j => j.Generate(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Returns("token-padre");
+
+        // Act
+        var result = await CreateSut().ExecuteAsync("papa@ejemplo.com", "password", "");
+
+        // Assert
+        result.Should().Be("token-padre");
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_ComoPadre_EmiteElTokenConRolPadre()
+    {
+        // Arrange
+        _repoMock.Setup(r => r.GetByEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                 .ReturnsAsync((Staff?)null);
+        _padreMock.Setup(r => r.GetByEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                  .ReturnsAsync(CrearPadre());
+        _hasherMock.Setup(h => h.Verify(It.IsAny<string>(), It.IsAny<string>())).Returns(true);
+        _jwtMock.Setup(j => j.Generate(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Returns("token");
+
+        // Act
+        await CreateSut().ExecuteAsync("papa@ejemplo.com", "password", "");
+
+        // Assert: el rol del token es lo que autoriza cada endpoint del portal.
+        _jwtMock.Verify(j => j.Generate(It.IsAny<string>(), It.IsAny<string>(), PadreFamilia.RolToken), Times.Once);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_PadreDesactivado_NoPermiteEntrar()
+    {
+        // Arrange
+        var padre = CrearPadre();
+        padre.Desactivar();
+
+        _repoMock.Setup(r => r.GetByEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                 .ReturnsAsync((Staff?)null);
+        _padreMock.Setup(r => r.GetByEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                  .ReturnsAsync(padre);
+        _hasherMock.Setup(h => h.Verify(It.IsAny<string>(), It.IsAny<string>())).Returns(true);
+
+        // Act
+        var acto = async () => await CreateSut().ExecuteAsync("papa@ejemplo.com", "password", "");
+
+        // Assert
+        await acto.Should().ThrowAsync<Exception>().WithMessage("Credenciales inválidas.");
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_PadreConCredencialIncorrecta_NoPermiteEntrar()
+    {
+        // Arrange
+        _repoMock.Setup(r => r.GetByEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                 .ReturnsAsync((Staff?)null);
+        _padreMock.Setup(r => r.GetByEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                  .ReturnsAsync(CrearPadre());
+        _hasherMock.Setup(h => h.Verify(It.IsAny<string>(), It.IsAny<string>())).Returns(false);
+
+        // Act
+        var acto = async () => await CreateSut().ExecuteAsync("papa@ejemplo.com", "mala", "");
+
+        // Assert
+        await acto.Should().ThrowAsync<Exception>().WithMessage("Credenciales inválidas.");
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_CorreoInexistenteEnAmbasTablas_NoRevelaCualFalta()
+    {
+        // Arrange: el mismo mensaje en los dos casos impide sondear qué cuentas existen.
+        _repoMock.Setup(r => r.GetByEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                 .ReturnsAsync((Staff?)null);
+        _padreMock.Setup(r => r.GetByEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                  .ReturnsAsync((PadreFamilia?)null);
+
+        // Act
+        var acto = async () => await CreateSut().ExecuteAsync("nadie@ejemplo.com", "password", "");
+
+        // Assert
+        await acto.Should().ThrowAsync<Exception>().WithMessage("Credenciales inválidas.");
     }
 }
