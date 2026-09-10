@@ -52,10 +52,10 @@ public static class DbInitializer
         // 3. Catálogo de PACEs
         if (!await context.Paces.AnyAsync())
         {
-            var mat1045 = new Pace("MAT", 1045, 100, 80);
-            var mat1046 = new Pace("MAT", 1046, 100, 80);
-            var esp1045 = new Pace("ESP", 1045, 100, 80);
-            var esp1046 = new Pace("ESP", 1046, 100, 80);
+            var mat1045 = new Pace("MAT", "1045", 100, 80);
+            var mat1046 = new Pace("MAT", "1046", 100, 80);
+            var esp1045 = new Pace("ESP", "1045", 100, 80);
+            var esp1046 = new Pace("ESP", "1046", 100, 80);
 
             context.Paces.AddRange(mat1045, mat1046, esp1045, esp1046);
             await context.SaveChangesAsync();

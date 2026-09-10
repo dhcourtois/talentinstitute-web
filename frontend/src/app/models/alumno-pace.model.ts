@@ -13,7 +13,7 @@ export interface AlumnoPace {
   alumnoId: string;
   paceId: string;
   materia?: string;
-  numeroPace?: number;
+  numeroPace?: string;
   puntajeMaximo?: number;
   pace?: import('./pace.model').Pace;
   fechaInicio: string;
