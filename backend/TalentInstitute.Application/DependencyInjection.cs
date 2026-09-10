@@ -17,6 +17,14 @@ public static class DependencyInjection
         services.AddScoped<ActualizarPrivilegioManualUseCase>();
         services.AddScoped<RegistrarAnotacionUseCase>();
         services.AddScoped<ObtenerAnotacionesAlumnoUseCase>();
+
+        // Portal de padres de familia (issue #8)
+        services.AddScoped<UseCases.Portal.VerificarAccesoDelPadreUseCase>();
+        services.AddScoped<UseCases.Portal.ObtenerHijosDelPadreUseCase>();
+        services.AddScoped<UseCases.Portal.CrearPadreFamiliaUseCase>();
+        services.AddScoped<UseCases.Portal.VincularAlumnoAPadreUseCase>();
+        services.AddScoped<UseCases.Portal.ObtenerPadresFamiliaUseCase>();
+        services.AddScoped<UseCases.Portal.CambiarEstadoPadreFamiliaUseCase>();
         services.AddScoped<AsignarPaceUseCase>();
         services.AddScoped<ObtenerPacesAlumnoUseCase>();
         services.AddScoped<ObtenerCatalogoPacesUseCase>();

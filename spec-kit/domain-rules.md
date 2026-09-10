@@ -31,6 +31,8 @@
 | Usuario del sistema (personal) | `Staff` | `Staff` | `/api/v1/Staff` | Excepción justificada: término universal en contexto educativo |
 | Configuración de privilegios | `ConfiguracionPrivilegios` | `ConfiguracionPrivilegios` | `/api/v1/Configuracion/privilegios` | Ver Sección 4 |
 | Anotación semanal | `Anotacion` | `Anotaciones` | `/api/v1/Anotaciones` | Observación del reporte semanal; anclada al lunes de su semana |
+| Cuenta de padre de familia | `PadreFamilia` | `PadresFamilia` | `/api/v1/PadresFamilia` (alta) y `/api/v1/Portal` (consulta) | No es un `Staff` con otro rol |
+| Vínculo padre–alumno | `PadreAlumno` | `PadresAlumnos` | — (sub-recurso de PadresFamilia) | Única fuente de verdad de lo que un padre puede ver |
 
 > **Prohibido:** mezclar en el mismo contexto `Alumno` y `Student`, `Meta` y `DailyGoal`, `Merito` y `Merit`. Una vez adoptado el término canónico, es el único que existe en el sistema.
 
@@ -188,6 +190,30 @@ Restringido al Principal (`PATCH /api/v1/Alumnos/{id}/privilegios`). Forzar un p
 
 ---
 
+## 4.bis Portal de Padres de Familia (issue #8)
+
+El SOW se contradice sobre este módulo: §3.1 lo incluye en el Módulo 1 ("Portal o acceso para padres de familia / alumnos") y §10, supuesto 3, lo excluye ("sin acceso público ni portal de padres en esta versión"). Se implementó siguiendo §3.1, por decisión explícita del cliente. **Conviene cerrar esa contradicción en el SOW.**
+
+### Separación respecto del personal
+
+`PadreFamilia` es una entidad aparte de `Staff`, y el rol `Padre` no entra al enum `Rol`. El personal opera el sistema; el padre solo consulta. Mantenerlos separados evita que un descuido en la matriz de permisos del personal le abra al padre una pantalla de operación.
+
+Toda la superficie del portal vive en `PortalController`, restringido al rol `Padre` en un único lugar. La alternativa —agregar ese rol a los controladores existentes— habría requerido acertar en el filtro de cada uno de ellos.
+
+### Regla de acceso
+
+`VerificarAccesoDelPadreUseCase.EnsureAsync(padreId, alumnoId)` corre **antes de leer cualquier dato** en todo endpoint que reciba un `alumnoId`, porque ese id viaja en la URL y el padre puede cambiarlo. Deniega si:
+
+- la cuenta no existe,
+- la cuenta está desactivada (desactivar no borra los vínculos), o
+- el alumno no está vinculado a esa cuenta.
+
+El mensaje de error es idéntico en los tres casos: distinguir "no existe" de "no es tu hijo" permitiría sondear la matrícula del colegio.
+
+El id del padre **siempre** sale del token, nunca del cuerpo o de la URL.
+
+---
+
 ## 5. Semana Académica y Turnos
 
 - La **semana académica** va de lunes a viernes. No hay lógica de negocio que opere sobre fines de semana.
@@ -235,5 +261,8 @@ Estas reglas se validan en el constructor o en métodos del Domain. Su violació
 | `Meta` | `Turno` solo acepta `Mañana` o `Tarde` |
 | `Alumno` | `PrivilegeStatus` solo se modifica a través de `RecalcularPrivilegios()`, nunca directamente — incluidas las anulaciones manuales, que entran como insumo de ese método |
 | `ConfiguracionPrivilegios` | Todo umbral de revocación debe ser estrictamente menor que el umbral de otorgamiento para el mismo privilegio |
+| `PadreFamilia` | El correo es único y no puede coincidir con el de una cuenta de personal: el login busca primero en personal y el duplicado dejaría inalcanzable la cuenta del padre |
+| `PadreAlumno` | Un alumno no puede vincularse dos veces a la misma cuenta |
+| `PadreFamilia` | Un padre solo lee datos de los alumnos que tiene vinculados; la comprobación corre en cada endpoint que recibe un `alumnoId` |
 | `EntrevistaPadre` | `NumeroHijos` debe ser mayor o igual a 0 |
 | `EntrevistaPadre` | Si hay banderas de riesgo de violencia o divorcio crítico, los `Comentarios` no pueden estar vacíos |

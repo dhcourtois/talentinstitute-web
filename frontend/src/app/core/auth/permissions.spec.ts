@@ -41,9 +41,52 @@ describe('permissions', () => {
     expect(puedeVer(null, 'dashboard')).toBeFalse();
   });
 
-  it('todo rol conserva acceso al perfil del alumno', () => {
-    for (const rol of Object.keys(MODULOS_POR_ROL) as Array<keyof typeof MODULOS_POR_ROL>) {
+  it('todo rol del personal conserva acceso al perfil del alumno', () => {
+    // Acotado al personal al agregarse el rol Padre (issue #8): el padre de
+    // familia consulta a sus hijos desde el portal, no desde el módulo de
+    // gestión de alumnos, que es una pantalla de operación interna.
+    for (const rol of ['Principal', 'Supervisora', 'Monitora'] as const) {
       expect(puedeVer(rol, 'alumnos')).toBeTrue();
+    }
+  });
+
+  // ── Portal de padres de familia (issue #8) ───────────────────────────────
+
+  it('el Padre solo alcanza el portal', () => {
+    expect(MODULOS_POR_ROL.Padre).toEqual(['portal']);
+    expect(rutaInicial('Padre')).toBe('/portal');
+  });
+
+  it('el Padre no alcanza ningún módulo del personal', () => {
+    const delPersonal = ['dashboard', 'alumnos', 'paces', 'entrevistas', 'staff', 'configuracion', 'padres'] as const;
+    for (const modulo of delPersonal) {
+      expect(puedeVer('Padre', modulo)).toBeFalse();
+    }
+  });
+
+  it('ningún rol del personal alcanza el portal del padre', () => {
+    for (const rol of ['Principal', 'Supervisora', 'Monitora'] as const) {
+      expect(puedeVer(rol, 'portal')).toBeFalse();
+    }
+  });
+
+  it('solo el Principal administra las cuentas de padres', () => {
+    expect(rolesDe('padres')).toEqual(['Principal']);
+  });
+
+  it('el menú del Padre no comparte una sola entrada con el del personal', () => {
+    const delPadre = navegacionPara('Padre').map(item => item.modulo);
+    for (const rol of ['Principal', 'Supervisora', 'Monitora'] as const) {
+      const delPersonal = navegacionPara(rol).map(item => item.modulo);
+      expect(delPadre.some(modulo => delPersonal.includes(modulo))).toBeFalse();
+    }
+  });
+
+  it('todo rol, incluido el Padre, tiene un destino inicial dentro de su propio menú', () => {
+    for (const rol of ['Principal', 'Supervisora', 'Monitora', 'Padre'] as const) {
+      const destino = rutaInicial(rol);
+      const suyas = navegacionPara(rol).map(item => item.ruta);
+      expect(suyas).toContain(destino);
     }
   });
 });
