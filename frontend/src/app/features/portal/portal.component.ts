@@ -5,7 +5,7 @@ import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { PortalService } from '../../core/services/portal.service';
 import { weekStartIso } from '../../core/utils/fecha.util';
-import { Hijo, Merito, Meta } from '../../models';
+import { AlumnoPace, Hijo, Merito, Meta } from '../../models';
 import { BadgeComponent, BadgeVariant } from '../../shared/components/badge/badge.component';
 import { ButtonComponent } from '../../shared/components/button/button.component';
 import { SpinnerComponent } from '../../shared/components/spinner/spinner.component';
@@ -80,6 +80,45 @@ import { SpinnerComponent } from '../../shared/components/spinner/spinner.compon
           <ng-template #sinPrivilegios>
             <p class="muted">Sin privilegios activos esta semana.</p>
           </ng-template>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <h3>PACEs</h3>
+            <app-badge variant="gray">{{ pacesEnCurso.length }} en curso</app-badge>
+          </div>
+
+          <p class="muted" *ngIf="detalleCargando">Cargando…</p>
+          <p class="muted" *ngIf="!detalleCargando && paces.length === 0">
+            Todavía no hay PACEs asignados.
+          </p>
+
+          <ng-container *ngIf="pacesEnCurso.length > 0">
+            <span class="etiqueta">En curso</span>
+            <article class="fila" *ngFor="let pace of pacesEnCurso">
+              <div>
+                <strong>{{ pace.materia }} {{ pace.numeroPace }}</strong>
+                <small>Desde el {{ pace.fechaInicio | date:'dd/MM/yyyy' }}</small>
+              </div>
+              <app-badge variant="blue">{{ etiquetaEstado(pace.estado) }}</app-badge>
+            </article>
+          </ng-container>
+
+          <ng-container *ngIf="pacesCerrados.length > 0">
+            <span class="etiqueta">Historial</span>
+            <article class="fila" *ngFor="let pace of pacesCerrados">
+              <div>
+                <strong>{{ pace.materia }} {{ pace.numeroPace }}</strong>
+                <small>
+                  {{ pace.fechaCompletado | date:'dd/MM/yyyy' }}
+                  <ng-container *ngIf="pace.puntajeFinal != null"> · {{ pace.puntajeFinal }} puntos</ng-container>
+                </small>
+              </div>
+              <app-badge [variant]="pace.estado === 'Completado' ? 'green' : 'red'">
+                {{ pace.estado }}
+              </app-badge>
+            </article>
+          </ng-container>
         </section>
 
         <div class="grid">
@@ -226,6 +265,14 @@ import { SpinnerComponent } from '../../shared/components/spinner/spinner.compon
 
     .chips { display: flex; flex-wrap: wrap; gap: var(--space-2); }
 
+    .etiqueta {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--color-text-muted);
+    }
+
     .fila {
       display: flex;
       align-items: center;
@@ -260,6 +307,7 @@ export class PortalComponent implements OnInit {
   seleccionadoId = '';
   metas: Meta[] = [];
   meritos: Merito[] = [];
+  paces: AlumnoPace[] = [];
   loading = true;
   detalleCargando = false;
   errorMessage = '';
@@ -277,6 +325,29 @@ export class PortalComponent implements OnInit {
   /** Un registro eliminado por el colegio no debe seguir pesando en casa. */
   get meritosVisibles(): Merito[] {
     return this.meritos.filter(merito => !merito.revocado);
+  }
+
+  get pacesEnCurso(): AlumnoPace[] {
+    return this.paces.filter(pace => pace.estado !== 'Completado' && pace.estado !== 'Fallido');
+  }
+
+  /** Los ya cerrados, del más reciente al más antiguo. */
+  get pacesCerrados(): AlumnoPace[] {
+    return this.paces
+      .filter(pace => pace.estado === 'Completado' || pace.estado === 'Fallido')
+      .sort((a, b) => (b.fechaCompletado ?? '').localeCompare(a.fechaCompletado ?? ''));
+  }
+
+  /** La nomenclatura del SOW, no el identificador interno. */
+  etiquetaEstado(estado: string): string {
+    const etiquetas: Record<string, string> = {
+      ListoParaAutoTest: 'Listo para Score Station',
+      AutoTestOk: 'Auto-test aprobado',
+      AutoTestFallido: 'Auto-test fallido',
+      EnTestFinal: 'En test final',
+      EnProgreso: 'En progreso'
+    };
+    return etiquetas[estado] ?? estado;
   }
 
   reload(): void {
@@ -308,10 +379,12 @@ export class PortalComponent implements OnInit {
     // pantalla del padre en blanco.
     forkJoin({
       metas: this.portal.getMetas(alumnoId, weekStartIso()).pipe(catchError(() => of([] as Meta[]))),
-      meritos: this.portal.getMeritos(alumnoId).pipe(catchError(() => of([] as Merito[])))
+      meritos: this.portal.getMeritos(alumnoId).pipe(catchError(() => of([] as Merito[]))),
+      paces: this.portal.getPaces(alumnoId).pipe(catchError(() => of([] as AlumnoPace[])))
     }).subscribe(resultado => {
       this.metas = resultado.metas;
       this.meritos = resultado.meritos;
+      this.paces = resultado.paces;
       this.detalleCargando = false;
     });
   }

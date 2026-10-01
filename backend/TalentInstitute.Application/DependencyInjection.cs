@@ -8,6 +8,7 @@ public static class DependencyInjection
     public static IServiceCollection AddApplicationLayer(this IServiceCollection services)
     {
         services.AddScoped<CheckStudentPaceProgressUseCase>();
+        services.AddScoped<AvanzarEstadoPaceUseCase>();
         services.AddScoped<LoginUseCase>();
         services.AddScoped<RegistrarMeritoUseCase>();
         services.AddScoped<ObtenerAlumnosUseCase>();

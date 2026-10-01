@@ -35,7 +35,9 @@ public class ObtenerPacesAlumnoUseCase
                 FechaCompletado = ap.FechaCompletado,
                 PuntajeFinal = ap.PuntajeFinal,
                 NumeroPace = pace?.Numero ?? string.Empty,
-                PuntajeMaximo = pace?.PuntajeMaximo ?? 100
+                PuntajeMaximo = pace?.PuntajeMaximo ?? 100,
+                SiguienteAccion = ap.SiguienteAccion?.ToString(),
+                Cerrado = ap.SiguienteAccion is null
             });
         }
 
@@ -55,4 +57,14 @@ public class AlumnoPaceDto
     public decimal? PuntajeFinal { get; set; }
     public string NumeroPace { get; set; } = string.Empty;
     public int PuntajeMaximo { get; set; }
+
+    /// <summary>
+    /// Siguiente paso del flujo ACE, o nulo si el PACE ya está cerrado. La
+    /// pantalla ofrece una sola acción por vez en lugar de pedirle al usuario
+    /// que adivine el orden.
+    /// </summary>
+    public string? SiguienteAccion { get; set; }
+
+    /// <summary>Verdadero cuando el PACE ya está Completado o Fallido.</summary>
+    public bool Cerrado { get; set; }
 }

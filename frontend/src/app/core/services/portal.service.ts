@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { Hijo, Merito, Meta } from '../../models';
+import { AlumnoPace, Hijo, Merito, Meta } from '../../models';
 
 /**
  * Consultas del portal de padres (issue #8).
@@ -28,5 +28,9 @@ export class PortalService {
 
   getMeritos(alumnoId: string): Observable<Merito[]> {
     return this.http.get<Merito[]>(`${this.url}/hijos/${alumnoId}/meritos`);
+  }
+
+  getPaces(alumnoId: string): Observable<AlumnoPace[]> {
+    return this.http.get<AlumnoPace[]>(`${this.url}/hijos/${alumnoId}/paces`);
   }
 }

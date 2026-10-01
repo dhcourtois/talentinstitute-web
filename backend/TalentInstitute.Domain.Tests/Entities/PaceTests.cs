@@ -163,4 +163,156 @@ public class PaceTests
 
         otraVez.Should().Be(unaVez);
     }
+
+    // ── Flujo completo del PACE ──────────────────────────────────────────────
+    // El dominio tenía las cuatro transiciones, pero solo el auto-test estaba
+    // expuesto en la API, así que ningún PACE podía llegar a Completado y la
+    // materia quedaba bloqueada para siempre. Estas pruebas fijan el recorrido.
+
+    private static AlumnoPace CrearAsignado() => new(Guid.NewGuid(), Guid.NewGuid(), "MAT");
+
+    [Fact]
+    public void FlujoCompleto_LlevaElPaceHastaCompletado()
+    {
+        // Arrange
+        var ap = CrearAsignado();
+
+        // Act: el recorrido entero, tal como lo hace el colegio
+        ap.RegistrarPrimeraMeta();
+        ap.MarcarListoParaAutoTest();
+        ap.CompletarAutoTest(exitoso: true);
+        ap.ProgramarTestFinal();
+        ap.EvaluarTestFinal(aprobado: true, puntajeFinal: 92m);
+
+        // Assert
+        ap.Estado.Should().Be(PaceEstado.Completado);
+        ap.FechaCompletado.Should().NotBeNull();
+        ap.PuntajeFinal.Should().Be(92m);
+    }
+
+    [Fact]
+    public void PaceCompletado_LiberaLaMateriaParaUnNuevoPace()
+    {
+        // Arrange: el bloqueo que dejaba al alumno sin poder avanzar de PACE.
+        var ap = CrearAsignado();
+        ap.RegistrarPrimeraMeta();
+        ap.MarcarListoParaAutoTest();
+        ap.CompletarAutoTest(true);
+        ap.ProgramarTestFinal();
+        ap.EvaluarTestFinal(true);
+
+        // Act
+        var acto = () => AlumnoPace.ValidarAsignacionUnica(new[] { ap }, "MAT");
+
+        // Assert
+        acto.Should().NotThrow();
+    }
+
+    [Fact]
+    public void PaceEnProgreso_SigueBloqueandoLaMateria()
+    {
+        // Arrange: la regla original se conserva.
+        var ap = CrearAsignado();
+        ap.RegistrarPrimeraMeta();
+
+        // Act
+        var acto = () => AlumnoPace.ValidarAsignacionUnica(new[] { ap }, "MAT");
+
+        // Assert
+        acto.Should().Throw<DomainException>();
+    }
+
+    [Fact]
+    public void MarcarListoParaAutoTest_DesdeAsignado_EsValido()
+    {
+        // Un PACE sin metas registradas no debe quedar atrapado sin poder cerrarse.
+        var ap = CrearAsignado();
+
+        var acto = () => ap.MarcarListoParaAutoTest();
+
+        acto.Should().NotThrow();
+        ap.Estado.Should().Be(PaceEstado.ListoParaAutoTest);
+    }
+
+    [Fact]
+    public void AutoTestFallido_PermiteReintentar()
+    {
+        // Arrange
+        var ap = CrearAsignado();
+        ap.MarcarListoParaAutoTest();
+        ap.CompletarAutoTest(exitoso: false);
+        ap.Estado.Should().Be(PaceEstado.AutoTestFallido);
+
+        // Act
+        ap.CompletarAutoTest(exitoso: true);
+
+        // Assert
+        ap.Estado.Should().Be(PaceEstado.AutoTestOk);
+    }
+
+    [Fact]
+    public void EvaluarTestFinal_Reprobado_CierraComoFallidoYLiberaLaMateria()
+    {
+        // Arrange
+        var ap = CrearAsignado();
+        ap.MarcarListoParaAutoTest();
+        ap.CompletarAutoTest(true);
+        ap.ProgramarTestFinal();
+
+        // Act
+        ap.EvaluarTestFinal(aprobado: false);
+
+        // Assert
+        ap.Estado.Should().Be(PaceEstado.Fallido);
+        ap.FechaCompletado.Should().NotBeNull();
+        var acto = () => AlumnoPace.ValidarAsignacionUnica(new[] { ap }, "MAT");
+        acto.Should().NotThrow();
+    }
+
+    [Theory]
+    [InlineData(PaceEstado.Asignado, AccionPace.MarcarListoParaAutoTest)]
+    [InlineData(PaceEstado.EnProgreso, AccionPace.MarcarListoParaAutoTest)]
+    [InlineData(PaceEstado.ListoParaAutoTest, AccionPace.RegistrarAutoTest)]
+    [InlineData(PaceEstado.AutoTestFallido, AccionPace.RegistrarAutoTest)]
+    [InlineData(PaceEstado.AutoTestOk, AccionPace.ProgramarTestFinal)]
+    [InlineData(PaceEstado.EnTestFinal, AccionPace.EvaluarTestFinal)]
+    public void SiguienteAccion_IndicaElPasoCorrecto(PaceEstado estado, AccionPace esperada)
+    {
+        // Arrange: se lleva el PACE al estado pedido por el camino legítimo.
+        var ap = CrearAsignado();
+        if (estado != PaceEstado.Asignado) ap.RegistrarPrimeraMeta();
+        if (estado is PaceEstado.ListoParaAutoTest or PaceEstado.AutoTestFallido
+            or PaceEstado.AutoTestOk or PaceEstado.EnTestFinal) ap.MarcarListoParaAutoTest();
+        if (estado == PaceEstado.AutoTestFallido) ap.CompletarAutoTest(false);
+        if (estado is PaceEstado.AutoTestOk or PaceEstado.EnTestFinal) ap.CompletarAutoTest(true);
+        if (estado == PaceEstado.EnTestFinal) ap.ProgramarTestFinal();
+
+        ap.Estado.Should().Be(estado);
+
+        // Assert
+        ap.SiguienteAccion.Should().Be(esperada);
+    }
+
+    [Fact]
+    public void SiguienteAccion_EsNulaCuandoElPaceYaCerro()
+    {
+        var ap = CrearAsignado();
+        ap.MarcarListoParaAutoTest();
+        ap.CompletarAutoTest(true);
+        ap.ProgramarTestFinal();
+        ap.EvaluarTestFinal(true);
+
+        ap.SiguienteAccion.Should().BeNull();
+    }
+
+    [Fact]
+    public void EvaluarTestFinal_FueraDeTestFinal_LanzaDomainException()
+    {
+        var ap = CrearAsignado();
+        ap.RegistrarPrimeraMeta();
+
+        var acto = () => ap.EvaluarTestFinal(true);
+
+        acto.Should().Throw<DomainException>();
+    }
 }
