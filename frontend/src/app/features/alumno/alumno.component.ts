@@ -140,8 +140,12 @@ import { QuickActionsComponent } from './quick-actions.component';
                 <span>Asignar PACE</span>
                 <select formControlName="paceId">
                   <option value="">Selecciona un PACE</option>
-                  <option *ngFor="let pace of catalogo" [value]="pace.id">
-                    {{ pace.materia }} {{ pace.numeroPace }}
+                  <option
+                    *ngFor="let opcion of catalogoAsignable"
+                    [value]="opcion.pace.id"
+                    [disabled]="opcion.bloqueadoPor !== null"
+                  >
+                    {{ opcion.pace.materia }} {{ opcion.pace.numeroPace }}{{ opcion.bloqueadoPor ? ' — termina ' + opcion.bloqueadoPor + ' primero' : '' }}
                   </option>
                 </select>
               </label>
@@ -848,9 +852,9 @@ export class AlumnoComponent implements OnInit {
         this.goalForm.patchValue({ paginaInicial: siguiente, paginaFinal: siguiente });
         this.load();
       },
-      error: () => {
+      error: (error: HttpErrorResponse) => {
         this.creatingGoal = false;
-        this.toast.error('No se pudo registrar la meta.');
+        this.toast.error(this.describeError(error, 'No se pudo registrar la meta.'));
       }
     });
   }
@@ -876,9 +880,9 @@ export class AlumnoComponent implements OnInit {
         this.meritForm.patchValue({ puntos: 1, motivo: '' });
         this.load();
       },
-      error: () => {
+      error: (error: HttpErrorResponse) => {
         this.registeringMerit = false;
-        this.toast.error('No se pudo guardar el registro.');
+        this.toast.error(this.describeError(error, 'No se pudo guardar el registro.'));
       }
     });
   }
@@ -960,9 +964,11 @@ export class AlumnoComponent implements OnInit {
         this.assignForm.reset();
         this.load();
       },
-      error: () => {
+      error: (error: HttpErrorResponse) => {
         this.assigning = false;
-        this.toast.error('No se pudo asignar el PACE.');
+        // El backend explica por qué —p. ej. que la materia sigue ocupada por
+        // otro PACE—; tragarse ese mensaje dejaba al usuario adivinando.
+        this.toast.error(this.describeError(error, 'No se pudo asignar el PACE.'));
       }
     });
   }
@@ -973,7 +979,8 @@ export class AlumnoComponent implements OnInit {
         this.toast.success('Meta actualizada.');
         this.load();
       },
-      error: () => this.toast.error('No se pudo actualizar la meta.')
+      error: (error: HttpErrorResponse) =>
+        this.toast.error(this.describeError(error, 'No se pudo actualizar la meta.'))
     });
   }
 
@@ -990,7 +997,8 @@ export class AlumnoComponent implements OnInit {
         this.toast.success('Score registrado.');
         this.load();
       },
-      error: () => this.toast.error('No se pudo registrar el score.')
+      error: (error: HttpErrorResponse) =>
+        this.toast.error(this.describeError(error, 'No se pudo registrar el score.'))
     });
   }
 
@@ -1119,6 +1127,28 @@ export class AlumnoComponent implements OnInit {
         this.toast.error(this.describeError(error, 'No se pudo actualizar el PACE.'));
       }
     });
+  }
+
+  /**
+   * El catálogo marcando qué PACEs no se pueden asignar todavía.
+   *
+   * Un alumno solo puede tener un PACE activo por materia, así que ofrecer en
+   * la lista uno cuya materia sigue ocupada es ofrecer una opción que siempre
+   * va a fallar. Se muestran igual —esconderlos haría pensar que no existen—
+   * pero deshabilitados y diciendo cuál hay que terminar antes.
+   */
+  get catalogoAsignable(): Array<{ pace: Pace; bloqueadoPor: string | null }> {
+    const ocupadas = new Map<string, string>();
+    for (const asignado of this.paces) {
+      if (asignado.cerrado) continue;
+      const materia = asignado.materia ?? '';
+      if (materia) ocupadas.set(materia, `${materia} ${asignado.numeroPace ?? ''}`.trim());
+    }
+
+    return this.catalogo.map(pace => ({
+      pace,
+      bloqueadoPor: ocupadas.get(pace.materia) ?? null
+    }));
   }
 
   /** Solo el auto-test y el test final tienen resultado aprobado/no aprobado. */
