@@ -12,7 +12,7 @@ import { PacesService } from '../../core/services/paces.service';
 import { ProgresoService } from '../../core/services/progreso.service';
 import { ToastService } from '../../core/services/toast.service';
 import { todayIso, weekStartIso } from '../../core/utils/fecha.util';
-import { Alumno, AlumnoPace, EstadoMeta, Merito, Meta, ModoPrivilegio, Pace, PrivilegioFlag, Rol } from '../../models';
+import { AccionPace, Alumno, AlumnoPace, EstadoMeta, Merito, Meta, ModoPrivilegio, Pace, PrivilegioFlag, Rol } from '../../models';
 import { BadgeComponent, BadgeVariant } from '../../shared/components/badge/badge.component';
 import { ButtonComponent } from '../../shared/components/button/button.component';
 import { ProgressBarComponent } from '../../shared/components/progress-bar/progress-bar.component';
@@ -103,11 +103,35 @@ import { QuickActionsComponent } from './quick-actions.component';
             <article class="pace-card" *ngFor="let pace of paces">
               <div>
                 <strong>{{ pace.materia }} {{ pace.numeroPace || pace.pace?.numeroPace || '' }}</strong>
-                <span>{{ pace.estado }}</span>
+                <span>{{ etiquetaEstado(pace.estado) }}</span>
+                <small *ngIf="pace.fechaCompletado">
+                  Cerrado el {{ pace.fechaCompletado | date:'dd/MM/yyyy' }}
+                  <ng-container *ngIf="pace.puntajeFinal != null"> · {{ pace.puntajeFinal }} puntos</ng-container>
+                </small>
               </div>
               <app-progress-bar [value]="paceProgress(pace)" />
               <div class="pace-actions">
-                <app-badge [variant]="paceVariant(pace.estado)">{{ pace.estado }}</app-badge>
+                <app-badge [variant]="paceVariant(pace.estado)">{{ etiquetaEstado(pace.estado) }}</app-badge>
+
+                <ng-container *ngIf="canManagePaces && pace.siguienteAccion as accion">
+                  <button
+                    type="button"
+                    class="pace-step"
+                    [disabled]="avanzandoPaceId === pace.id"
+                    (click)="avanzarPace(pace, true)"
+                  >
+                    {{ avanzandoPaceId === pace.id ? 'Guardando…' : etiquetaAccion(accion) }}
+                  </button>
+                  <button
+                    type="button"
+                    class="pace-step secundario"
+                    *ngIf="accionTieneDosSalidas(accion)"
+                    [disabled]="avanzandoPaceId === pace.id"
+                    (click)="avanzarPace(pace, false)"
+                  >
+                    {{ etiquetaAccionNegativa(accion) }}
+                  </button>
+                </ng-container>
               </div>
             </article>
 
@@ -419,6 +443,33 @@ import { QuickActionsComponent } from './quick-actions.component';
       min-width: 0;
     }
 
+    .pace-step {
+      padding: var(--space-1) var(--space-3);
+      font: inherit;
+      font-size: 0.78rem;
+      color: var(--color-text);
+      background: var(--color-bg-surface);
+      border: 1px solid var(--color-text);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+    }
+
+    .pace-step.secundario {
+      color: var(--color-danger);
+      border-color: var(--color-danger);
+    }
+
+    .pace-step:disabled {
+      color: var(--color-text-muted);
+      border-color: var(--color-border);
+      cursor: progress;
+    }
+
+    .pace-card small {
+      font-size: 0.72rem;
+      color: var(--color-text-muted);
+    }
+
     .privilege-mode {
       width: 100%;
       padding: var(--space-1) var(--space-2);
@@ -658,6 +709,7 @@ export class AlumnoComponent implements OnInit {
   assigning = false;
   deletingMeritId: string | null = null;
   savingPrivilege: PrivilegioFlag | null = null;
+  avanzandoPaceId: string | null = null;
   scoreInputs: Record<string, number | null> = {};
 
   /**
@@ -1031,6 +1083,73 @@ export class AlumnoComponent implements OnInit {
     if (estado === 'Rechazada') return 'red';
     if (estado === 'Scored') return 'blue';
     return 'orange';
+  }
+
+  /**
+   * Avanza el PACE al siguiente paso del flujo ACE (issue reportado por QA).
+   * `resultado` solo importa en los pasos con dos salidas posibles.
+   */
+  avanzarPace(pace: AlumnoPace, resultado: boolean): void {
+    const accion = pace.siguienteAccion;
+    if (!accion) return;
+
+    if (accion === 'EvaluarTestFinal') {
+      const confirmado = window.confirm(
+        resultado
+          ? `¿Dar por completado el PACE ${pace.materia} ${pace.numeroPace ?? ''}?\n\n` +
+              'Al cerrarlo se libera la materia y podrás asignarle al alumno el siguiente PACE.'
+          : `¿Marcar como no aprobado el PACE ${pace.materia} ${pace.numeroPace ?? ''}?`
+      );
+      if (!confirmado) return;
+    }
+
+    this.avanzandoPaceId = pace.id;
+    this.pacesService.avanzarEstado(pace.id, {
+      accion,
+      // Los pasos de una sola salida ignoran este campo en el backend.
+      exitoso: resultado
+    }).subscribe({
+      next: response => {
+        this.avanzandoPaceId = null;
+        this.toast.success(response?.message ?? 'PACE actualizado.');
+        this.load();
+      },
+      error: (error: HttpErrorResponse) => {
+        this.avanzandoPaceId = null;
+        this.toast.error(this.describeError(error, 'No se pudo actualizar el PACE.'));
+      }
+    });
+  }
+
+  /** Solo el auto-test y el test final tienen resultado aprobado/no aprobado. */
+  accionTieneDosSalidas(accion: AccionPace): boolean {
+    return accion === 'RegistrarAutoTest' || accion === 'EvaluarTestFinal';
+  }
+
+  etiquetaAccion(accion: AccionPace): string {
+    const etiquetas: Record<AccionPace, string> = {
+      MarcarListoParaAutoTest: 'Listo para Score Station',
+      RegistrarAutoTest: 'Auto-test aprobado',
+      ProgramarTestFinal: 'Programar test final',
+      EvaluarTestFinal: 'Completar PACE'
+    };
+    return etiquetas[accion];
+  }
+
+  etiquetaAccionNegativa(accion: AccionPace): string {
+    return accion === 'RegistrarAutoTest' ? 'Auto-test fallido' : 'No aprobado';
+  }
+
+  /** La nomenclatura del SOW, no el identificador interno. */
+  etiquetaEstado(estado: string): string {
+    const etiquetas: Record<string, string> = {
+      ListoParaAutoTest: 'Listo para Score Station',
+      AutoTestOk: 'Auto-test aprobado',
+      AutoTestFallido: 'Auto-test fallido',
+      EnTestFinal: 'En test final',
+      EnProgreso: 'En progreso'
+    };
+    return etiquetas[estado] ?? estado;
   }
 
   paceProgress(pace: AlumnoPace): number {

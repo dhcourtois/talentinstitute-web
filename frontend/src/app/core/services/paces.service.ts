@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { Pace, AlumnoPace } from '../../models';
+import { Pace, AlumnoPace, AvanzarEstadoPaceRequest, EstadoAlumnoPace } from '../../models';
 
 @Injectable({ providedIn: 'root' })
 export class PacesService {
@@ -30,5 +30,16 @@ export class PacesService {
 
   checkProgress(alumnoPaceId: string, exitoso: boolean): Observable<void> {
     return this.http.post<void>(`${this.url}/${alumnoPaceId}/check`, { exitoso });
+  }
+
+  /** Hace avanzar el PACE por el flujo ACE hasta poder cerrarlo. */
+  avanzarEstado(
+    alumnoPaceId: string,
+    request: AvanzarEstadoPaceRequest
+  ): Observable<{ estado: EstadoAlumnoPace; message: string }> {
+    return this.http.patch<{ estado: EstadoAlumnoPace; message: string }>(
+      `${this.url}/alumno-pace/${alumnoPaceId}/estado`,
+      request
+    );
   }
 }
