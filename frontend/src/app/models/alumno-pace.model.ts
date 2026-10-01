@@ -20,4 +20,21 @@ export interface AlumnoPace {
   fechaCompletado?: string;
   puntajeFinal?: number;
   estado: EstadoAlumnoPace;
+  /** Siguiente paso del flujo ACE, o ausente si el PACE ya cerró. */
+  siguienteAccion?: AccionPace | null;
+  /** Verdadero cuando el PACE ya está Completado o Fallido. */
+  cerrado?: boolean;
+}
+
+export type AccionPace =
+  | 'MarcarListoParaAutoTest'
+  | 'RegistrarAutoTest'
+  | 'ProgramarTestFinal'
+  | 'EvaluarTestFinal';
+
+export interface AvanzarEstadoPaceRequest {
+  accion: AccionPace;
+  /** Requerido al registrar el auto-test y al evaluar el test final. */
+  exitoso?: boolean;
+  puntajeFinal?: number;
 }

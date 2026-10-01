@@ -29,17 +29,20 @@ public class PortalController : ControllerBase
     private readonly VerificarAccesoDelPadreUseCase _verificarAcceso;
     private readonly ObtenerMetasSemanaUseCase _obtenerMetasSemanaUseCase;
     private readonly ObtenerMeritosAlumnoUseCase _obtenerMeritosAlumnoUseCase;
+    private readonly ObtenerPacesAlumnoUseCase _obtenerPacesAlumnoUseCase;
 
     public PortalController(
         ObtenerHijosDelPadreUseCase obtenerHijosUseCase,
         VerificarAccesoDelPadreUseCase verificarAcceso,
         ObtenerMetasSemanaUseCase obtenerMetasSemanaUseCase,
-        ObtenerMeritosAlumnoUseCase obtenerMeritosAlumnoUseCase)
+        ObtenerMeritosAlumnoUseCase obtenerMeritosAlumnoUseCase,
+        ObtenerPacesAlumnoUseCase obtenerPacesAlumnoUseCase)
     {
         _obtenerHijosUseCase = obtenerHijosUseCase;
         _verificarAcceso = verificarAcceso;
         _obtenerMetasSemanaUseCase = obtenerMetasSemanaUseCase;
         _obtenerMeritosAlumnoUseCase = obtenerMeritosAlumnoUseCase;
+        _obtenerPacesAlumnoUseCase = obtenerPacesAlumnoUseCase;
     }
 
     [HttpGet("hijos")]
@@ -87,6 +90,28 @@ public class PortalController : ControllerBase
 
             var meritos = await _obtenerMeritosAlumnoUseCase.ExecuteAsync(alumnoId, cancellationToken);
             return Ok(meritos);
+        }
+        catch (AccesoDenegadoException ex)
+        {
+            return Forbid_(ex.Message);
+        }
+    }
+
+    /// <summary>
+    /// PACEs del hijo, en curso y completados. Es lo que los padres venían
+    /// pidiendo: ver en qué va su hijo y qué cuadernillos ya cerró.
+    /// </summary>
+    [HttpGet("hijos/{alumnoId:guid}/paces")]
+    public async Task<IActionResult> GetPaces(Guid alumnoId, CancellationToken cancellationToken)
+    {
+        if (!TryGetPadreId(out var padreId)) return Unauthorized(new { message = "Identidad del usuario no válida." });
+
+        try
+        {
+            await _verificarAcceso.EnsureAsync(padreId, alumnoId, cancellationToken);
+
+            var paces = await _obtenerPacesAlumnoUseCase.ExecuteAsync(alumnoId, cancellationToken);
+            return Ok(paces);
         }
         catch (AccesoDenegadoException ex)
         {

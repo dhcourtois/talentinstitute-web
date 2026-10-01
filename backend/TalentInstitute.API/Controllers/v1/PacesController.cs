@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TalentInstitute.Application.UseCases;
+using TalentInstitute.Domain.Entities;
 using TalentInstitute.Domain.Exceptions;
 
 namespace TalentInstitute.API.Controllers.v1;
@@ -14,6 +15,7 @@ namespace TalentInstitute.API.Controllers.v1;
 public class PacesController : ControllerBase
 {
     private readonly CheckStudentPaceProgressUseCase _checkStudentPaceProgressUseCase;
+    private readonly AvanzarEstadoPaceUseCase _avanzarEstadoPaceUseCase;
     private readonly ObtenerCatalogoPacesUseCase _obtenerCatalogoPacesUseCase;
     private readonly CrearPaceUseCase _crearPaceUseCase;
     private readonly AsignarPaceUseCase _asignarPaceUseCase;
@@ -24,9 +26,11 @@ public class PacesController : ControllerBase
         ObtenerCatalogoPacesUseCase obtenerCatalogoPacesUseCase,
         CrearPaceUseCase crearPaceUseCase,
         AsignarPaceUseCase asignarPaceUseCase,
-        ObtenerPacesAlumnoUseCase obtenerPacesAlumnoUseCase)
+        ObtenerPacesAlumnoUseCase obtenerPacesAlumnoUseCase,
+        AvanzarEstadoPaceUseCase avanzarEstadoPaceUseCase)
     {
         _checkStudentPaceProgressUseCase = checkStudentPaceProgressUseCase;
+        _avanzarEstadoPaceUseCase = avanzarEstadoPaceUseCase;
         _obtenerCatalogoPacesUseCase = obtenerCatalogoPacesUseCase;
         _crearPaceUseCase = crearPaceUseCase;
         _asignarPaceUseCase = asignarPaceUseCase;
@@ -108,6 +112,57 @@ public class PacesController : ControllerBase
             return NotFound(new { message = ex.Message });
         }
     }
+
+    /// <summary>
+    /// Hace avanzar un PACE asignado por el flujo ACE: listo para auto-test,
+    /// resultado del auto-test, programación del test final y cierre.
+    ///
+    /// Sin este endpoint solo existía el paso del auto-test, así que un PACE se
+    /// quedaba en EnProgreso para siempre y bloqueaba su materia.
+    /// </summary>
+    [HttpPatch("alumno-pace/{alumnoPaceId:guid}/estado")]
+    [Authorize(Roles = "Principal,Supervisora")]
+    public async Task<IActionResult> AvanzarEstado(
+        Guid alumnoPaceId,
+        [FromBody] AvanzarEstadoPaceRequest request,
+        CancellationToken cancellationToken)
+    {
+        if (!Enum.TryParse<AccionPace>(request.Accion, true, out var accion))
+        {
+            return BadRequest(new
+            {
+                message = $"La acción '{request.Accion}' no es válida. Debe ser MarcarListoParaAutoTest, RegistrarAutoTest, ProgramarTestFinal o EvaluarTestFinal."
+            });
+        }
+
+        try
+        {
+            var estado = await _avanzarEstadoPaceUseCase.ExecuteAsync(
+                alumnoPaceId, accion, request.Exitoso, request.PuntajeFinal, cancellationToken);
+
+            return Ok(new { estado = estado.ToString(), message = $"PACE actualizado a {estado}." });
+        }
+        catch (DomainException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (System.Collections.Generic.KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+    }
+}
+
+public class AvanzarEstadoPaceRequest
+{
+    /// <summary>MarcarListoParaAutoTest, RegistrarAutoTest, ProgramarTestFinal o EvaluarTestFinal.</summary>
+    public string Accion { get; set; } = string.Empty;
+
+    /// <summary>Requerido al registrar el auto-test y al evaluar el test final.</summary>
+    public bool? Exitoso { get; set; }
+
+    /// <summary>Opcional, solo al evaluar el test final.</summary>
+    public decimal? PuntajeFinal { get; set; }
 }
 
 public class CreatePaceRequest
