@@ -30,19 +30,22 @@ public class PortalController : ControllerBase
     private readonly ObtenerMetasSemanaUseCase _obtenerMetasSemanaUseCase;
     private readonly ObtenerMeritosAlumnoUseCase _obtenerMeritosAlumnoUseCase;
     private readonly ObtenerPacesAlumnoUseCase _obtenerPacesAlumnoUseCase;
+    private readonly ObtenerAnotacionesAlumnoUseCase _obtenerAnotacionesAlumnoUseCase;
 
     public PortalController(
         ObtenerHijosDelPadreUseCase obtenerHijosUseCase,
         VerificarAccesoDelPadreUseCase verificarAcceso,
         ObtenerMetasSemanaUseCase obtenerMetasSemanaUseCase,
         ObtenerMeritosAlumnoUseCase obtenerMeritosAlumnoUseCase,
-        ObtenerPacesAlumnoUseCase obtenerPacesAlumnoUseCase)
+        ObtenerPacesAlumnoUseCase obtenerPacesAlumnoUseCase,
+        ObtenerAnotacionesAlumnoUseCase obtenerAnotacionesAlumnoUseCase)
     {
         _obtenerHijosUseCase = obtenerHijosUseCase;
         _verificarAcceso = verificarAcceso;
         _obtenerMetasSemanaUseCase = obtenerMetasSemanaUseCase;
         _obtenerMeritosAlumnoUseCase = obtenerMeritosAlumnoUseCase;
         _obtenerPacesAlumnoUseCase = obtenerPacesAlumnoUseCase;
+        _obtenerAnotacionesAlumnoUseCase = obtenerAnotacionesAlumnoUseCase;
     }
 
     [HttpGet("hijos")]
@@ -112,6 +115,28 @@ public class PortalController : ControllerBase
 
             var paces = await _obtenerPacesAlumnoUseCase.ExecuteAsync(alumnoId, cancellationToken);
             return Ok(paces);
+        }
+        catch (AccesoDenegadoException ex)
+        {
+            return Forbid_(ex.Message);
+        }
+    }
+
+    /// <summary>
+    /// Observaciones semanales del hijo. Es lo que la Monitora va escribiendo
+    /// en el seguimiento y que los padres pedían poder leer.
+    /// </summary>
+    [HttpGet("hijos/{alumnoId:guid}/anotaciones")]
+    public async Task<IActionResult> GetAnotaciones(Guid alumnoId, CancellationToken cancellationToken)
+    {
+        if (!TryGetPadreId(out var padreId)) return Unauthorized(new { message = "Identidad del usuario no válida." });
+
+        try
+        {
+            await _verificarAcceso.EnsureAsync(padreId, alumnoId, cancellationToken);
+
+            var anotaciones = await _obtenerAnotacionesAlumnoUseCase.ExecuteAsync(alumnoId, cancellationToken);
+            return Ok(anotaciones);
         }
         catch (AccesoDenegadoException ex)
         {

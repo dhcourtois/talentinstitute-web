@@ -5,7 +5,7 @@ import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { PortalService } from '../../core/services/portal.service';
 import { weekStartIso } from '../../core/utils/fecha.util';
-import { AlumnoPace, Hijo, Merito, Meta } from '../../models';
+import { Anotacion, AlumnoPace, Hijo, Merito, Meta } from '../../models';
 import { BadgeComponent, BadgeVariant } from '../../shared/components/badge/badge.component';
 import { ButtonComponent } from '../../shared/components/button/button.component';
 import { SpinnerComponent } from '../../shared/components/spinner/spinner.component';
@@ -147,6 +147,28 @@ import { SpinnerComponent } from '../../shared/components/spinner/spinner.compon
 
           <section class="panel">
             <div class="panel-header">
+              <h3>Comentarios del colegio</h3>
+              <app-badge variant="gray">{{ anotaciones.length }}</app-badge>
+            </div>
+
+            <p class="muted" *ngIf="detalleCargando">Cargando…</p>
+            <p class="muted" *ngIf="!detalleCargando && anotaciones.length === 0">
+              Todavía no hay comentarios registrados.
+            </p>
+
+            <div class="semana" *ngFor="let semana of anotacionesPorSemana">
+              <span class="etiqueta">{{ semana.etiqueta }}</span>
+              <article class="fila" *ngFor="let anotacion of semana.registros">
+                <div>
+                  <p class="texto">{{ anotacion.texto }}</p>
+                  <small>{{ anotacion.fechaCreacion | date:'dd/MM/yyyy' }}</small>
+                </div>
+              </article>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
               <h3>Méritos y deméritos</h3>
               <app-badge variant="gray">{{ meritosVisibles.length }}</app-badge>
             </div>
@@ -284,6 +306,8 @@ import { SpinnerComponent } from '../../shared/components/spinner/spinner.compon
     }
 
     .fila > div { display: grid; gap: 2px; min-width: 0; }
+    .semana { display: grid; gap: var(--space-2); }
+    .texto { margin: 0; white-space: pre-wrap; }
     .fila small { font-size: 0.75rem; color: var(--color-text-muted); }
 
     .state, .empty {
@@ -308,6 +332,7 @@ export class PortalComponent implements OnInit {
   metas: Meta[] = [];
   meritos: Merito[] = [];
   paces: AlumnoPace[] = [];
+  anotaciones: Anotacion[] = [];
   loading = true;
   detalleCargando = false;
   errorMessage = '';
@@ -336,6 +361,32 @@ export class PortalComponent implements OnInit {
     return this.paces
       .filter(pace => pace.estado === 'Completado' || pace.estado === 'Fallido')
       .sort((a, b) => (b.fechaCompletado ?? '').localeCompare(a.fechaCompletado ?? ''));
+  }
+
+  /** Las observaciones partidas por semana, igual que las ve el colegio. */
+  get anotacionesPorSemana(): Array<{ inicio: string; etiqueta: string; registros: Anotacion[] }> {
+    const grupos = new Map<string, { inicio: string; etiqueta: string; registros: Anotacion[] }>();
+
+    for (const anotacion of this.anotaciones) {
+      const inicio = anotacion.semanaInicio.slice(0, 10);
+      let grupo = grupos.get(inicio);
+      if (!grupo) {
+        grupo = { inicio, etiqueta: this.etiquetaSemana(inicio), registros: [] };
+        grupos.set(inicio, grupo);
+      }
+      grupo.registros.push(anotacion);
+    }
+
+    return [...grupos.values()].sort((a, b) => b.inicio.localeCompare(a.inicio));
+  }
+
+  private etiquetaSemana(inicioIso: string): string {
+    const [anio, mes, dia] = inicioIso.split('-').map(Number);
+    const inicio = new Date(anio, mes - 1, dia);
+    const fin = new Date(anio, mes - 1, dia + 6);
+    const corto = (f: Date) =>
+      `${`${f.getDate()}`.padStart(2, '0')}/${`${f.getMonth() + 1}`.padStart(2, '0')}`;
+    return `Semana · ${corto(inicio)} – ${corto(fin)}`;
   }
 
   /** La nomenclatura del SOW, no el identificador interno. */
@@ -380,11 +431,13 @@ export class PortalComponent implements OnInit {
     forkJoin({
       metas: this.portal.getMetas(alumnoId, weekStartIso()).pipe(catchError(() => of([] as Meta[]))),
       meritos: this.portal.getMeritos(alumnoId).pipe(catchError(() => of([] as Merito[]))),
-      paces: this.portal.getPaces(alumnoId).pipe(catchError(() => of([] as AlumnoPace[])))
+      paces: this.portal.getPaces(alumnoId).pipe(catchError(() => of([] as AlumnoPace[]))),
+      anotaciones: this.portal.getAnotaciones(alumnoId).pipe(catchError(() => of([] as Anotacion[])))
     }).subscribe(resultado => {
       this.metas = resultado.metas;
       this.meritos = resultado.meritos;
       this.paces = resultado.paces;
+      this.anotaciones = resultado.anotaciones;
       this.detalleCargando = false;
     });
   }
