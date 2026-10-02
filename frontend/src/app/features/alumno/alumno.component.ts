@@ -1139,16 +1139,24 @@ export class AlumnoComponent implements OnInit {
    */
   get catalogoAsignable(): Array<{ pace: Pace; bloqueadoPor: string | null }> {
     const ocupadas = new Map<string, string>();
+    const yaAsignados = new Set<string>();
+
     for (const asignado of this.paces) {
       if (asignado.cerrado) continue;
+      yaAsignados.add(asignado.paceId);
       const materia = asignado.materia ?? '';
       if (materia) ocupadas.set(materia, `${materia} ${asignado.numeroPace ?? ''}`.trim());
     }
 
-    return this.catalogo.map(pace => ({
-      pace,
-      bloqueadoPor: ocupadas.get(pace.materia) ?? null
-    }));
+    return this.catalogo
+      // El PACE que el alumno ya trae activo no va en la lista: aparecía
+      // diciendo "termina X primero" refiriéndose a sí mismo, y además ya está
+      // visible arriba en PACEs activos.
+      .filter(pace => !yaAsignados.has(pace.id))
+      .map(pace => ({
+        pace,
+        bloqueadoPor: ocupadas.get(pace.materia) ?? null
+      }));
   }
 
   /** Solo el auto-test y el test final tienen resultado aprobado/no aprobado. */
