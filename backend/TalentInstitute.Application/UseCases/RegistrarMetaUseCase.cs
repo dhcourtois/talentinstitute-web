@@ -34,6 +34,8 @@ public class RegistrarMetaUseCase
         var alumnoPace = await _paceRepository.GetAlumnoPaceByIdAsync(alumnoPaceId, cancellationToken)
             ?? throw new KeyNotFoundException($"AlumnoPace con id '{alumnoPaceId}' no encontrado.");
 
+        alumnoPace.AsegurarQueAdmiteMetas();
+
         // El total de páginas vive en el PACE del catálogo, no en la asignación,
         // así que hay que traerlo para poder validar el rango contra él.
         var pace = await _paceRepository.GetByIdAsync(alumnoPace.PaceId, cancellationToken);
