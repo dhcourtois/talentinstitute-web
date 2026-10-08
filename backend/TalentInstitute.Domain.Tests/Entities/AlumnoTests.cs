@@ -331,4 +331,37 @@ public class AlumnoTests
         // Assert
         alumno.BalanceMeritos.Should().Be(4);
     }
+
+    // ── Largo del texto ──────────────────────────────────────────────────────
+
+    [Fact]
+    public void Constructor_ConNombreQueExcedeElTope_LanzaDomainException()
+    {
+        var largo = new string('a', Alumno.LargoMaximoNombre + 1);
+
+        var acto = () => new Alumno("MAT-001", largo, "Apellido", "1 Primaria");
+
+        acto.Should().Throw<DomainException>();
+    }
+
+    [Fact]
+    public void Constructor_ConNivelQueExcedeElTope_LanzaDomainException()
+    {
+        var largo = new string('a', Alumno.LargoMaximoNivel + 1);
+
+        var acto = () => new Alumno("MAT-001", "Nombre", "Apellido", largo);
+
+        acto.Should().Throw<DomainException>();
+    }
+
+    [Fact]
+    public void ActualizarDatos_ConNombreQueExcedeElTope_LanzaDomainException()
+    {
+        var alumno = CrearAlumno();
+        var largo = new string('a', Alumno.LargoMaximoNombre + 1);
+
+        var acto = () => alumno.ActualizarDatos(largo, "Apellido", "1 Primaria");
+
+        acto.Should().Throw<DomainException>();
+    }
 }

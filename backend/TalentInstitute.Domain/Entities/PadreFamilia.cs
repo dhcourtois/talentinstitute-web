@@ -19,6 +19,10 @@ public class PadreFamilia
     /// </summary>
     public const string RolToken = "Padre";
 
+    // Largos de las columnas; ver nota en Alumno.
+    public const int LargoMaximoEmail = 256;
+    public const int LargoMaximoNombre = 200;
+
     public Guid Id { get; private set; }
     public string Email { get; private set; }
     public string PasswordHash { get; private set; }
@@ -47,6 +51,12 @@ public class PadreFamilia
 
         if (string.IsNullOrWhiteSpace(nombre))
             throw new DomainException("El nombre del padre de familia no puede estar vacío.");
+
+        if (email.Trim().Length > LargoMaximoEmail)
+            throw new DomainException($"El correo no puede exceder {LargoMaximoEmail} caracteres.");
+
+        if (nombre.Trim().Length > LargoMaximoNombre)
+            throw new DomainException($"El nombre no puede exceder {LargoMaximoNombre} caracteres.");
 
         Id = Guid.NewGuid();
         Email = email.Trim().ToLowerInvariant();
