@@ -196,7 +196,7 @@ import { QuickActionsComponent } from './quick-actions.component';
                 <span>PACE</span>
                 <select formControlName="alumnoPaceId">
                   <option value="">Selecciona un PACE</option>
-                  <option *ngFor="let pace of paces" [value]="pace.id">
+                  <option *ngFor="let pace of pacesActivos" [value]="pace.id">
                     {{ pace.materia }} {{ pace.numeroPace || pace.pace?.numeroPace || '' }}
                   </option>
                 </select>
@@ -1137,6 +1137,15 @@ export class AlumnoComponent implements OnInit {
    * va a fallar. Se muestran igual —esconderlos haría pensar que no existen—
    * pero deshabilitados y diciendo cuál hay que terminar antes.
    */
+  /**
+   * Los PACEs que todavía admiten metas. Los cerrados se acumulan sin parar
+   * —un alumno llega a tener más cerrados que activos— y llenaban de ruido el
+   * desplegable de metas con opciones que el backend rechaza.
+   */
+  get pacesActivos(): AlumnoPace[] {
+    return this.paces.filter(pace => !pace.cerrado);
+  }
+
   get catalogoAsignable(): Array<{ pace: Pace; bloqueadoPor: string | null }> {
     const ocupadas = new Map<string, string>();
     const yaAsignados = new Set<string>();
