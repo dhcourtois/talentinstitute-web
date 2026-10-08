@@ -4,6 +4,12 @@ namespace TalentInstitute.Domain.Entities;
 
 public class Alumno
 {
+    // Largos de las columnas. Validarlos aquí evita que el texto de más viaje
+    // hasta la base y reviente como error 500 sin explicarle nada al usuario.
+    public const int LargoMaximoMatricula = 50;
+    public const int LargoMaximoNombre = 200;
+    public const int LargoMaximoNivel = 100;
+
     public Guid Id { get; private set; }
     public string NumeroMatricula { get; private set; }
     public string Nombre { get; private set; }
@@ -53,6 +59,9 @@ public class Alumno
         if (string.IsNullOrWhiteSpace(nivel))
             throw new DomainException("El nivel del alumno no puede estar vacío.");
 
+
+        ValidarLargos(numeroMatricula, nombre, apellido, nivel);
+
         Id = Guid.NewGuid();
         NumeroMatricula = numeroMatricula;
         Nombre = nombre;
@@ -83,12 +92,29 @@ public class Alumno
         if (string.IsNullOrWhiteSpace(nivel))
             throw new DomainException("El nivel del alumno no puede estar vacío.");
 
+        ValidarLargos(NumeroMatricula, nombre, apellido, nivel);
+
         Nombre = nombre;
         Apellido = apellido;
         Nivel = nivel;
 
         if (fechaIngreso.HasValue)
             FechaIngreso = NormalizarFechaIngreso(fechaIngreso.Value);
+    }
+
+    private static void ValidarLargos(string numeroMatricula, string nombre, string apellido, string nivel)
+    {
+        if (numeroMatricula?.Length > LargoMaximoMatricula)
+            throw new DomainException($"La matrícula no puede exceder {LargoMaximoMatricula} caracteres.");
+
+        if (nombre.Length > LargoMaximoNombre)
+            throw new DomainException($"El nombre del alumno no puede exceder {LargoMaximoNombre} caracteres.");
+
+        if (apellido.Length > LargoMaximoNombre)
+            throw new DomainException($"El apellido del alumno no puede exceder {LargoMaximoNombre} caracteres.");
+
+        if (nivel.Length > LargoMaximoNivel)
+            throw new DomainException($"El nivel no puede exceder {LargoMaximoNivel} caracteres.");
     }
 
     /// <summary>
