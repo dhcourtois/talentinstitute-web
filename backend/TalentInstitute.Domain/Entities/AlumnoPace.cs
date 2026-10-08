@@ -45,6 +45,16 @@ public class AlumnoPace
         }
     }
 
+    /// <summary>
+    /// Un PACE ya cerrado no admite metas nuevas: el alumno terminó ese
+    /// cuadernillo y registrarle avance después solo ensucia su historial.
+    /// </summary>
+    public void AsegurarQueAdmiteMetas()
+    {
+        if (!EstadosActivos.Contains(Estado))
+            throw new DomainException($"El PACE ya está {Estado} y no admite metas nuevas.");
+    }
+
     public void MarcarListoParaAutoTest()
     {
         // Se admite también desde Asignado: un PACE al que nunca se le registró

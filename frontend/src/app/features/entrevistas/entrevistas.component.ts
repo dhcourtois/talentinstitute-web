@@ -60,7 +60,15 @@ import { SpinnerComponent } from '../../shared/components/spinner/spinner.compon
 
           <label class="wide">
             <span>Comentarios críticos</span>
-            <textarea formControlName="comentarios" rows="3" placeholder="Observaciones relevantes de la entrevista"></textarea>
+            <textarea
+              formControlName="comentarios"
+              rows="4"
+              [attr.maxlength]="largoMaximoComentarios"
+              placeholder="Observaciones relevantes de la entrevista"
+            ></textarea>
+            <small [class.limite-cerca]="comentariosRestantes < 200">
+              {{ comentariosRestantes }} caracteres disponibles
+            </small>
           </label>
 
           <label class="check">
@@ -323,6 +331,8 @@ import { SpinnerComponent } from '../../shared/components/spinner/spinner.compon
       background: var(--color-bg-surface);
     }
 
+    .limite-cerca { color: var(--color-danger); font-weight: 600; }
+
     .state.error {
       gap: var(--space-4);
       color: var(--color-danger);
@@ -339,6 +349,8 @@ export class EntrevistasComponent implements OnInit {
   loading = true;
   saving = false;
   errorMessage = '';
+
+  readonly largoMaximoComentarios = 4000;
   expandido: string | null = null;
 
   readonly form = this.fb.nonNullable.group({
@@ -347,9 +359,14 @@ export class EntrevistasComponent implements OnInit {
     riesgoViolencia: [false],
     riesgoDivorcio: [false],
     conoceADios: [false],
-    comentarios: [''],
+    // El mismo tope que valida el dominio y que admite la columna.
+    comentarios: ['', Validators.maxLength(4000)],
     aceptado: [false]
   });
+
+  get comentariosRestantes(): number {
+    return this.largoMaximoComentarios - (this.form.controls.comentarios.value?.length ?? 0);
+  }
 
   ngOnInit(): void {
     this.load();

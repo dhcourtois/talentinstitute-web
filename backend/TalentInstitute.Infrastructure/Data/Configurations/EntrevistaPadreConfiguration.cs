@@ -13,9 +13,9 @@ public class EntrevistaPadreConfiguration : IEntityTypeConfiguration<EntrevistaP
 
         builder.Property(e => e.NombrePadre)
             .IsRequired()
-            .HasMaxLength(200);
+            .HasMaxLength(EntrevistaPadre.LargoMaximoNombre);
 
         builder.Property(e => e.Comentarios)
-            .HasMaxLength(1000);
+            .HasMaxLength(EntrevistaPadre.LargoMaximoComentarios);
     }
 }

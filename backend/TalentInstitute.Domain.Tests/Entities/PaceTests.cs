@@ -315,4 +315,47 @@ public class PaceTests
 
         acto.Should().Throw<DomainException>();
     }
+
+    // ── Metas solo sobre PACEs abiertos ──────────────────────────────────────
+
+    [Fact]
+    public void AsegurarQueAdmiteMetas_ConPaceEnProgreso_NoLanza()
+    {
+        var ap = CrearAsignado();
+        ap.RegistrarPrimeraMeta();
+
+        var acto = () => ap.AsegurarQueAdmiteMetas();
+
+        acto.Should().NotThrow();
+    }
+
+    [Fact]
+    public void AsegurarQueAdmiteMetas_ConPaceCompletado_LanzaDomainException()
+    {
+        // El alumno ya terminó el cuadernillo; registrarle avance después solo
+        // ensucia su historial.
+        var ap = CrearAsignado();
+        ap.MarcarListoParaAutoTest();
+        ap.CompletarAutoTest(true);
+        ap.ProgramarTestFinal();
+        ap.EvaluarTestFinal(true);
+
+        var acto = () => ap.AsegurarQueAdmiteMetas();
+
+        acto.Should().Throw<DomainException>();
+    }
+
+    [Fact]
+    public void AsegurarQueAdmiteMetas_ConPaceFallido_LanzaDomainException()
+    {
+        var ap = CrearAsignado();
+        ap.MarcarListoParaAutoTest();
+        ap.CompletarAutoTest(true);
+        ap.ProgramarTestFinal();
+        ap.EvaluarTestFinal(false);
+
+        var acto = () => ap.AsegurarQueAdmiteMetas();
+
+        acto.Should().Throw<DomainException>();
+    }
 }
